@@ -1,90 +1,668 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bright Arcade</title>
-<style>
-*{
-  box-sizing:border-box;
-}
-body{
-  margin:0;
-  background:#7dd3fc;
-  font-family:Arial,Helvetica,sans-serif;
-}
-.wrapper{
-  width:100%;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  background:#7dd3fc;
-}
-.homepage{
-  position:relative;
-  width:min(100vw,1600px);
-}
-.homepage img{
-  display:block;
-  width:100%;
-  height:auto;
-}
-.hotspot{
-  position:absolute;
-  display:block;
-  border-radius:28px;
-  text-decoration:none;
-  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
-}
-.hotspot:hover{
-  transform:translateY(-8px) scale(1.015);
-  box-shadow:0 0 0 6px rgba(255,255,255,.35), 0 20px 40px rgba(15,23,42,.28);
-  background:rgba(255,255,255,.05);
-}
-.hotspot:focus{
-  outline:6px solid rgba(250,204,21,.9);
-  outline-offset:3px;
-}
-.speed{
-  left:2.1%;
-  top:33.9%;
-  width:46.4%;
-  height:48.1%;
-}
-.silly{
-  left:50.9%;
-  top:33.9%;
-  width:47.0%;
-  height:48.1%;
-}
-@media(max-width:700px){
-  .wrapper{
-    align-items:flex-start;
-  }
-  .homepage{
-    width:100vw;
-  }
-  .hotspot:hover{
-    transform:none;
-    box-shadow:0 0 0 4px rgba(255,255,255,.35);
-  }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silly Sentences</title>
+  <style>
+    :root {
+      --blue: #2563eb;
+      --red: #ef4444;
+      --yellow: #facc15;
+      --green: #22c55e;
+      --purple: #a855f7;
+      --ink: #1f2937;
+      --bg: #f8fafc;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 8% 10%, rgba(250, 204, 21, 0.42) 0 18%, transparent 34%),
+        radial-gradient(circle at 92% 8%, rgba(37, 99, 235, 0.30) 0 18%, transparent 36%),
+        radial-gradient(circle at 8% 88%, rgba(34, 197, 94, 0.24) 0 18%, transparent 36%),
+        radial-gradient(circle at 92% 86%, rgba(239, 68, 68, 0.26) 0 20%, transparent 38%),
+        radial-gradient(circle at 52% 42%, rgba(168, 85, 247, 0.16) 0 14%, transparent 32%),
+        linear-gradient(135deg, #fffaf0 0%, #f8fafc 48%, #eff6ff 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .game { max-width: 1050px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 22px; }
+    .logo-wrap {
+      display: inline-block;
+      position: relative;
+      padding: 10px 20px 16px;
+      transform: rotate(-1deg);
+    }
+
+    .logo-burst {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #facc15, #fb7185, #60a5fa);
+      border: 5px solid #1f2937;
+      border-radius: 34px;
+      transform: skew(-4deg) rotate(1deg);
+      box-shadow: 8px 8px 0 #1f2937;
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 6vw, 4.8rem);
+      margin: 0;
+      color: white;
+      letter-spacing: -2px;
+      line-height: 0.95;
+      text-shadow:
+        3px 3px 0 #1f2937,
+        -2px 2px 0 #1f2937,
+        2px -2px 0 #1f2937;
+    }
+
+    .silly-word {
+      display: inline-block;
+      color: #fef08a;
+      transform: rotate(-4deg) translateY(2px);
+    }
+
+    .sentences-word {
+      display: inline-block;
+      color: #dbeafe;
+      transform: rotate(2deg);
+    }
+
+    .emoji-pop {
+      display: inline-block;
+      font-size: clamp(2rem, 5vw, 4rem);
+      margin: 0 6px;
+      filter: drop-shadow(3px 3px 0 #1f2937);
+      animation: wobble 1.4s ease-in-out infinite;
+    }
+
+    @keyframes wobble {
+      0%, 100% { transform: rotate(-5deg) scale(1); }
+      50% { transform: rotate(6deg) scale(1.08); }
+    }
+
+    .subtitle {
+      margin-top: 18px;
+      font-size: 1.2rem;
+      color: #334155;
+      font-weight: 800;
+      background: rgba(255,255,255,0.8);
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 3px solid #bfdbfe;
+    }
+    .main-card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 4px solid #dbeafe;
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+    }
+    label { display: block; font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      resize: vertical;
+      border: 4px solid #bfdbfe;
+      border-radius: 22px;
+      font-size: 1.35rem;
+      padding: 18px;
+      outline: none;
+      line-height: 1.45;
+      color: var(--ink);
+      background: #fefce8;
+    }
+    textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.15);
+    }
+    .actions, .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 18px 0;
+      align-items: center;
+    }
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.2s ease;
+    }
+    button:hover { filter: brightness(1.03); }
+    button:active { transform: scale(0.97); }
+
+    .submit:hover {
+      transform: translateY(-2px) rotate(-1deg);
+    }
+    .submit { background: var(--red); color: white; font-size: 1.15rem; padding: 16px 28px; }
+    .clear { background: #e2e8f0; color: #334155; }
+    .random { background: var(--yellow); color: #422006; }
+    .reset { background: #fee2e2; color: #991b1b; }
+    .sort { background: #dcfce7; color: #166534; }
+    .keyboard {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #eff6ff, #fff7ed);
+      padding: 16px;
+      border-radius: 24px;
+      border: 3px solid #bfdbfe;
+    }
+    .key-row {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 8px;
+      flex-wrap: nowrap;
+    }
+    .key {
+      min-width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: white;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      text-transform: uppercase;
+      box-shadow: 0 4px 0 #cbd5e1;
+      user-select: none;
+      transition: all 0.08s ease;
+    }
+    .key.space { min-width: 260px; }
+    .key-row:nth-child(1) .key { border-color: #93c5fd; box-shadow: 0 4px 0 #93c5fd; }
+    .key-row:nth-child(2) .key { border-color: #fde047; box-shadow: 0 4px 0 #fde047; }
+    .key-row:nth-child(3) .key { border-color: #fca5a5; box-shadow: 0 4px 0 #fca5a5; }
+    .key-row:nth-child(4) .key { border-color: #c4b5fd; box-shadow: 0 4px 0 #c4b5fd; }
+
+    .key.active {
+      background: var(--green);
+      border-color: #16a34a;
+      color: white;
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #15803d;
+    }
+    .message { min-height: 30px; font-weight: 700; color: #0f766e; }
+    .score-panel {
+      margin-top: 18px;
+      border-radius: 24px;
+      padding: 20px;
+      background: linear-gradient(135deg, #ecfeff, #f5f3ff);
+      border: 4px solid #a5f3fc;
+      display: none;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+    .score-big {
+      font-size: clamp(2.2rem, 7vw, 4.4rem);
+      font-weight: 900;
+      color: var(--purple);
+      margin: 0 0 8px;
+    }
+    .score-comment {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .score-details { color: #475569; line-height: 1.5; }
+    .found-words {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      background: #fef3c7;
+      border: 2px solid #facc15;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 800;
+      color: #713f12;
+    }
+    .chip.mega { background:#fee2e2; border-color:#ef4444; color:#7f1d1d; }
+    .chip.super { background:#ede9fe; border-color:#a855f7; color:#4c1d95; }
+    .sentences-area {
+      margin-top: 26px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .sentence-card {
+      border: 3px solid #e2e8f0;
+      border-radius: 22px;
+      padding: 18px;
+      background: #ffffff;
+      display: grid;
+      gap: 12px;
+    }
+    .sentence-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .sentence-text {
+      font-size: 1.18rem;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      flex: 1;
+    }
+    .mini-score {
+      background: #ede9fe;
+      color: #5b21b6;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .delete {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 10px 14px;
+      justify-self: end;
+    }
+@media (max-width: 760px) {
+      body { padding: 12px; }
+      .main-card { padding: 16px; }
+      .key { min-width: 30px; height: 38px; font-size: 0.85rem; }
+      .key.space { min-width: 150px; }
+      .keyboard { padding: 10px; }
+    }
+  </style>
 </head>
 <body>
-<div class="wrapper">
-  <main class="homepage" aria-label="Bright Arcade homepage">
-    <img src="bright-arcade-homepage.png" alt="Bright Arcade homepage with game cards for Speed Typer and Silly Sentences">
+  <div class="game">
+    <header>
+      <div class="logo-wrap">
+        <div class="logo-burst"></div>
+        <h1><span class="emoji-pop">🤪</span><span class="silly-word">Silly</span> <span class="sentences-word">Sentences</span><span class="emoji-pop">💥</span></h1>
+      </div>
+      <p class="subtitle">Make it weird! Make it gross! Make it ridiculously silly!</p>
+    </header>
 
-    <a class="hotspot speed"
-       href="https://lukemurray52-stack.github.io/Speed-Typer/"
-       aria-label="Play Speed Typer"></a>
+    <main class="main-card">
+      <label for="sentenceInput">Your silly sentence:</label>
+      <textarea id="sentenceInput" placeholder="Example: A snotty platypus wore pickle pants while burping spaghetti on the moon."></textarea>
 
-    <a class="hotspot silly"
-       href="https://lukemurray52-stack.github.io/Silly-Sentences/"
-       aria-label="Play Silly Sentences"></a>
-  </main>
-</div>
+      <div class="actions">
+        <button class="submit" id="submitBtn">Score my sentence</button>
+        <button class="clear" id="clearBtn">Clear box</button>
+        <button class="random" id="ideaBtn">Give me a silly idea</button>
+      </div>
+
+      <div class="message" id="message"></div>
+
+      <section class="keyboard" aria-label="On-screen keyboard">
+        <div class="key-row" id="row1"></div>
+        <div class="key-row" id="row2"></div>
+        <div class="key-row" id="row3"></div>
+        <div class="key-row"><div class="key space" data-key=" ">space</div></div>
+      </section>
+
+      <section class="score-panel" id="scorePanel">
+        <p class="score-big" id="scoreBig">0 / 1000</p>
+        <div class="score-comment" id="scoreComment"></div>
+        <div class="score-details" id="scoreDetails"></div>
+        <div class="found-words" id="foundWords"></div>
+      </section>
+
+      <section class="sentences-area" id="sentencesArea"></section>
+
+      <div class="controls">
+        <button class="sort" id="sortBtn">Sort by highest score</button>
+        <button class="reset" id="resetBtn">Reset game</button>
+      </div>
+</main>
+  </div>
+
+  <script>
+    const FUNNY_WORDS = {"mega": ["bumfuzzle", "flibbertigibbet", "nincompoop", "gobbledygook", "hullabaloo", "bamboozle", "kerfuffle", "codswallop", "balderdash", "taradiddle", "skedaddle", "shenanigans", "malarkey", "cattywampus", "hornswoggle", "snollygoster", "lollygag", "bumbershoot", "thingamabob", "whatchamacallit", "doohickey", "gizmo", "splendiferous", "zoinks", "bonkers", "bananas", "wacky", "zany", "cuckoo", "nutty", "loopy", "wonky", "bizarre", "ridiculous", "absurd", "nonsense", "nonsensical", "gobbledygoo", "mumbo-jumbo", "higgledy-piggledy", "willy-nilly", "hurly-burly", "topsy-turvy", "fiddle-faddle", "flapdoodle", "booger", "boogers", "snot", "snotty", "snotball", "snotrocket", "bogey", "bogeys", "fart", "farts", "farted", "farting", "farty", "toot", "toots", "tooted", "tooting", "burp", "burps", "burped", "burping", "belch", "belched", "belching", "poop", "poops", "pooped", "pooping", "poopy", "poo", "wee", "spew", "spewed", "spewing", "vomit", "vomited", "vomiting", "puke", "puked", "puking", "barf", "barfed", "barfing", "drool", "drooled", "drooling", "slobber", "slobbered", "slobbering", "stinky", "smelly", "stench", "mucus", "earwax", "toe-jam", "toejam", " bellybutton-fluff", "bellybutton-fluff", "underpants", "undies", "pants", "nappy", "diaper", "wedgie", "wedgies", "butt", "bottom", "bum", "bumcrack", "wobblebottom", "pickle-pants", "picklebrain", "noodlehead", "banana-brain", "bananahead", "bumblepants", "squigglebum", "wobblepants", "fartnado", "poopcano", "snotasaurus", "burpzilla", "tootstorm", "gobblefunk", "squishmallow", "slimeball", "mudbucket", "gloopmonster", "wafflebrain", "pickleface"], "super": ["platypus", "wombat", "emu", "llama", "alpaca", "penguin", "crocodile", "walrus", "narwhal", "goose", "gooseberry", "ostrich", "flamingo", "hamster", "gerbil", "ferret", "weasel", "meerkat", "baboon", "monkey", "chimpanzee", "gorilla", "sloth", "blobfish", "axolotl", "pufferfish", "jellyfish", "octopus", "squid", "toad", "frog", "iguana", "lizard", "chicken", "duck", "turkey", "pigeon", "seagull", "pelican", "moose", "yak", "goat", "donkey", "hippo", "rhinoceros", "warthog", "aardvark", "echidna", "quokka", "noodle", "noodles", "spaghetti", "macaroni", "meatball", "waffle", "waffles", "pancake", "pancakes", "taco", "tacos", "burrito", "burritos", "nachos", "marshmallow", "marshmallows", "jellybean", "jellybeans", "cupcake", "cupcakes", "donut", "donuts", "doughnut", "doughnuts", "sprinkles", "cheeseburger", "sausages", "sausage", "kumquat", "pickle", "pickles", "sauerkraut", "cabbage", "broccoli", "cauliflower", "beans", "baked-beans", "jelly", "custard", "pudding", "gravy", "mustard", "ketchup", "mayonnaise", "peanut-butter", "banana", "bananas", "pineapple", "coconut", "soggy-cereal", "mushy-peas", "tomfoolery", "brouhaha", "collywobbles", "ragamuffin", "fuddy-duddy", "hodgepodge", "claptrap", "poppycock", "twaddle", "gubbins", "dillydally", "gallivant", "hobnob", "jamboree", "shindig", "doozy", "humdinger", "flabbergasted", "gobsmacked", "flummoxed", "baffled", "befuddled", "bewildered", "guffaw", "cackle", "snicker", "snigger", "giggle", "snort", "hiccup", "hiccups", "gurgle", "gurgling", "squelch", "squelchy", "squish", "squishy", "squash", "squashy", "wobble", "wobbly", "wiggle", "wiggly", "jiggle", "jiggly", "wriggle", "wriggly", "splat", "splatter", "splodge", "blob", "blobby", "gloop", "gloopy", "slime", "slimy", "ooze", "oozy", "goo", "gooey", "goop", "goopy"], "strong": ["socks", "sock", "slippers", "gumboots", "umbrella", "toaster", "teapot", "spoon", "ladle", "lunchbox", "backpack", "schoolbag", "skateboard", "roller-skates", "rollerskates", "trampoline", "yo-yo", "yoyo", "whoopee", "whoopee-cushion", "circus", "clown", "kazoo", "trombone", "banjo", "accordion", "bagpipes", "tuba", "opera", "disco", "moonwalk", "cartwheel", "somersault", "pirate", "robot", "alien", "dragon", "unicorn", "mermaid", "wizard", "troll", "ogre", "goblin", "gnome", "fairy", "dinosaur", "zombie", "monster", "volcano", "moon", "planet", "rocket", "spaceship", "bubble", "bubbles", "feather", "helmet", "wig", "moustache", "mustache", "beard", "sunglasses", "tutu", "cape", "crown", "bucket", "plunger", "toilet-brush", "rubber-duck", "rubber-ducky", "bathtub", "bathrobe", "pogo-stick", "shopping-trolley", "shopping-cart", "wheelbarrow", "vacuum-cleaner", "leaf-blower", "hairdryer", "toothbrush", "toothpaste", "sandwich", "lollipop", "ice-cream", "fairy-bread", "chocolate", "sprinkler", "hose", "dancing", "dance", "danced", "singing", "sang", "screaming", "screamed", "whispering", "whispered", "bouncing", "bounced", "sliding", "slid", "slurping", "slurped", "munching", "munched", "crunching", "crunched", "zooming", "zoomed", "snoozing", "snoozed", "snoring", "snored", "tickling", "tickled", "juggling", "juggled", "moonwalking", "moonwalked", "tap-dancing", "tapdancing", "karate-chopping", "karate", "exploding", "exploded", "flying", "flew", "floating", "floated", "sneezing", "sneezed", "hiccupping", "squawking", "squawked", "gargling", "gargled", "flapping", "flapped", "flopping", "flopped", "waddling", "waddled", "galloping", "galloped", "stomping", "stomped", "stumbling", "stumbled"], "bonus": ["tiny", "giant", "gigantic", "enormous", "massive", "miniature", "microscopic", "purple", "rainbow", "spotty", "striped", "sparkly", "glittery", "sneaky", "grumpy", "sleepy", "dramatic", "confused", "mysterious", "invisible", "cheeky", "fancy", "royal", "magnificent", "peculiar", "odd", "strange", "weird", "wild", "messy", "muddy", "sticky", "fluffy", "fuzzy", "furry", "hairy", "bald", "wrinkly", "crunchy", "crispy", "soggy", "mushy", "lumpy", "bumpy", "chunky", "clumsy", "noisy", "squeaky", "squealing", "itchy", "scratchy", "cranky", "dizzy", "dazed", "dramatic", "bossy", "grubby", "dusty", "cheesy", "saucy", "greasy", "wobbly", "wonky", "upside-down", "inside-out", "backwards", "sideways"]};
+    const FUNNY_PHRASES = {"mega": ["pickle pants", "banana brain", "noodle head", "fart tornado", "poop volcano", "snot rocket", "underpants parade", "whoopee cushion", "belly button fluff", "toe jam", "stinky socks", "flying toilet", "dancing toilet", "singing toilet", "exploding custard", "screaming spaghetti", "angry pancake", "confused chicken", "sparkly underpants", "royal wedgie", "giant booger", "slimy sandwich", "burping backpack", "farty flamingo", "poopy penguin", "snotty sausage"], "super": ["on the moon", "inside a volcano", "under the canteen", "in the library", "at the swimming carnival", "during assembly", "in the principal's office", "on a skateboard", "with a kazoo", "wearing gumboots", "wearing sunglasses", "wearing a tutu", "riding a llama", "driving a toaster", "juggling meatballs", "tap dancing", "singing opera", "playing the banjo", "doing a cartwheel", "eating spaghetti"]};
+    const ANIMAL_WORDS = new Set(["aardvark", "alpaca", "axolotl", "baboon", "blobfish", "chicken", "chimpanzee", "crocodile", "dinosaur", "donkey", "dragon", "duck", "echidna", "emu", "ferret", "flamingo", "frog", "gerbil", "goat", "goose", "gorilla", "hamster", "hippo", "iguana", "jellyfish", "lizard", "llama", "meerkat", "monkey", "moose", "narwhal", "octopus", "ostrich", "pelican", "penguin", "pigeon", "platypus", "pufferfish", "quokka", "rhinoceros", "seagull", "sloth", "squid", "toad", "turkey", "unicorn", "walrus", "warthog", "weasel", "wombat", "yak"]);
+    const GROSS_WORDS = new Set(["barf", "barfed", "barfing", "belch", "belched", "belching", "bogey", "bogeys", "booger", "boogers", "bottom", "bum", "bumcrack", "burp", "burped", "burping", "burps", "butt", "diaper", "drool", "drooled", "drooling", "earwax", "fart", "farted", "farting", "farts", "farty", "mucus", "nappy", "poo", "poop", "pooped", "pooping", "poops", "poopy", "puke", "puked", "puking", "slobber", "slobbered", "slobbering", "smelly", "snot", "snotball", "snotrocket", "snotty", "spew", "spewed", "spewing", "stench", "stinky", "toe-jam", "toejam", "toot", "tooted", "tooting", "toots", "underpants", "undies", "vomit", "vomited", "vomiting", "wedgie", "wedgies", "wee"]);
+    const FOOD_WORDS = new Set(["baked-beans", "banana", "bananas", "beans", "broccoli", "burrito", "burritos", "cabbage", "cauliflower", "cheeseburger", "chocolate", "coconut", "cupcake", "cupcakes", "custard", "donut", "donuts", "doughnut", "doughnuts", "fairy-bread", "gravy", "ice-cream", "jelly", "jellybean", "jellybeans", "ketchup", "kumquat", "lollipop", "macaroni", "marshmallow", "marshmallows", "mayonnaise", "meatball", "mushy-peas", "mustard", "nachos", "noodle", "noodles", "pancake", "pancakes", "peanut-butter", "pickle", "pickles", "pineapple", "pudding", "sandwich", "sauerkraut", "sausage", "sausages", "soggy-cereal", "spaghetti", "sprinkles", "taco", "tacos", "waffle", "waffles"]);
+    const OBJECT_WORDS = new Set(["accordion", "backpack", "bagpipes", "banjo", "bathrobe", "bathtub", "beard", "bucket", "cape", "crown", "gumboots", "hairdryer", "kazoo", "ladle", "leaf-blower", "lunchbox", "moustache", "mustache", "plunger", "pogo-stick", "roller-skates", "rollerskates", "rubber-duck", "rubber-ducky", "schoolbag", "shopping-cart", "shopping-trolley", "skateboard", "slippers", "sock", "socks", "spoon", "sunglasses", "teapot", "toaster", "toilet-brush", "toothbrush", "toothpaste", "trampoline", "trombone", "tuba", "tutu", "umbrella", "vacuum-cleaner", "wheelbarrow", "whoopee", "whoopee-cushion", "wig", "yo-yo", "yoyo"]);
+    const PLACE_WORDS = new Set(["assembly", "bathroom", "bathtub", "canteen", "circus", "classroom", "library", "moon", "office", "planet", "playground", "rocket", "spaceship", "toilet", "volcano"]);
+    const ACTION_WORDS = new Set(["apologised", "apologized", "argued", "bounced", "bouncing", "challenged", "crunched", "crunching", "dance", "danced", "dancing", "drove", "emailed", "explained", "exploded", "exploding", "flapped", "flapping", "flew", "floated", "floating", "flopped", "flopping", "flying", "galloped", "galloping", "gargled", "gargling", "hiccupping", "interviewed", "invented", "juggled", "juggling", "karate", "karate-chopping", "lectured", "married", "moonwalked", "moonwalking", "munched", "munching", "performed", "piloted", "sang", "screamed", "screaming", "singing", "slid", "sliding", "slurped", "slurping", "sneezed", "sneezing", "snoozed", "snoozing", "snored", "snoring", "squawked", "squawking", "stomped", "stomping", "stumbled", "stumbling", "tap-dancing", "tapdancing", "taught", "texted", "tickled", "tickling", "waddled", "waddling", "whispered", "whispering", "zoomed", "zooming"]);
+
+    const input = document.getElementById("sentenceInput");
+    const submitBtn = document.getElementById("submitBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const ideaBtn = document.getElementById("ideaBtn");
+    const message = document.getElementById("message");
+    const sentencesArea = document.getElementById("sentencesArea");
+    const scorePanel = document.getElementById("scorePanel");
+    const scoreBig = document.getElementById("scoreBig");
+    const scoreComment = document.getElementById("scoreComment");
+    const scoreDetails = document.getElementById("scoreDetails");
+    const foundWords = document.getElementById("foundWords");
+    const sortBtn = document.getElementById("sortBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const rows = ["qwertyuiop".split(""), "asdfghjkl".split(""), "zxcvbnm".split("")];
+    let sentences = JSON.parse(localStorage.getItem("sillySentencesSuperScored") || "[]");
+
+    function buildKeyboard() {
+      rows.forEach((letters, index) => {
+        const row = document.getElementById(`row${index + 1}`);
+        letters.forEach(letter => {
+          const key = document.createElement("div");
+          key.className = "key";
+          key.dataset.key = letter;
+          key.textContent = letter;
+          row.appendChild(key);
+        });
+      });
+    }
+
+    function flashKey(keyValue) {
+      const normalised = keyValue.toLowerCase();
+      const key = document.querySelector(`.key[data-key="${CSS.escape(normalised)}"]`);
+      if (!key) return;
+      key.classList.add("active");
+      setTimeout(() => key.classList.remove("active"), 160);
+    }
+
+    document.addEventListener("keydown", event => {
+      if (event.key.length === 1 || event.key === " ") flashKey(event.key);
+    });
+
+    function normalise(text) {
+      return text.toLowerCase()
+        .replace(/[“”‘’]/g, "'")
+        .replace(/[^a-z0-9\s\-']/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function escapeRegex(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function funnySoundBonus(word) {
+      let score = 0;
+      if (/[xzq]/.test(word)) score += 10;
+      if (/(oo|ee|igg|ugg|obb|ump|onk|ank|oodle|wob|squ|gob|flib|fuzz|snort|snot|burp|poop|toot|fart|gloop|slime|splat)/.test(word)) score += 16;
+      if (word.length >= 9) score += 8;
+      if (word.length >= 13) score += 12;
+      return score;
+    }
+
+    function countCategory(words, set) {
+      return words.filter(word => set.has(word)).length;
+    }
+
+    function resultHasMegaPhrase(clean) {
+      return FUNNY_PHRASES.mega.some(phrase => clean.includes(phrase));
+    }
+
+    function scoreSentence(text) {
+      const clean = normalise(text);
+      const words = clean.split(/\s+/).filter(Boolean);
+      const uniqueWords = [...new Set(words)];
+      let score = 40;
+      const found = [];
+
+      const weights = { mega: 92, super: 62, strong: 38, bonus: 20 };
+
+      // Individual word scoring. Funny words are the main score driver.
+      for (const [level, list] of Object.entries(FUNNY_WORDS)) {
+        list.forEach(word => {
+          const safeWord = word.toLowerCase();
+          const pattern = new RegExp(`(^|\\s)${escapeRegex(safeWord)}(\\s|$)`, "i");
+          if (pattern.test(clean)) {
+            score += weights[level];
+            found.push({ word, points: weights[level], level });
+          }
+        });
+      }
+
+      // Funny phrase scoring. Phrases are worth a lot.
+      for (const [level, list] of Object.entries(FUNNY_PHRASES)) {
+        list.forEach(phrase => {
+          if (clean.includes(phrase)) {
+            const points = level === "mega" ? 120 : 72;
+            score += points;
+            found.push({ word: phrase, points, level });
+          }
+        });
+      }
+
+      const uniqueFunny = [...new Set(found.map(f => f.word))];
+      const funnyCount = uniqueFunny.length;
+
+      // Strong stacking bonuses for multiple funny words.
+      if (funnyCount >= 2) score += 45;
+      if (funnyCount >= 3) score += 70;
+      if (funnyCount >= 4) score += 95;
+      if (funnyCount >= 6) score += 135;
+      if (funnyCount >= 8) score += 160;
+
+      // Extra reward for gross humour because that is very child-level humour.
+      const grossCount = countCategory(words, GROSS_WORDS);
+      if (grossCount >= 1) score += 55;
+      if (grossCount >= 2) score += 75;
+      if (grossCount >= 3) score += 90;
+
+      // Reward funny-sounding invented words.
+      uniqueWords.forEach(word => {
+        if (!Object.values(FUNNY_WORDS).flat().includes(word)) {
+          score += funnySoundBonus(word);
+        }
+      });
+
+      const animalCount = countCategory(words, ANIMAL_WORDS);
+      const foodCount = countCategory(words, FOOD_WORDS);
+      const objectCount = countCategory(words, OBJECT_WORDS);
+      const actionCount = countCategory(words, ACTION_WORDS);
+      const placeCount = countCategory(words, PLACE_WORDS);
+
+      // Combination bonuses.
+      if (animalCount && foodCount) score += 55;
+      if (animalCount && objectCount) score += 48;
+      if (foodCount && objectCount) score += 42;
+      if (animalCount && grossCount) score += 65;
+      if (foodCount && grossCount) score += 55;
+      if (actionCount) score += 42;
+      if (placeCount) score += 32;
+      if ((animalCount || foodCount) && actionCount && placeCount) score += 70;
+      if (animalCount && foodCount && objectCount && actionCount) score += 95;
+      if (grossCount && actionCount && placeCount) score += 68;
+
+      // Length/variety bonuses, smaller than word bonuses.
+      if (words.length >= 6) score += 20;
+      if (words.length >= 10) score += 35;
+      if (words.length >= 15) score += 48;
+      if (words.length >= 22) score += 32;
+      if (/[!?]/.test(text)) score += 10;
+      if (/,/.test(text)) score += 6;
+
+      // Keep spammy repetition from winning too easily.
+      if (words.length < 5) score -= 220;
+      if (uniqueWords.length <= Math.max(2, words.length / 2)) score -= 180;
+      if (words.length > 40) score -= 80;
+
+      // Make 900+ genuinely hard: it needs lots of variety, not just a few high-value words.
+      const hasMegaPhrase = resultHasMegaPhrase(clean);
+      const varietyCategories = [animalCount, foodCount, objectCount, actionCount, placeCount, grossCount].filter(Boolean).length;
+      if (funnyCount >= 7 && varietyCategories >= 4 && words.length >= 12) score += 120;
+      if (funnyCount >= 10 && varietyCategories >= 5 && words.length >= 16 && hasMegaPhrase) score += 160;
+
+      score = Math.max(0, Math.min(1000, Math.round(score)));
+
+      let comment = "A tiny sprinkle of silliness.";
+      if (score >= 950) comment = "Legendary silliness! This is a rare 950+ sentence.";
+      else if (score >= 850) comment = "Extremely silly. That is hard to beat!";
+      else if (score >= 700) comment = "Very silly. Strong child-humour energy!";
+      else if (score >= 550) comment = "Pretty silly. Add one or two grosser or crazier words to push it higher.";
+      else if (score >= 350) comment = "A good start, but it needs more weird words.";
+      else if (score >= 180) comment = "A little silly. Try adding boogers, llamas, spaghetti or a random object.";
+
+      const reasons = [];
+      if (funnyCount) reasons.push(`${funnyCount} funny/gross/crazy word${funnyCount === 1 ? "" : "s"}`);
+      if (grossCount) reasons.push(`${grossCount} gross word${grossCount === 1 ? "" : "s"}`);
+      if (animalCount) reasons.push("funny animal");
+      if (foodCount) reasons.push("funny food");
+      if (objectCount) reasons.push("random object");
+      if (actionCount) reasons.push("silly action");
+      if (placeCount) reasons.push("ridiculous place");
+      if (animalCount && foodCount) reasons.push("animal + food combo");
+      if (grossCount && actionCount) reasons.push("gross action combo");
+
+      return {
+        score,
+        comment,
+        found,
+        details: reasons.length ? reasons.join(" • ") : "Try adding funny, gross or crazy words like booger, llama, spaghetti, underpants, pickle pants, fartnado or dancing toilet."
+      };
+    }
+
+    function save() {
+      localStorage.setItem("sillySentencesSuperScored", JSON.stringify(sentences));
+    }
+
+    function showScore(result) {
+      scorePanel.style.display = "block";
+      scoreBig.textContent = `${result.score} / 1000`;
+      scoreComment.textContent = result.comment;
+      scoreDetails.textContent = result.details;
+      foundWords.innerHTML = "";
+
+      const uniqueFound = [];
+      const seen = new Set();
+      result.found.sort((a, b) => b.points - a.points).forEach(item => {
+        if (!seen.has(item.word)) {
+          uniqueFound.push(item);
+          seen.add(item.word);
+        }
+      });
+
+      uniqueFound.slice(0, 18).forEach(item => {
+        const chip = document.createElement("span");
+        chip.className = `chip ${item.level || ""}`;
+        chip.textContent = `${item.word} +${item.points}`;
+        foundWords.appendChild(chip);
+      });
+    }
+
+    function renderSentences() {
+      sentencesArea.innerHTML = "";
+      sentences.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "sentence-card";
+
+        const top = document.createElement("div");
+        top.className = "sentence-top";
+
+        const text = document.createElement("div");
+        text.className = "sentence-text";
+        text.textContent = item.text;
+
+        const miniScore = document.createElement("div");
+        miniScore.className = "mini-score";
+        miniScore.textContent = `${item.score} / 1000`;
+
+        top.appendChild(text);
+        top.appendChild(miniScore);
+
+        const detail = document.createElement("div");
+        detail.className = "score-details";
+        detail.textContent = item.comment + " " + item.details;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete";
+        deleteButton.textContent = "Remove";
+        deleteButton.addEventListener("click", () => {
+          sentences = sentences.filter(sentence => sentence.id !== item.id);
+          save();
+          renderSentences();
+        });
+
+        card.appendChild(top);
+        card.appendChild(detail);
+        card.appendChild(deleteButton);
+        sentencesArea.appendChild(card);
+      });
+    }
+
+    function submitSentence() {
+      const text = input.value.trim();
+      if (text.length < 5) {
+        message.textContent = "Try writing a longer silly sentence first.";
+        return;
+      }
+
+      const result = scoreSentence(text);
+      showScore(result);
+
+      sentences.unshift({
+        id: Date.now(),
+        text,
+        score: result.score,
+        comment: result.comment,
+        details: result.details
+      });
+
+      input.value = "";
+      message.textContent = "Sentence scored! Try to beat it.";
+      save();
+      renderSentences();
+      input.focus();
+    }
+
+    function giveIdea() {
+      const starters = [
+        "A snotty platypus wore pickle pants while burping spaghetti on the moon!",
+        "The farting llama drove a toaster through a volcano full of jellybeans!",
+        "A confused chicken juggled meatballs in sparkly underpants during assembly!",
+        "My wobblebottom penguin tap-danced on a whoopee cushion in the library!",
+        "A burpzilla crocodile ate soggy cereal with a toothbrush on a skateboard!",
+        "The poopy narwhal played the banjo for a dancing toilet in the principal's office!",
+        "A banana-brain wombat sneezed slime into a giant cupcake at the swimming carnival!"
+      ];
+      input.value = starters[Math.floor(Math.random() * starters.length)];
+      input.focus();
+    }
+
+    submitBtn.addEventListener("click", submitSentence);
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) submitSentence();
+    });
+    clearBtn.addEventListener("click", () => {
+      input.value = "";
+      message.textContent = "Text box cleared.";
+      input.focus();
+    });
+    ideaBtn.addEventListener("click", giveIdea);
+    sortBtn.addEventListener("click", () => {
+      sentences.sort((a, b) => b.score - a.score);
+      save();
+      renderSentences();
+      message.textContent = "Sorted by highest score.";
+    });
+    resetBtn.addEventListener("click", () => {
+      if (!confirm("Reset the game and delete all saved sentences on this device?")) return;
+      sentences = [];
+      save();
+      renderSentences();
+      scorePanel.style.display = "none";
+      message.textContent = "Game reset.";
+      input.focus();
+    });
+
+    buildKeyboard();
+    renderSentences();
+    input.focus();
+  </script>
 </body>
 </html>
