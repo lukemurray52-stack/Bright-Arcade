@@ -9,15 +9,15 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 8% 10%,rgba(250,204,21,.42) 0 18%,transparent 34%),radial-gradient(circle at 92% 8%,rgba(37,99,235,.30) 0 18%,transparent 36%),radial-gradient(circle at 8% 88%,rgba(34,197,94,.24) 0 18%,transparent 36%),radial-gradient(circle at 92% 86%,rgba(239,68,68,.26) 0 20%,transparent 38%),radial-gradient(circle at 52% 42%,rgba(168,85,247,.16) 0 14%,transparent 32%),linear-gradient(135deg,#fffaf0 0%,#f8fafc 48%,#eff6ff 100%);color:var(--ink);min-height:100vh;padding:24px}
 .game{max-width:1050px;margin:0 auto}
-header{text-align:center;margin-bottom:22px}
-.logo-wrap{display:inline-block;position:relative;padding:10px 20px 16px;transform:rotate(-1deg)}
+header{text-align:center;margin-bottom:22px;display:block}
+.logo-wrap{display:block;position:relative;padding:10px 20px 16px;transform:rotate(-1deg);width:max-content;max-width:100%;margin:0 auto}
 .logo-burst{position:absolute;inset:0;background:linear-gradient(135deg,#60a5fa,#a78bfa,#facc15);border:5px solid #1f2937;border-radius:34px;transform:skew(-4deg) rotate(1deg);box-shadow:8px 8px 0 #1f2937;z-index:-1}
 h1{font-size:clamp(2.3rem,6vw,4.8rem);margin:0;color:white;letter-spacing:-2px;line-height:.95;text-shadow:3px 3px 0 #1f2937,-2px 2px 0 #1f2937,2px -2px 0 #1f2937}
 .speed-word{display:inline-block;color:#dbeafe;transform:rotate(-3deg) translateY(2px)}
 .typer-word{display:inline-block;color:#fef08a;transform:rotate(2deg)}
 .emoji-pop{display:inline-block;font-size:clamp(2rem,5vw,4rem);margin:0 6px;filter:drop-shadow(3px 3px 0 #1f2937);animation:wobble 1.4s ease-in-out infinite}
 @keyframes wobble{0%,100%{transform:rotate(-5deg) scale(1)}50%{transform:rotate(6deg) scale(1.08)}}
-.subtitle{margin-top:18px;font-size:1.2rem;color:#334155;font-weight:800;background:rgba(255,255,255,.9);display:inline-block;padding:8px 16px;border-radius:999px;border:3px solid #bfdbfe}
+.subtitle{margin:18px auto 0;font-size:1.2rem;color:#334155;font-weight:800;background:rgba(255,255,255,.9);display:block;width:max-content;max-width:95%;padding:8px 16px;border-radius:999px;border:3px solid #bfdbfe;text-align:center}
 .main-card{background:rgba(255,255,255,.96);border:4px solid #dbeafe;border-radius:28px;padding:24px;box-shadow:0 18px 40px rgba(15,23,42,.14)}
 .screen{display:none}.screen.active{display:block}
 .instructions{font-size:1.05rem;line-height:1.5;color:#475569;text-align:center;max-width:800px;margin:12px auto;font-weight:700}
@@ -59,6 +59,10 @@ input:focus{border-color:var(--blue);box-shadow:0 0 0 5px rgba(37,99,235,.15)}in
   .logo-wrap{
     padding:8px 12px 12px;
     transform:none;
+    display:block;
+    width:max-content;
+    max-width:100%;
+    margin:0 auto;
   }
 
   .logo-burst{
@@ -79,8 +83,11 @@ input:focus{border-color:var(--blue);box-shadow:0 0 0 5px rgba(37,99,235,.15)}in
 
   .subtitle{
     font-size:.95rem;
-    margin-top:12px;
+    margin:12px auto 0;
     padding:7px 12px;
+    display:block;
+    width:max-content;
+    max-width:95%;
   }
 
   .main-card{
@@ -240,12 +247,7 @@ input:focus{border-color:var(--blue);box-shadow:0 0 0 5px rgba(37,99,235,.15)}in
 </head>
 <body>
 <div class="game">
-<header>
-<div class="logo-wrap"><div class="logo-burst"></div><h1><span class="emoji-pop">⌨️</span><span class="speed-word">Speed</span> <span class="typer-word">Typer</span><span class="emoji-pop">⚡</span></h1></div>
-<div style="width:100%;display:block;text-align:center;margin-top:18px;">
-<p class="subtitle">Type 20 words as fast as you can!</p>
-</div>
-</header>
+<header><div class="logo-wrap"><div class="logo-burst"></div><h1><span class="emoji-pop">⌨️</span><span class="speed-word">Speed</span> <span class="typer-word">Typer</span><span class="emoji-pop">⚡</span></h1></div><p class="subtitle">Type 20 words as fast as you can!</p></header>
 <main class="main-card">
 <section class="screen active" id="startScreen"><p class="instructions">Choose your word level to start. Type each word exactly as it appears. Press space or Enter after each word.</p><div class="choice-grid"><button type="button" id="mode3" class="choice selected" data-level="3">3-letter words</button><button type="button" id="mode4" class="choice" data-level="4">4-letter words</button><button type="button" id="mode5" class="choice" data-level="5">5-letter words</button><button type="button" id="mode6" class="choice" data-level="6">6+ letter words</button></div></section>
 <section class="screen" id="gameScreen"><div class="stats"><div class="stat"><span class="stat-label">Time</span><span class="stat-value" id="timer">0.0s</span></div><div class="stat"><span class="stat-label">Word</span><span class="stat-value" id="progressText">1 / 20</span></div><div class="stat"><span class="stat-label">Mistakes</span><span class="stat-value" id="mistakes">0</span></div></div><div class="word-card"><p class="target-word" id="targetWord">ready</p><input id="typingInput" inputmode="text" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div></div><div class="actions"><button type="button" class="secondary" id="quitBtn">Back to menu</button></div><section class="keyboard" aria-label="On-screen keyboard"><div class="key-row" id="row1"></div><div class="key-row" id="row2"></div><div class="key-row" id="row3"></div><div class="key-row"><div class="key space" data-key=" ">space</div></div></section></section>
