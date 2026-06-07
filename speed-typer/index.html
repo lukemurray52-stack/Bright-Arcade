@@ -237,36 +237,26 @@ input:focus{border-color:var(--blue);box-shadow:0 0 0 5px rgba(37,99,235,.15)}in
 }
 
 
-/* FINAL HEADER FIX: keeps subtitle underneath the title on all screen sizes */
+/* HARD HEADER FIX */
 header{
-  display:block !important;
   text-align:center !important;
-}
-
-.header-logo-row,
-.header-subtitle-row{
-  display:block !important;
-  width:100% !important;
-  text-align:center !important;
-  clear:both !important;
-}
-
-.header-logo-row{
-  margin-bottom:18px !important;
+  margin-bottom:22px !important;
 }
 
 .logo-wrap{
   display:inline-block !important;
-  vertical-align:top !important;
+}
+
+.title-break{
+  display:block !important;
+  content:"" !important;
+  margin-top:0 !important;
 }
 
 .subtitle{
   display:inline-block !important;
-  margin:0 auto !important;
-  width:auto !important;
-  max-width:95% !important;
+  margin:18px auto 0 !important;
   text-align:center !important;
-  vertical-align:top !important;
 }
 
 </style>
@@ -274,15 +264,12 @@ header{
 <body>
 <div class="game">
 <header>
-  <div class="header-logo-row">
-    <div class="logo-wrap">
-      <div class="logo-burst"></div>
-      <h1><span class="emoji-pop">⌨️</span><span class="speed-word">Speed</span> <span class="typer-word">Typer</span><span class="emoji-pop">⚡</span></h1>
-    </div>
+  <div class="logo-wrap">
+    <div class="logo-burst"></div>
+    <h1><span class="emoji-pop">⌨️</span><span class="speed-word">Speed</span> <span class="typer-word">Typer</span><span class="emoji-pop">⚡</span></h1>
   </div>
-  <div class="header-subtitle-row">
-    <p class="subtitle">Type 20 words as fast as you can!</p>
-  </div>
+  <br class="title-break">
+  <p class="subtitle">Type 20 words as fast as you can!</p>
 </header>
 <main class="main-card">
 <section class="screen active" id="startScreen"><p class="instructions">Choose your word level to start. Type each word exactly as it appears. Press space or Enter after each word.</p><div class="choice-grid"><button type="button" id="mode3" class="choice selected" data-level="3">3-letter words</button><button type="button" id="mode4" class="choice" data-level="4">4-letter words</button><button type="button" id="mode5" class="choice" data-level="5">5-letter words</button><button type="button" id="mode6" class="choice" data-level="6">6+ letter words</button></div></section>
