@@ -9,7 +9,7 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 8% 10%,rgba(250,204,21,.42) 0 18%,transparent 34%),radial-gradient(circle at 92% 8%,rgba(37,99,235,.30) 0 18%,transparent 36%),radial-gradient(circle at 8% 88%,rgba(34,197,94,.24) 0 18%,transparent 36%),radial-gradient(circle at 92% 86%,rgba(239,68,68,.26) 0 20%,transparent 38%),radial-gradient(circle at 52% 42%,rgba(168,85,247,.16) 0 14%,transparent 32%),linear-gradient(135deg,#fffaf0 0%,#f8fafc 48%,#eff6ff 100%);color:var(--ink);min-height:100vh;padding:24px}
 .game{max-width:1050px;margin:0 auto}
-header{text-align:center;margin-bottom:22px}
+header{text-align:center;margin-bottom:22px;display:flex;flex-direction:column;align-items:center;gap:12px}
 .logo-wrap{display:inline-block;position:relative;padding:10px 20px 16px;transform:rotate(-1deg)}
 .logo-burst{position:absolute;inset:0;background:linear-gradient(135deg,#60a5fa,#a78bfa,#facc15);border:5px solid #1f2937;border-radius:34px;transform:skew(-4deg) rotate(1deg);box-shadow:8px 8px 0 #1f2937;z-index:-1}
 h1{font-size:clamp(2.3rem,6vw,4.8rem);margin:0;color:white;letter-spacing:-2px;line-height:.95;text-shadow:3px 3px 0 #1f2937,-2px 2px 0 #1f2937,2px -2px 0 #1f2937}
@@ -17,7 +17,7 @@ h1{font-size:clamp(2.3rem,6vw,4.8rem);margin:0;color:white;letter-spacing:-2px;l
 .typer-word{display:inline-block;color:#fef08a;transform:rotate(2deg)}
 .emoji-pop{display:inline-block;font-size:clamp(2rem,5vw,4rem);margin:0 6px;filter:drop-shadow(3px 3px 0 #1f2937);animation:wobble 1.4s ease-in-out infinite}
 @keyframes wobble{0%,100%{transform:rotate(-5deg) scale(1)}50%{transform:rotate(6deg) scale(1.08)}}
-.subtitle{margin-top:18px;font-size:1.2rem;color:#334155;font-weight:800;background:rgba(255,255,255,.9);display:inline-block;padding:8px 16px;border-radius:999px;border:3px solid #bfdbfe}
+.subtitle{margin-top:0;font-size:1.2rem;color:#334155;font-weight:800;background:rgba(255,255,255,.9);display:inline-block;padding:8px 16px;border-radius:999px;border:3px solid #bfdbfe}
 .main-card{background:rgba(255,255,255,.96);border:4px solid #dbeafe;border-radius:28px;padding:24px;box-shadow:0 18px 40px rgba(15,23,42,.14)}
 .screen{display:none}.screen.active{display:block}
 .instructions{font-size:1.05rem;line-height:1.5;color:#475569;text-align:center;max-width:800px;margin:12px auto;font-weight:700}
@@ -79,7 +79,7 @@ input:focus{border-color:var(--blue);box-shadow:0 0 0 5px rgba(37,99,235,.15)}in
 
   .subtitle{
     font-size:.95rem;
-    margin-top:12px;
+    margin-top:0;
     padding:7px 12px;
   }
 
