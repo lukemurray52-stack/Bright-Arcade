@@ -18,11 +18,14 @@ body{
   font-family:'Fredoka', Arial, sans-serif;
   color:#061946;
   background:
-    radial-gradient(circle at 8% 10%,rgba(255,255,255,.9) 0 5%,transparent 6%),
-    radial-gradient(circle at 92% 10%,rgba(255,255,255,.78) 0 5%,transparent 6%),
     radial-gradient(circle at 18% 24%,#facc15 0 6px,transparent 7px),
     radial-gradient(circle at 82% 26%,#ec4899 0 5px,transparent 6px),
-    linear-gradient(#48cfff 0%,#d9f7ff 34%,#fff3d0 34%,#fffaf0 100%);
+    linear-gradient(
+      #ffffff 0%,
+      #ffffff 34%,
+      #fff3d0 34%,
+      #fffaf0 100%
+    );
   overflow-x:hidden;
 }
 
@@ -33,31 +36,17 @@ body{
 }
 
 .hero{
-  position:relative;
   display:flex;
   justify-content:center;
-  align-items:center;
   margin-bottom:22px;
-  min-height:420px;
 }
 
-.hero::before{
-  content:"";
-  position:absolute;
-  width:min(900px, 98vw);
-  height:390px;
-  background:white;
-  border-radius:44px;
-  box-shadow:0 12px 28px rgba(6,25,70,.12);
-  z-index:0;
-}
+
 
 .logo-sticker{
   width:min(820px,96vw);
   height:auto;
   display:block;
-  position:relative;
-  z-index:1;
   animation:logoFloat 3s ease-in-out infinite;
   filter:drop-shadow(0 14px 18px rgba(6,25,70,.20));
 }
