@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bright Arcade</title>
+<style>
+*{
+  box-sizing:border-box;
+}
+body{
+  margin:0;
+  background:#7dd3fc;
+  font-family:Arial,Helvetica,sans-serif;
+}
+.wrapper{
+  width:100%;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  background:#7dd3fc;
+}
+.homepage{
+  position:relative;
+  width:min(100vw,1600px);
+}
+.homepage img{
+  display:block;
+  width:100%;
+  height:auto;
+}
+.hotspot{
+  position:absolute;
+  display:block;
+  border-radius:28px;
+  text-decoration:none;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.hotspot:hover{
+  transform:translateY(-8px) scale(1.015);
+  box-shadow:0 0 0 6px rgba(255,255,255,.35), 0 20px 40px rgba(15,23,42,.28);
+  background:rgba(255,255,255,.05);
+}
+.hotspot:focus{
+  outline:6px solid rgba(250,204,21,.9);
+  outline-offset:3px;
+}
+.speed{
+  left:2.1%;
+  top:33.9%;
+  width:46.4%;
+  height:48.1%;
+}
+.silly{
+  left:50.9%;
+  top:33.9%;
+  width:47.0%;
+  height:48.1%;
+}
+@media(max-width:700px){
+  .wrapper{
+    align-items:flex-start;
+  }
+  .homepage{
+    width:100vw;
+  }
+  .hotspot:hover{
+    transform:none;
+    box-shadow:0 0 0 4px rgba(255,255,255,.35);
+  }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <main class="homepage" aria-label="Bright Arcade homepage">
+    <img src="bright-arcade-homepage.png" alt="Bright Arcade homepage with game cards for Speed Typer and Silly Sentences">
+
+    <a class="hotspot speed"
+       href="https://lukemurray52-stack.github.io/Speed-Typer/"
+       aria-label="Play Speed Typer"></a>
+
+    <a class="hotspot silly"
+       href="https://lukemurray52-stack.github.io/Silly-Sentences/"
+       aria-label="Play Silly Sentences"></a>
+  </main>
+</div>
+</body>
+</html>
