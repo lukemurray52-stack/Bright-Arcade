@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maze Escape</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&display=swap');
+
+:root{
+  --blue:#2563eb;
+  --red:#ef4444;
+  --yellow:#facc15;
+  --green:#22c55e;
+  --purple:#7c3aed;
+  --ink:#1f2937;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  color:var(--ink);
+  min-height:100vh;
+  padding:24px;
+  background:
+    radial-gradient(circle at 8% 10%,rgba(250,204,21,.42) 0 18%,transparent 34%),
+    radial-gradient(circle at 92% 8%,rgba(37,99,235,.30) 0 18%,transparent 36%),
+    radial-gradient(circle at 8% 88%,rgba(34,197,94,.24) 0 18%,transparent 36%),
+    linear-gradient(135deg,#fffaf0 0%,#f8fafc 48%,#eff6ff 100%);
+}
+
+.side-menu{
+  position:fixed;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:170px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:9999;
+}
+
+.side-menu a{
+  background:white;
+  color:#1f2937;
+  text-decoration:none;
+  font-weight:800;
+  text-align:center;
+  padding:12px 16px;
+  border-radius:999px;
+  border:3px solid #bfdbfe;
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+
+.side-menu a:hover{background:#fef3c7}
+
+.sidebar-logo-link{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+  border-radius:0!important;
+  display:block;
+  text-align:center;
+  text-decoration:none;
+}
+
+.sidebar-logo{
+  width:170px;
+  margin:0 auto 10px;
+  padding:12px 12px 14px;
+  background:linear-gradient(180deg,#fff 0%,#fff7d6 100%);
+  border-radius:26px;
+  box-shadow:0 7px 16px rgba(0,0,0,.16),0 7px 0 rgba(31,41,55,.10);
+  transform:rotate(-1deg);
+  overflow:hidden;
+}
+
+.sidebar-bright,.sidebar-arcade{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  white-space:nowrap;
+}
+
+.sidebar-bright{gap:1px;line-height:.82}
+
+.sidebar-bright span{
+  display:inline-block;
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.68rem;
+  color:var(--c);
+  -webkit-text-stroke:1px white;
+  paint-order:stroke fill;
+  text-shadow:2px 2px 0 white,-2px 2px 0 white,0 4px 0 rgba(31,41,55,.18);
+}
+
+.sidebar-arcade{
+  margin-top:3px;
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.95rem;
+  line-height:.82;
+  letter-spacing:-1px;
+  color:#061946;
+  -webkit-text-stroke:1px white;
+  paint-order:stroke fill;
+  text-shadow:2px 2px 0 white,-2px 2px 0 white,0 4px 0 rgba(31,41,55,.18);
+}
+
+.game{
+  max-width:1200px;
+  margin:0 auto;
+  margin-left:220px;
+}
+
+header{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.title-wrap{
+  display:inline-block;
+  position:relative;
+  padding:10px 20px 15px;
+  transform:rotate(-1deg);
+}
+
+.title-burst{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,#facc15,#a855f7,#2563eb);
+  border:5px solid #1f2937;
+  border-radius:34px;
+  transform:skew(-4deg) rotate(1deg);
+  box-shadow:8px 8px 0 #1f2937;
+  z-index:-1;
+}
+
+h1{
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-size:clamp(2.5rem,6vw,5.2rem);
+  margin:0;
+  line-height:.9;
+  color:white;
+  text-shadow:3px 3px 0 #1f2937,-2px 2px 0 #1f2937,2px -2px 0 #1f2937;
+}
+
+.maze-word{color:#fef08a}
+.escape-word{color:#dbeafe}
+
+.subtitle{
+  margin:16px auto 0;
+  display:inline-block;
+  font-weight:900;
+  background:rgba(255,255,255,.92);
+  border:3px solid #bfdbfe;
+  border-radius:999px;
+  padding:8px 16px;
+  color:#334155;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:minmax(420px,1fr) 280px;
+  gap:22px;
+  align-items:start;
+}
+
+.maze-card,.panel{
+  background:rgba(255,255,255,.96);
+  border:4px solid #dbeafe;
+  border-radius:28px;
+  box-shadow:0 18px 40px rgba(15,23,42,.14);
+}
+
+.maze-card{padding:18px}
+
+.maze-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+button{
+  border:0;
+  border-radius:999px;
+  padding:12px 16px;
+  font-weight:900;
+  cursor:pointer;
+  font-size:1rem;
+}
+
+.primary{
+  background:#ef4444;
+  color:white;
+  box-shadow:0 5px 0 #991b1b;
+}
+
+#maze{
+  display:grid;
+  grid-template-columns:repeat(15, 1fr);
+  grid-template-rows:repeat(15, 1fr);
+  margin:0 auto;
+  width:min(100%,720px);
+  aspect-ratio:1/1;
+  background:#fde68a;
+  border:6px solid #1d4ed8;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:inset 0 0 0 4px #60a5fa,0 10px 0 rgba(15,23,42,.12);
+  touch-action:none;
+}
+
+.cell{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  min-height:0;
+  font-family:"Baloo 2",Arial,sans-serif;
+  user-select:none;
+}
+
+.wall{
+  background:linear-gradient(180deg,#38bdf8,#2563eb);
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.18), inset 0 2px 0 rgba(255,255,255,.35);
+}
+
+.path{
+  background:#fde68a;
+}
+
+.word-token{
+  position:absolute;
+  inset:8%;
+  background:linear-gradient(180deg,#fef08a,#facc15);
+  border:2px solid #92400e;
+  border-radius:8px;
+  color:#111827;
+  font-size:clamp(.42rem,1.25vw,.85rem);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 3px 0 rgba(146,64,14,.35);
+  z-index:2;
+}
+
+.exit{
+  position:absolute;
+  inset:8%;
+  background:linear-gradient(180deg,#ef4444,#b91c1c);
+  border:2px solid #7f1d1d;
+  border-radius:8px;
+  color:white;
+  font-size:clamp(.42rem,1.2vw,.8rem);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 3px 0 rgba(127,29,29,.35);
+}
+
+.player{
+  width:76%;
+  height:76%;
+  border-radius:50%;
+  background:linear-gradient(180deg,#ffedd5,#f97316);
+  border:2px solid #7c2d12;
+  box-shadow:0 4px 0 rgba(124,45,18,.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:clamp(.7rem,2vw,1.4rem);
+  z-index:5;
+}
+
+.message{
+  text-align:center;
+  font-weight:900;
+  color:#0f766e;
+  min-height:28px;
+  margin-top:12px;
+}
+
+.panel{padding:0;overflow:hidden}
+
+.panel-section{border-bottom:3px solid #e2e8f0}
+
+.panel-title{
+  margin:0;
+  padding:12px 16px;
+  color:white;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-size:1.6rem;
+  text-align:center;
+}
+
+.stats-list,.word-list{padding:16px}
+
+.stat-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  font-size:1.15rem;
+  font-weight:900;
+  margin-bottom:12px;
+}
+
+.stat-row span:last-child{color:#5b21b6}
+
+.word-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+  font-size:1.12rem;
+  font-weight:900;
+  color:#4c1d95;
+}
+
+.tick{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  border:3px solid #16a34a;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#16a34a;
+  font-weight:900;
+}
+
+.not-found .tick{border-color:#cbd5e1;color:#cbd5e1}
+
+.controls{padding:16px;text-align:center}
+
+.arrow-grid{
+  display:grid;
+  grid-template-columns:repeat(3,56px);
+  gap:8px;
+  justify-content:center;
+  margin-top:10px;
+}
+
+.arrow{
+  height:48px;
+  border-radius:14px;
+  background:#f8fafc;
+  border:3px solid #cbd5e1;
+  color:#5b21b6;
+  font-size:1.6rem;
+  box-shadow:0 4px 0 #94a3b8;
+}
+
+.empty{visibility:hidden}
+
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.55);
+  z-index:10000;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.overlay.show{display:flex}
+
+.win-card{
+  width:min(520px,100%);
+  background:white;
+  border-radius:30px;
+  border:5px solid #bfdbfe;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+  text-align:center;
+  padding:28px;
+}
+
+.win-card h2{
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-size:3rem;
+  color:#5b21b6;
+  margin:0 0 8px;
+}
+
+.win-card p{
+  font-weight:900;
+  color:#334155;
+  font-size:1.2rem;
+}
+
+@media(max-width:1050px){
+  .game{margin-left:0}
+  .side-menu{
+    position:static;
+    transform:none;
+    width:auto;
+    flex-direction:row;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:16px;
+  }
+  .sidebar-logo{width:145px;margin-bottom:0;padding:10px}
+  .sidebar-bright span{font-size:1.38rem}
+  .sidebar-arcade{font-size:1.62rem}
+  .layout{grid-template-columns:1fr}
+}
+
+@media(max-width:700px){
+  body{padding:8px;overflow-x:hidden}
+  .side-menu{gap:8px;margin:0 0 10px}
+  .side-menu > a:not(.sidebar-logo-link){padding:9px 12px;font-size:.9rem}
+  .sidebar-logo{width:118px;padding:8px;border-radius:18px}
+  .sidebar-bright span{font-size:1.12rem}
+  .sidebar-arcade{font-size:1.32rem}
+  header{margin-bottom:10px}
+  .title-wrap{padding:7px 12px 10px;transform:none}
+  .title-burst{border-width:4px;border-radius:24px;box-shadow:5px 5px 0 #1f2937}
+  h1{font-size:clamp(2.1rem,13vw,3.4rem)}
+  .subtitle{font-size:.9rem;padding:7px 11px;margin-top:10px}
+  .layout{display:flex;flex-direction:column;gap:10px}
+  .maze-card{padding:8px;border-radius:20px;border-width:3px}
+  .maze-top{justify-content:center;gap:8px;margin-bottom:8px}
+  button{padding:10px 12px;font-size:.9rem}
+  #maze{width:calc(100vw - 32px);max-width:440px;border-width:4px;border-radius:16px}
+  .word-token,.exit{font-size:clamp(.33rem,2vw,.62rem);border-width:1px;border-radius:5px}
+ .player{font-size:clamp(.62rem,3.2vw,1rem)}
+  .panel{border-radius:20px;border-width:3px}
+  .panel-title{font-size:1.25rem;padding:8px 12px}
+  .stats-list{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px}
+  .stat-row{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;font-size:.85rem;margin-bottom:0;background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;padding:8px 4px}
+  .word-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:10px}
+  .word-item{font-size:.9rem;margin-bottom:0;background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;padding:6px}
+  .tick{width:20px;height:20px;border-width:2px;flex:0 0 20px}
+  .controls{padding:10px}
+  .arrow-grid{grid-template-columns:repeat(3,52px);gap:7px}
+  .arrow{height:46px;border-radius:14px;font-size:1.35rem;padding:0}
+}
+
+@media(max-width:390px){
+  #maze{width:calc(100vw - 24px)}
+  .stats-list{grid-template-columns:1fr}
+  .word-list{grid-template-columns:1fr}
+}
+
+.spell-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.55);
+  z-index:10001;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.spell-modal.show{
+  display:flex;
+}
+
+.spell-card{
+  width:min(460px,100%);
+  background:white;
+  border:5px solid #bfdbfe;
+  border-radius:28px;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+  text-align:center;
+  padding:24px;
+}
+
+.spell-card h2{
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-size:2.4rem;
+  margin:0 0 8px;
+  color:#5b21b6;
+}
+
+.spell-target{
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-size:3rem;
+  color:#ef4444;
+  margin:8px 0 14px;
+  letter-spacing:2px;
+  text-shadow:2px 2px 0 #fff7ed,0 4px 0 rgba(31,41,55,.12);
+}
+
+#spellInput{
+  width:100%;
+  font-size:1.7rem;
+  font-weight:900;
+  text-align:center;
+  padding:12px 16px;
+  border:4px solid #bfdbfe;
+  border-radius:18px;
+  outline:none;
+  text-transform:uppercase;
+}
+
+#spellInput:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 5px rgba(37,99,235,.15);
+}
+
+.spell-feedback{
+  min-height:26px;
+  font-weight:900;
+  margin:10px 0;
+  color:#0f766e;
+}
+
+.spell-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+@media(max-width:700px){
+  .spell-card{padding:18px;border-radius:22px;}
+  .spell-card h2{font-size:2rem;}
+  .spell-target{font-size:2.4rem;}
+  #spellInput{font-size:1.4rem;}
+}
+
+
+/* MODERN MAZE VISUAL UPDATE */
+.wall{
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.32), transparent 35%),
+    linear-gradient(180deg,#38bdf8 0%,#2563eb 58%,#1d4ed8 100%) !important;
+  border:1px solid rgba(255,255,255,.55) !important;
+  box-shadow:
+    inset 0 -5px 0 rgba(15,23,42,.25),
+    inset 0 3px 0 rgba(255,255,255,.40),
+    0 2px 4px rgba(15,23,42,.18) !important;
+}
+
+.path{
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.45) 0 8%, transparent 9%),
+    linear-gradient(145deg,#fff4b8,#fde68a) !important;
+}
+
+.word-token{
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.7), transparent 30%),
+    linear-gradient(180deg,#fef08a,#facc15) !important;
+  border:2px solid #92400e !important;
+  box-shadow:
+    0 4px 0 rgba(146,64,14,.38),
+    0 8px 12px rgba(146,64,14,.18) !important;
+}
+
+.exit{
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.35), transparent 30%),
+    linear-gradient(180deg,#fb7185,#dc2626) !important;
+  box-shadow:
+    0 4px 0 rgba(127,29,29,.38),
+    0 8px 12px rgba(127,29,29,.18) !important;
+}
+
+.player{
+  width:82%;
+  height:82%;
+  border-radius:50%;
+  position:relative;
+  z-index:5;
+  background:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+  animation:characterBounce .32s ease;
+}
+
+@keyframes characterBounce{
+  0%{transform:scale(.88) translateY(4px)}
+  55%{transform:scale(1.08) translateY(-3px)}
+  100%{transform:scale(1) translateY(0)}
+}
+
+.player-body{
+  position:absolute;
+  left:22%;
+  top:36%;
+  width:56%;
+  height:48%;
+  border-radius:42% 42% 38% 38%;
+  box-shadow:inset 0 5px 0 rgba(255,255,255,.35),0 4px 0 rgba(15,23,42,.22);
+}
+
+.player-head{
+  position:absolute;
+  left:24%;
+  top:5%;
+  width:52%;
+  height:52%;
+  border-radius:50%;
+  background:linear-gradient(145deg,#ffe3c4,#f6b37f);
+  border:2px solid rgba(124,45,18,.55);
+  box-shadow:inset 0 5px 0 rgba(255,255,255,.38),0 3px 0 rgba(124,45,18,.25);
+}
+
+.player-hair{
+  position:absolute;
+  left:22%;
+  top:2%;
+  width:56%;
+  height:28%;
+  border-radius:999px 999px 45% 45%;
+  background:#3f2a1d;
+  z-index:2;
+}
+
+.player-eye{
+  position:absolute;
+  top:42%;
+  width:9%;
+  height:9%;
+  background:#111827;
+  border-radius:50%;
+  z-index:3;
+}
+
+.player-eye.left{left:39%}
+.player-eye.right{right:39%}
+
+.player-smile{
+  position:absolute;
+  left:41%;
+  top:56%;
+  width:18%;
+  height:10%;
+  border-bottom:2px solid #7c2d12;
+  border-radius:50%;
+  z-index:3;
+}
+
+.player-arm{
+  position:absolute;
+  top:47%;
+  width:14%;
+  height:28%;
+  border-radius:999px;
+  background:#f6b37f;
+  z-index:1;
+}
+
+.player-arm.left{left:13%;transform:rotate(25deg)}
+.player-arm.right{right:13%;transform:rotate(-25deg)}
+
+.player-leg{
+  position:absolute;
+  top:78%;
+  width:16%;
+  height:22%;
+  border-radius:999px;
+  background:#1e3a8a;
+  z-index:0;
+}
+
+.player-leg.left{left:31%;transform:rotate(10deg)}
+.player-leg.right{right:31%;transform:rotate(-10deg)}
+
+.player.male .player-body{
+  background:linear-gradient(180deg,#60a5fa,#2563eb);
+}
+
+.player.female .player-body{
+  background:linear-gradient(180deg,#fb7185,#e11d48);
+}
+
+.player.female .player-hair{
+  left:17%;
+  top:0;
+  width:66%;
+  height:38%;
+  background:#7c2d12;
+  border-radius:999px 999px 55% 55%;
+}
+
+.player-shadow{
+  position:absolute;
+  left:20%;
+  bottom:0;
+  width:60%;
+  height:12%;
+  border-radius:50%;
+  background:rgba(15,23,42,.22);
+  z-index:-1;
+}
+
+/* CHARACTER SELECT SCREEN */
+.start-overlay{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(250,204,21,.45),transparent 30%),
+    radial-gradient(circle at 80% 10%,rgba(37,99,235,.35),transparent 30%),
+    rgba(15,23,42,.55);
+  z-index:12000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.start-overlay.hide{
+  display:none;
+}
+
+.start-card{
+  width:min(680px,100%);
+  background:white;
+  border:5px solid #bfdbfe;
+  border-radius:34px;
+  box-shadow:0 24px 70px rgba(0,0,0,.28);
+  text-align:center;
+  padding:28px;
+}
+
+.start-card h2{
+  margin:0 0 8px;
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-size:clamp(2.4rem,7vw,4rem);
+  color:#5b21b6;
+}
+
+.start-card p{
+  font-weight:900;
+  color:#334155;
+  margin:0 0 18px;
+}
+
+.character-choices{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin:18px 0 22px;
+}
+
+.character-choice{
+  border:4px solid #dbeafe;
+  background:linear-gradient(180deg,#fff,#eff6ff);
+  border-radius:26px;
+  padding:18px;
+  cursor:pointer;
+  box-shadow:0 8px 0 #bfdbfe;
+}
+
+.character-choice.selected{
+  border-color:#facc15;
+  background:linear-gradient(180deg,#fff7cc,#fef3c7);
+  box-shadow:0 8px 0 #facc15;
+}
+
+.character-preview{
+  width:100px;
+  height:100px;
+  margin:0 auto 10px;
+  position:relative;
+}
+
+.character-choice strong{
+  display:block;
+  font-family:"Baloo 2",Arial,sans-serif;
+  font-size:1.6rem;
+  color:#1e3a8a;
+}
+
+@media(max-width:520px){
+  .start-card{padding:20px;border-radius:26px}
+  .character-choices{grid-template-columns:1fr;gap:12px}
+  .character-preview{width:82px;height:82px}
+}
+
+
+/* SVG CHARACTER SYSTEM */
+.player{
+  width:82% !important;
+  height:82% !important;
+  position:relative !important;
+  background:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+  animation:characterBounce .32s ease;
+}
+
+.player svg{
+  width:100%;
+  height:100%;
+  display:block;
+  filter:drop-shadow(0 3px 1px rgba(15,23,42,.25));
+}
+
+.character-preview .player{
+  width:100% !important;
+  height:100% !important;
+}
+
+.player-body,
+.player-head,
+.player-hair,
+.player-eye,
+.player-smile,
+.player-arm,
+.player-leg,
+.player-shadow{
+  display:none !important;
+}
+
+
+/* FINAL CLEAN SVG AVATARS */
+.player{
+  width:86% !important;
+  height:86% !important;
+  position:relative !important;
+  background:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+  animation:characterBounce .25s ease;
+}
+
+.player svg,
+.avatar-svg{
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+  overflow:visible !important;
+  filter:drop-shadow(0 3px 1px rgba(15,23,42,.24));
+}
+
+.character-preview .player{
+  width:100% !important;
+  height:100% !important;
+}
+
+.character-preview svg{
+  width:100% !important;
+  height:100% !important;
+}
+
+.player-body,
+.player-head,
+.player-hair,
+.player-eye,
+.player-smile,
+.player-arm,
+.player-leg,
+.player-shadow{
+  display:none !important;
+}
+
+
+.difficulty-buttons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.difficulty-btn{
+  background:#e0f2fe;
+  color:#075985;
+  border:3px solid #bfdbfe;
+  box-shadow:0 4px 0 #bfdbfe;
+}
+
+.difficulty-btn.active{
+  background:#fef3c7;
+  color:#713f12;
+  border-color:#facc15;
+  box-shadow:0 4px 0 #facc15;
+}
+
+.hidden-difficulty{
+  display:none !important;
+}
+
+@media(max-width:700px){
+  .difficulty-buttons{
+    width:100%;
+  }
+
+  .difficulty-btn{
+    flex:1;
+    padding:9px 8px;
+  }
+}
+
+
+.word-length-note{
+  text-align:center;
+  font-weight:900;
+  color:#475569;
+  background:#f8fafc;
+  border:2px solid #e2e8f0;
+  border-radius:14px;
+  padding:8px 10px;
+  margin:10px 10px 0;
+  font-size:.95rem;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="start-overlay" id="startOverlay">
+  <div class="start-card">
+    <h2>Choose Your Explorer</h2>
+    <p>Pick a character, then collect each word and spell it correctly.</p>
+
+    <div class="character-choices">
+      <button class="character-choice selected" data-character="male">
+        <div class="character-preview">
+          <div class="player male"><svg viewBox="0 0 100 100" aria-hidden="true" class="avatar-svg">
+  <ellipse cx="50" cy="93" rx="24" ry="5" fill="rgba(15,23,42,.18)"/>
+
+  <!-- Shorts / legs -->
+  <path d="M40 82 L37 98" stroke="#1e3a8a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M60 82 L63 98" stroke="#1e3a8a" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- T-shirt -->
+  <path d="M35 55 H65 Q71 58 72 70 L74 84 H26 L28 70 Q29 58 35 55 Z" fill="#2563eb" stroke="#1e3a8a" stroke-width="2"/>
+  <path d="M42 56 L50 64 L58 56" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M32 57 L25 66" stroke="#2563eb" stroke-width="9" stroke-linecap="round"/>
+  <path d="M68 57 L75 66" stroke="#2563eb" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Visible arms drawn over sleeves -->
+  <path d="M29 66 Q24 74 29 83" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M71 66 Q76 74 71 83" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <circle cx="29" cy="83" r="3.8" fill="#f3b98a"/>
+  <circle cx="71" cy="83" r="3.8" fill="#f3b98a"/>
+
+  <!-- Head -->
+  <circle cx="50" cy="36" r="23" fill="#ffd2a6" stroke="#9a5a2e" stroke-width="2.5"/>
+
+  <!-- Crew cut -->
+  <path d="M28 27 Q31 13 50 11 Q69 13 72 27 Q62 22 50 22 Q38 22 28 27 Z" fill="#3a2a22"/>
+  <path d="M30 24 Q50 9 70 24" stroke="#3a2a22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M33 27 Q41 20 50 21 Q59 20 67 27 Q58 25 50 25 Q42 25 33 27 Z" fill="#4b3628"/>
+
+  <!-- Face -->
+  <circle cx="42" cy="38" r="3.2" fill="#111827"/>
+  <circle cx="58" cy="38" r="3.2" fill="#111827"/>
+  <path d="M43 50 Q50 55 57 50" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <circle cx="41" cy="30" r="4" fill="rgba(255,255,255,.35)"/>
+</svg></div>
+        </div>
+        <strong>Boy Explorer</strong>
+      </button>
+
+      <button class="character-choice" data-character="female">
+        <div class="character-preview">
+          <div class="player female"><svg viewBox="0 0 100 100" aria-hidden="true" class="avatar-svg">
+  <ellipse cx="50" cy="93" rx="24" ry="5" fill="rgba(15,23,42,.18)"/>
+  <path d="M27 28 Q29 10 50 8 Q71 10 73 28 L76 67 Q66 80 50 80 Q34 80 24 67 Z" fill="#8b451c"/>
+  <path d="M38 55 H62 Q70 58 72 72 L75 91 H25 L28 72 Q30 58 38 55 Z" fill="#e11d48" stroke="#9f1239" stroke-width="2"/>
+  <path d="M35 60 Q27 70 30 82" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M65 60 Q73 70 70 82" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M41 88 L38 98" stroke="#7f1d1d" stroke-width="8" stroke-linecap="round"/>
+  <path d="M59 88 L62 98" stroke="#7f1d1d" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="50" cy="37" r="22" fill="#ffd2a6" stroke="#9a5a2e" stroke-width="2.5"/>
+  <path d="M29 33 Q34 15 50 14 Q66 15 71 33 Q61 26 50 25 Q39 26 29 33 Z" fill="#8b451c"/>
+  <path d="M28 34 Q22 48 27 67 Q33 58 32 43 Z" fill="#8b451c"/>
+  <path d="M72 34 Q78 48 73 67 Q67 58 68 43 Z" fill="#8b451c"/>
+  <circle cx="42" cy="40" r="3.2" fill="#111827"/>
+  <circle cx="58" cy="40" r="3.2" fill="#111827"/>
+  <path d="M43 52 Q50 57 57 52" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <circle cx="41" cy="31" r="4" fill="rgba(255,255,255,.35)"/>
+</svg></div>
+        </div>
+        <strong>Girl Explorer</strong>
+      </button>
+    </div>
+
+    <button class="primary" id="startGameBtn">Start Maze</button>
+  </div>
+</div>
+
+
+<nav class="side-menu">
+  <a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home">
+    <div class="sidebar-logo">
+      <div class="sidebar-bright">
+        <span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span><span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span>
+      </div>
+      <div class="sidebar-arcade">ARCADE</div>
+    </div>
+  </a>
+  <a href="/">🏠 Home</a>
+</nav>
+
+<div class="game">
+<header>
+  <div class="title-wrap">
+    <div class="title-burst"></div>
+    <h1><span class="maze-word">Maze</span> <span class="escape-word">Escape!</span></h1>
+  </div>
+  <br>
+  <p class="subtitle">Collect all the words and find the exit!</p>
+</header>
+
+<div class="layout">
+  <main class="maze-card">
+    <div class="maze-top">
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+      </div>
+      <button class="primary" id="newGameBtn">Restart maze</button>
+    </div>
+
+    <div id="maze" aria-label="Maze game">
+      <div class="cell wall" data-r="0" data-c="0"></div>
+<div class="cell wall" data-r="0" data-c="1"></div>
+<div class="cell wall" data-r="0" data-c="2"></div>
+<div class="cell wall" data-r="0" data-c="3"></div>
+<div class="cell wall" data-r="0" data-c="4"></div>
+<div class="cell wall" data-r="0" data-c="5"></div>
+<div class="cell wall" data-r="0" data-c="6"></div>
+<div class="cell wall" data-r="0" data-c="7"></div>
+<div class="cell wall" data-r="0" data-c="8"></div>
+<div class="cell wall" data-r="0" data-c="9"></div>
+<div class="cell wall" data-r="0" data-c="10"></div>
+<div class="cell wall" data-r="0" data-c="11"></div>
+<div class="cell wall" data-r="0" data-c="12"></div>
+<div class="cell wall" data-r="0" data-c="13"></div>
+<div class="cell wall" data-r="0" data-c="14"></div>
+<div class="cell wall" data-r="1" data-c="0"></div>
+<div class="cell path" data-r="1" data-c="1"><div class="player male" id="player"><svg viewBox="0 0 100 100" aria-hidden="true" class="avatar-svg">
+  <ellipse cx="50" cy="93" rx="24" ry="5" fill="rgba(15,23,42,.18)"/>
+
+  <!-- Shorts / legs -->
+  <path d="M40 82 L37 98" stroke="#1e3a8a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M60 82 L63 98" stroke="#1e3a8a" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- T-shirt -->
+  <path d="M35 55 H65 Q71 58 72 70 L74 84 H26 L28 70 Q29 58 35 55 Z" fill="#2563eb" stroke="#1e3a8a" stroke-width="2"/>
+  <path d="M42 56 L50 64 L58 56" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M32 57 L25 66" stroke="#2563eb" stroke-width="9" stroke-linecap="round"/>
+  <path d="M68 57 L75 66" stroke="#2563eb" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Visible arms drawn over sleeves -->
+  <path d="M29 66 Q24 74 29 83" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M71 66 Q76 74 71 83" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <circle cx="29" cy="83" r="3.8" fill="#f3b98a"/>
+  <circle cx="71" cy="83" r="3.8" fill="#f3b98a"/>
+
+  <!-- Head -->
+  <circle cx="50" cy="36" r="23" fill="#ffd2a6" stroke="#9a5a2e" stroke-width="2.5"/>
+
+  <!-- Crew cut -->
+  <path d="M28 27 Q31 13 50 11 Q69 13 72 27 Q62 22 50 22 Q38 22 28 27 Z" fill="#3a2a22"/>
+  <path d="M30 24 Q50 9 70 24" stroke="#3a2a22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M33 27 Q41 20 50 21 Q59 20 67 27 Q58 25 50 25 Q42 25 33 27 Z" fill="#4b3628"/>
+
+  <!-- Face -->
+  <circle cx="42" cy="38" r="3.2" fill="#111827"/>
+  <circle cx="58" cy="38" r="3.2" fill="#111827"/>
+  <path d="M43 50 Q50 55 57 50" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <circle cx="41" cy="30" r="4" fill="rgba(255,255,255,.35)"/>
+</svg></div></div>
+<div class="cell path" data-r="1" data-c="2"></div>
+<div class="cell path" data-r="1" data-c="3"></div>
+<div class="cell path" data-r="1" data-c="4"></div>
+<div class="cell path" data-r="1" data-c="5"><div class="word-token" data-word-slot="0"></div></div>
+<div class="cell wall" data-r="1" data-c="6"></div>
+<div class="cell path" data-r="1" data-c="7"></div>
+<div class="cell path" data-r="1" data-c="8"></div>
+<div class="cell path" data-r="1" data-c="9"></div>
+<div class="cell path" data-r="1" data-c="10"></div>
+<div class="cell path" data-r="1" data-c="11"></div>
+<div class="cell path" data-r="1" data-c="12"></div>
+<div class="cell path" data-r="1" data-c="13"></div>
+<div class="cell wall" data-r="1" data-c="14"></div>
+<div class="cell wall" data-r="2" data-c="0"></div>
+<div class="cell path" data-r="2" data-c="1"></div>
+<div class="cell wall" data-r="2" data-c="2"></div>
+<div class="cell wall" data-r="2" data-c="3"></div>
+<div class="cell wall" data-r="2" data-c="4"></div>
+<div class="cell path" data-r="2" data-c="5"></div>
+<div class="cell wall" data-r="2" data-c="6"></div>
+<div class="cell path" data-r="2" data-c="7"></div>
+<div class="cell wall" data-r="2" data-c="8"></div>
+<div class="cell wall" data-r="2" data-c="9"></div>
+<div class="cell wall" data-r="2" data-c="10"></div>
+<div class="cell wall" data-r="2" data-c="11"></div>
+<div class="cell wall" data-r="2" data-c="12"></div>
+<div class="cell path" data-r="2" data-c="13"></div>
+<div class="cell wall" data-r="2" data-c="14"></div>
+<div class="cell wall" data-r="3" data-c="0"></div>
+<div class="cell path" data-r="3" data-c="1"></div>
+<div class="cell wall" data-r="3" data-c="2"></div>
+<div class="cell path" data-r="3" data-c="3"></div>
+<div class="cell path" data-r="3" data-c="4"></div>
+<div class="cell path" data-r="3" data-c="5"><div class="word-token extra-word" data-word-slot="4" data-min-difficulty="medium"></div></div>
+<div class="cell wall" data-r="3" data-c="6"></div>
+<div class="cell path" data-r="3" data-c="7"></div>
+<div class="cell path" data-r="3" data-c="8"></div>
+<div class="cell path" data-r="3" data-c="9"></div>
+<div class="cell path" data-r="3" data-c="10"></div>
+<div class="cell path" data-r="3" data-c="11"></div>
+<div class="cell wall" data-r="3" data-c="12"></div>
+<div class="cell path" data-r="3" data-c="13"></div>
+<div class="cell wall" data-r="3" data-c="14"></div>
+<div class="cell wall" data-r="4" data-c="0"></div>
+<div class="cell path" data-r="4" data-c="1"></div>
+<div class="cell wall" data-r="4" data-c="2"></div>
+<div class="cell path" data-r="4" data-c="3"></div>
+<div class="cell wall" data-r="4" data-c="4"></div>
+<div class="cell wall" data-r="4" data-c="5"></div>
+<div class="cell wall" data-r="4" data-c="6"></div>
+<div class="cell wall" data-r="4" data-c="7"></div>
+<div class="cell wall" data-r="4" data-c="8"></div>
+<div class="cell wall" data-r="4" data-c="9"></div>
+<div class="cell wall" data-r="4" data-c="10"></div>
+<div class="cell path" data-r="4" data-c="11"></div>
+<div class="cell wall" data-r="4" data-c="12"></div>
+<div class="cell path" data-r="4" data-c="13"></div>
+<div class="cell wall" data-r="4" data-c="14"></div>
+<div class="cell wall" data-r="5" data-c="0"></div>
+<div class="cell path" data-r="5" data-c="1"></div>
+<div class="cell wall" data-r="5" data-c="2"></div>
+<div class="cell path" data-r="5" data-c="3"></div>
+<div class="cell path" data-r="5" data-c="4"></div>
+<div class="cell path" data-r="5" data-c="5"></div>
+<div class="cell path" data-r="5" data-c="6"></div>
+<div class="cell path" data-r="5" data-c="7"><div class="word-token" data-word-slot="1"></div></div>
+<div class="cell wall" data-r="5" data-c="8"></div>
+<div class="cell path" data-r="5" data-c="9"></div>
+<div class="cell path" data-r="5" data-c="10"></div>
+<div class="cell path" data-r="5" data-c="11"></div>
+<div class="cell wall" data-r="5" data-c="12"></div>
+<div class="cell path" data-r="5" data-c="13"></div>
+<div class="cell wall" data-r="5" data-c="14"></div>
+<div class="cell wall" data-r="6" data-c="0"></div>
+<div class="cell path" data-r="6" data-c="1"></div>
+<div class="cell wall" data-r="6" data-c="2"></div>
+<div class="cell wall" data-r="6" data-c="3"></div>
+<div class="cell wall" data-r="6" data-c="4"></div>
+<div class="cell wall" data-r="6" data-c="5"></div>
+<div class="cell wall" data-r="6" data-c="6"></div>
+<div class="cell path" data-r="6" data-c="7"></div>
+<div class="cell wall" data-r="6" data-c="8"></div>
+<div class="cell path" data-r="6" data-c="9"></div>
+<div class="cell wall" data-r="6" data-c="10"></div>
+<div class="cell wall" data-r="6" data-c="11"></div>
+<div class="cell wall" data-r="6" data-c="12"></div>
+<div class="cell path" data-r="6" data-c="13"></div>
+<div class="cell wall" data-r="6" data-c="14"></div>
+<div class="cell wall" data-r="7" data-c="0"></div>
+<div class="cell path" data-r="7" data-c="1"></div>
+<div class="cell path" data-r="7" data-c="2"></div>
+<div class="cell path" data-r="7" data-c="3"><div class="word-token extra-word" data-word-slot="5" data-min-difficulty="medium"></div></div>
+<div class="cell path" data-r="7" data-c="4"></div>
+<div class="cell path" data-r="7" data-c="5"></div>
+<div class="cell wall" data-r="7" data-c="6"></div>
+<div class="cell path" data-r="7" data-c="7"></div>
+<div class="cell wall" data-r="7" data-c="8"></div>
+<div class="cell path" data-r="7" data-c="9"></div>
+<div class="cell path" data-r="7" data-c="10"></div>
+<div class="cell path" data-r="7" data-c="11"><div class="word-token" data-word-slot="2"></div></div>
+<div class="cell path" data-r="7" data-c="12"></div>
+<div class="cell path" data-r="7" data-c="13"></div>
+<div class="cell wall" data-r="7" data-c="14"></div>
+<div class="cell wall" data-r="8" data-c="0"></div>
+<div class="cell wall" data-r="8" data-c="1"></div>
+<div class="cell wall" data-r="8" data-c="2"></div>
+<div class="cell wall" data-r="8" data-c="3"></div>
+<div class="cell wall" data-r="8" data-c="4"></div>
+<div class="cell path" data-r="8" data-c="5"></div>
+<div class="cell wall" data-r="8" data-c="6"></div>
+<div class="cell path" data-r="8" data-c="7"></div>
+<div class="cell wall" data-r="8" data-c="8"></div>
+<div class="cell wall" data-r="8" data-c="9"></div>
+<div class="cell wall" data-r="8" data-c="10"></div>
+<div class="cell wall" data-r="8" data-c="11"></div>
+<div class="cell wall" data-r="8" data-c="12"></div>
+<div class="cell path" data-r="8" data-c="13"></div>
+<div class="cell wall" data-r="8" data-c="14"></div>
+<div class="cell wall" data-r="9" data-c="0"></div>
+<div class="cell path" data-r="9" data-c="1"></div>
+<div class="cell path" data-r="9" data-c="2"></div>
+<div class="cell path" data-r="9" data-c="3"></div>
+<div class="cell wall" data-r="9" data-c="4"></div>
+<div class="cell path" data-r="9" data-c="5"></div>
+<div class="cell wall" data-r="9" data-c="6"></div>
+<div class="cell path" data-r="9" data-c="7"></div>
+<div class="cell path" data-r="9" data-c="8"></div>
+<div class="cell path" data-r="9" data-c="9"></div>
+<div class="cell path" data-r="9" data-c="10"></div>
+<div class="cell path" data-r="9" data-c="11"></div>
+<div class="cell wall" data-r="9" data-c="12"></div>
+<div class="cell path" data-r="9" data-c="13"></div>
+<div class="cell wall" data-r="9" data-c="14"></div>
+<div class="cell wall" data-r="10" data-c="0"></div>
+<div class="cell path" data-r="10" data-c="1"></div>
+<div class="cell wall" data-r="10" data-c="2"></div>
+<div class="cell path" data-r="10" data-c="3"></div>
+<div class="cell wall" data-r="10" data-c="4"></div>
+<div class="cell path" data-r="10" data-c="5"></div>
+<div class="cell wall" data-r="10" data-c="6"></div>
+<div class="cell wall" data-r="10" data-c="7"></div>
+<div class="cell wall" data-r="10" data-c="8"></div>
+<div class="cell wall" data-r="10" data-c="9"></div>
+<div class="cell wall" data-r="10" data-c="10"></div>
+<div class="cell path" data-r="10" data-c="11"></div>
+<div class="cell wall" data-r="10" data-c="12"></div>
+<div class="cell path" data-r="10" data-c="13"></div>
+<div class="cell wall" data-r="10" data-c="14"></div>
+<div class="cell wall" data-r="11" data-c="0"></div>
+<div class="cell path" data-r="11" data-c="1"></div>
+<div class="cell wall" data-r="11" data-c="2"></div>
+<div class="cell path" data-r="11" data-c="3"></div>
+<div class="cell path" data-r="11" data-c="4"></div>
+<div class="cell path" data-r="11" data-c="5"></div>
+<div class="cell path" data-r="11" data-c="6"></div>
+<div class="cell path" data-r="11" data-c="7"><div class="word-token extra-word" data-word-slot="6" data-min-difficulty="hard"></div></div>
+<div class="cell path" data-r="11" data-c="8"></div>
+<div class="cell path" data-r="11" data-c="9"></div>
+<div class="cell wall" data-r="11" data-c="10"></div>
+<div class="cell path" data-r="11" data-c="11"></div>
+<div class="cell wall" data-r="11" data-c="12"></div>
+<div class="cell path" data-r="11" data-c="13"></div>
+<div class="cell wall" data-r="11" data-c="14"></div>
+<div class="cell wall" data-r="12" data-c="0"></div>
+<div class="cell path" data-r="12" data-c="1"></div>
+<div class="cell wall" data-r="12" data-c="2"></div>
+<div class="cell wall" data-r="12" data-c="3"></div>
+<div class="cell wall" data-r="12" data-c="4"></div>
+<div class="cell wall" data-r="12" data-c="5"></div>
+<div class="cell wall" data-r="12" data-c="6"></div>
+<div class="cell wall" data-r="12" data-c="7"></div>
+<div class="cell wall" data-r="12" data-c="8"></div>
+<div class="cell path" data-r="12" data-c="9"></div>
+<div class="cell wall" data-r="12" data-c="10"></div>
+<div class="cell path" data-r="12" data-c="11"></div>
+<div class="cell wall" data-r="12" data-c="12"></div>
+<div class="cell path" data-r="12" data-c="13"></div>
+<div class="cell wall" data-r="12" data-c="14"></div>
+<div class="cell wall" data-r="13" data-c="0"></div>
+<div class="cell path" data-r="13" data-c="1"></div>
+<div class="cell path" data-r="13" data-c="2"></div>
+<div class="cell path" data-r="13" data-c="3"></div>
+<div class="cell path" data-r="13" data-c="4"></div>
+<div class="cell path" data-r="13" data-c="5"></div>
+<div class="cell path" data-r="13" data-c="6"></div>
+<div class="cell path" data-r="13" data-c="7"><div class="word-token" data-word-slot="3"></div></div>
+<div class="cell path" data-r="13" data-c="8"></div>
+<div class="cell path" data-r="13" data-c="9"></div>
+<div class="cell path" data-r="13" data-c="10"></div>
+<div class="cell path" data-r="13" data-c="11"><div class="word-token extra-word" data-word-slot="7" data-min-difficulty="hard"></div></div>
+<div class="cell path" data-r="13" data-c="12"></div>
+<div class="cell path" data-r="13" data-c="13"><div class="exit">EXIT</div></div>
+<div class="cell wall" data-r="13" data-c="14"></div>
+<div class="cell wall" data-r="14" data-c="0"></div>
+<div class="cell wall" data-r="14" data-c="1"></div>
+<div class="cell wall" data-r="14" data-c="2"></div>
+<div class="cell wall" data-r="14" data-c="3"></div>
+<div class="cell wall" data-r="14" data-c="4"></div>
+<div class="cell wall" data-r="14" data-c="5"></div>
+<div class="cell wall" data-r="14" data-c="6"></div>
+<div class="cell wall" data-r="14" data-c="7"></div>
+<div class="cell wall" data-r="14" data-c="8"></div>
+<div class="cell wall" data-r="14" data-c="9"></div>
+<div class="cell wall" data-r="14" data-c="10"></div>
+<div class="cell wall" data-r="14" data-c="11"></div>
+<div class="cell wall" data-r="14" data-c="12"></div>
+<div class="cell wall" data-r="14" data-c="13"></div>
+<div class="cell wall" data-r="14" data-c="14"></div>
+    </div>
+
+    <div class="message" id="message">Use arrow keys, swipe, or buttons.</div>
+  </main>
+
+  <aside class="panel">
+    <section class="panel-section">
+      <h2 class="panel-title">STATS</h2>
+      <div class="stats-list">
+        <div class="stat-row"><span>⏱️ Time</span><span id="timeText">0:00</span></div>
+        <div class="stat-row"><span>⭐ Score</span><span id="scoreText">1000</span></div>
+        <div class="stat-row"><span>✅ Words</span><span id="wordsText">0 / 4</span></div>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <h2 class="panel-title" style="background:linear-gradient(135deg,#16a34a,#22c55e);">WORDS</h2>
+      <div class="word-length-note" id="wordLengthNote">Easy: short words</div>
+      <div class="word-list" id="wordList"></div>
+    </section>
+
+    <section>
+      <h2 class="panel-title" style="background:linear-gradient(135deg,#0ea5e9,#2563eb);">CONTROLS</h2>
+      <div class="controls">
+        <strong>Use arrow keys, swipe, or buttons.</strong>
+        <div class="arrow-grid">
+          <button class="arrow empty"> </button>
+          <button class="arrow" data-move="up">⬆</button>
+          <button class="arrow empty"> </button>
+          <button class="arrow" data-move="left">⬅</button>
+          <button class="arrow" data-move="down">⬇</button>
+          <button class="arrow" data-move="right">➡</button>
+        </div>
+      </div>
+    </section>
+  </aside>
+</div>
+</div>
+
+
+<div class="spell-modal" id="spellModal">
+  <div class="spell-card">
+    <h2>Spell the word!</h2>
+    <p>Type this word to collect it:</p>
+    <div class="spell-target" id="spellTarget">WORD</div>
+    <input id="spellInput" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    <div class="spell-feedback" id="spellFeedback"></div>
+    <div class="spell-actions">
+      <button class="primary" id="spellSubmitBtn">Check spelling</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="winOverlay">
+  <div class="win-card">
+    <h2>⭐ Maze Complete! ⭐</h2>
+    <p id="winText">Score: 1000</p>
+    <button class="primary" id="playAgainBtn">Play again</button>
+  </div>
+</div>
+
+<script>
+const walls = [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [0, 10], [0, 11], [0, 12], [0, 13], [0, 14], [1, 0], [1, 6], [1, 14], [2, 0], [2, 2], [2, 3], [2, 4], [2, 6], [2, 8], [2, 9], [2, 10], [2, 11], [2, 12], [2, 14], [3, 0], [3, 2], [3, 6], [3, 12], [3, 14], [4, 0], [4, 2], [4, 4], [4, 5], [4, 6], [4, 7], [4, 8], [4, 9], [4, 10], [4, 12], [4, 14], [5, 0], [5, 2], [5, 8], [5, 12], [5, 14], [6, 0], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 8], [6, 10], [6, 11], [6, 12], [6, 14], [7, 0], [7, 6], [7, 8], [7, 14], [8, 0], [8, 1], [8, 2], [8, 3], [8, 4], [8, 6], [8, 8], [8, 9], [8, 10], [8, 11], [8, 12], [8, 14], [9, 0], [9, 4], [9, 6], [9, 12], [9, 14], [10, 0], [10, 2], [10, 4], [10, 6], [10, 7], [10, 8], [10, 9], [10, 10], [10, 12], [10, 14], [11, 0], [11, 2], [11, 10], [11, 12], [11, 14], [12, 0], [12, 2], [12, 3], [12, 4], [12, 5], [12, 6], [12, 7], [12, 8], [12, 10], [12, 12], [12, 14], [13, 0], [13, 14], [14, 0], [14, 1], [14, 2], [14, 3], [14, 4], [14, 5], [14, 6], [14, 7], [14, 8], [14, 9], [14, 10], [14, 11], [14, 12], [14, 13], [14, 14]];
+let playerR = 1;
+let playerC = 1;
+const startR = 1;
+const startC = 1;
+const exitR = 13;
+const exitC = 13;
+let collected = {};
+let seconds = 0;
+let timer = null;
+let touchStartX = 0;
+let touchStartY = 0;
+let selectedCharacter = "male";
+let currentDifficulty = "easy";
+let requiredWords = 4;
+let activeWords = [];
+
+const difficultySettings = {
+  easy: {
+    total: 4,
+    label: "Easy: 3–4 letter words",
+    banks: [
+      "CAT","DOG","SUN","RUN","HOP","MAP","RED","BOX","BUG","MUD","JAM","PEN","CUP","HAT","FOX","PIG","HEN","LOG","WEB","ZIP",
+      "BAT","COW","OWL","ANT","CAR","BUS","BED","BAG","EGG","FAN","GUM","HUG","JAR","KEY","LEG","NET","POT","RUG","TOY","VAN",
+      "FROG","DUCK","BEAR","FISH","BIRD","LION","GOAT","MILK","CAKE","BOOK","STAR","MOON","TREE","SHIP","SOCK","BALL","JUMP","PLAY",
+      "READ","TYPE","FAST","SLOW","BLUE","PINK","GOLD","RAIN","WIND","SNOW","FIRE","RING","DRUM","BELL","ROAD","PARK","DOOR","DESK",
+      "LAMP","CLAP","SPIN","GRIN","FLIP","SKIP","BUMP","ZOOM","YELL","JOKE","QUIZ","MAZE","WORD","LINE","PAGE","KIND","WILD"
+    ]
+  },
+  medium: {
+    total: 6,
+    label: "Medium: 5–6 letter words",
+    banks: [
+      "APPLE","TIGER","ZEBRA","SNAKE","HORSE","MOUSE","PANDA","EAGLE","SHARK","WHALE","CHAIR","TABLE","HAPPY","SILLY","FUNNY","QUICK",
+      "BRAVE","GREEN","BLACK","WHITE","BROWN","CLOUD","STORM","RIVER","BEACH","MUSIC","DRUMS","PIZZA","TOAST","GRAPE","MELON","LEMON",
+      "MANGO","CHIPS","SAUCE","DANCE","JUMPS","SKATE","SLIDE","SMILE","LAUGH","MAGIC","ROBOT","ALIEN","CROWN","TRAIN","PLANE","SPACE",
+      "LIGHT","NIGHT","WORLD","DREAM","STORY","WORDS","TIMER","BANANA","PICKLE","ROCKET","PLANET","SCHOOL","LIBRARY","TYPING","MONKEY",
+      "DONKEY","RABBIT","TURKEY","DRAGON","WIZARD","CASTLE","PIRATE","PUPPET","BUTTON","WINDOW","YELLOW","ORANGE","PURPLE","SILVER",
+      "CIRCLE","PENCIL","TEACHER","STUDENT","READING","WRITING","GOBLIN","MONSTER","UNICORN"
+    ]
+  },
+  hard: {
+    total: 8,
+    label: "Hard: 7+ letter words",
+    banks: [
+      "KEYBOARD","SENTENCE","COMPUTER","CUPCAKE","NOODLES","DINOSAUR","KANGAROO","PLATYPUS","CROCODILE","UMBRELLA","BACKPACK","TRAMPOLINE",
+      "SKATEBOARD","LOLLIPOP","MARSHMALLOW","JELLYBEAN","SANDWICH","BREAKFAST","FOOTBALL","PLAYGROUND","CLASSROOM","ADVENTURE","CHAMPION",
+      "CHALLENGE","FANTASTIC","RIDICULOUS","TREASURE","EXPLORER","MOUNTAIN","RAINBOW","ELEPHANT","GIRAFFE","PENGUIN","BUTTERFLY","NOTEBOOK",
+      "PAINTBRUSH","SUNSHINE","STARLIGHT","HOMEWORK","DISCOVERY","IMAGINE","CREATIVE","CURIOUS","BRILLIANT","QUESTION","ANSWERING","SPELLING",
+      "VOCABULARY","DICTIONARY","CHOCOLATE","STRAWBERRY","WATERMELON","HAMBURGER","PANCAKES","FRIENDSHIP","AFTERNOON","YESTERDAY","TOMORROW",
+      "IMPORTANT","BEAUTIFUL","WONDERFUL","AMAZINGLY","DIFFICULT","CONFIDENT","PRACTICE","LEARNING","PROBLEM","SOLUTION"
+    ]
+  }
+};
+
+function shuffleArray(arr){
+  const copy = arr.slice();
+  for(let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+function chooseWordsForDifficulty(){
+  const settings = difficultySettings[currentDifficulty];
+  requiredWords = settings.total;
+  activeWords = shuffleArray(settings.banks).slice(0, requiredWords);
+}
+
+function wordAllowedForDifficulty(minDifficulty){
+  if(!minDifficulty) return true;
+  if(currentDifficulty === "hard") return true;
+  if(currentDifficulty === "medium") return minDifficulty === "medium";
+  return false;
+}
+
+function updateDifficultyDisplay(){
+  requiredWords = difficultySettings[currentDifficulty].total;
+
+  const note = document.getElementById("wordLengthNote");
+  if(note) note.textContent = difficultySettings[currentDifficulty].label;
+
+  document.querySelectorAll(".difficulty-btn").forEach(function(btn){
+    btn.classList.toggle("active", btn.dataset.difficulty === currentDifficulty);
+  });
+
+  document.querySelectorAll(".word-token").forEach(function(el){
+    const slot = Number(el.dataset.wordSlot || "0");
+    el.classList.toggle("hidden-difficulty", slot >= requiredWords);
+  });
+}
+
+function resetWordProgress(){
+  collected = {};
+  chooseWordsForDifficulty();
+
+  document.querySelectorAll(".word-token").forEach(function(token){
+    const slot = Number(token.dataset.wordSlot || "0");
+    const word = activeWords[slot];
+
+    if(word){
+      token.dataset.word = word;
+      token.textContent = word;
+      token.style.display = "";
+    }else{
+      token.dataset.word = "";
+      token.textContent = "";
+      token.style.display = "none";
+    }
+  });
+
+  const wordList = document.getElementById("wordList");
+  if(wordList){
+    wordList.innerHTML = "";
+    activeWords.forEach(function(word){
+      const item = document.createElement("div");
+      item.className = "word-item not-found";
+      item.dataset.listWord = word;
+      item.innerHTML = '<span class="tick"></span><span>' + word + '</span>';
+      wordList.appendChild(item);
+    });
+  }
+
+  updateDifficultyDisplay();
+}
+}
+
+function characterHTML(){
+  if(selectedCharacter === "female"){
+    return `<svg viewBox="0 0 100 100" aria-hidden="true" class="avatar-svg">
+  <ellipse cx="50" cy="93" rx="24" ry="5" fill="rgba(15,23,42,.18)"/>
+  <path d="M27 28 Q29 10 50 8 Q71 10 73 28 L76 67 Q66 80 50 80 Q34 80 24 67 Z" fill="#8b451c"/>
+  <path d="M38 55 H62 Q70 58 72 72 L75 91 H25 L28 72 Q30 58 38 55 Z" fill="#e11d48" stroke="#9f1239" stroke-width="2"/>
+  <path d="M35 60 Q27 70 30 82" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M65 60 Q73 70 70 82" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M41 88 L38 98" stroke="#7f1d1d" stroke-width="8" stroke-linecap="round"/>
+  <path d="M59 88 L62 98" stroke="#7f1d1d" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="50" cy="37" r="22" fill="#ffd2a6" stroke="#9a5a2e" stroke-width="2.5"/>
+  <path d="M29 33 Q34 15 50 14 Q66 15 71 33 Q61 26 50 25 Q39 26 29 33 Z" fill="#8b451c"/>
+  <path d="M28 34 Q22 48 27 67 Q33 58 32 43 Z" fill="#8b451c"/>
+  <path d="M72 34 Q78 48 73 67 Q67 58 68 43 Z" fill="#8b451c"/>
+  <circle cx="42" cy="40" r="3.2" fill="#111827"/>
+  <circle cx="58" cy="40" r="3.2" fill="#111827"/>
+  <path d="M43 52 Q50 57 57 52" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <circle cx="41" cy="31" r="4" fill="rgba(255,255,255,.35)"/>
+</svg>`;
+  }
+  return `<svg viewBox="0 0 100 100" aria-hidden="true" class="avatar-svg">
+  <ellipse cx="50" cy="93" rx="24" ry="5" fill="rgba(15,23,42,.18)"/>
+
+  <!-- Shorts / legs -->
+  <path d="M40 82 L37 98" stroke="#1e3a8a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M60 82 L63 98" stroke="#1e3a8a" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- T-shirt -->
+  <path d="M35 55 H65 Q71 58 72 70 L74 84 H26 L28 70 Q29 58 35 55 Z" fill="#2563eb" stroke="#1e3a8a" stroke-width="2"/>
+  <path d="M42 56 L50 64 L58 56" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M32 57 L25 66" stroke="#2563eb" stroke-width="9" stroke-linecap="round"/>
+  <path d="M68 57 L75 66" stroke="#2563eb" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Visible arms drawn over sleeves -->
+  <path d="M29 66 Q24 74 29 83" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <path d="M71 66 Q76 74 71 83" stroke="#f3b98a" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <circle cx="29" cy="83" r="3.8" fill="#f3b98a"/>
+  <circle cx="71" cy="83" r="3.8" fill="#f3b98a"/>
+
+  <!-- Head -->
+  <circle cx="50" cy="36" r="23" fill="#ffd2a6" stroke="#9a5a2e" stroke-width="2.5"/>
+
+  <!-- Crew cut -->
+  <path d="M28 27 Q31 13 50 11 Q69 13 72 27 Q62 22 50 22 Q38 22 28 27 Z" fill="#3a2a22"/>
+  <path d="M30 24 Q50 9 70 24" stroke="#3a2a22" stroke-width="5" stroke-linecap="round"/>
+  <path d="M33 27 Q41 20 50 21 Q59 20 67 27 Q58 25 50 25 Q42 25 33 27 Z" fill="#4b3628"/>
+
+  <!-- Face -->
+  <circle cx="42" cy="38" r="3.2" fill="#111827"/>
+  <circle cx="58" cy="38" r="3.2" fill="#111827"/>
+  <path d="M43 50 Q50 55 57 50" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <circle cx="41" cy="30" r="4" fill="rgba(255,255,255,.35)"/>
+</svg>`;
+}
+
+function setupPlayerElement(el){
+  el.className = "player " + selectedCharacter;
+  el.id = "player";
+  el.innerHTML = characterHTML();
+}
+let pendingWord = null;
+let pendingToken = null;
+
+const spellModal = document.getElementById("spellModal");
+const spellTarget = document.getElementById("spellTarget");
+const spellInput = document.getElementById("spellInput");
+const spellFeedback = document.getElementById("spellFeedback");
+const spellSubmitBtn = document.getElementById("spellSubmitBtn");
+
+const message = document.getElementById("message");
+const timeText = document.getElementById("timeText");
+const scoreText = document.getElementById("scoreText");
+const wordsText = document.getElementById("wordsText");
+const winOverlay = document.getElementById("winOverlay");
+const winText = document.getElementById("winText");
+
+function isWall(r,c){
+  return walls.some(function(w){ return w[0] === r && w[1] === c; });
+}
+
+function cellAt(r,c){
+  return document.querySelector('.cell[data-r="' + r + '"][data-c="' + c + '"]');
+}
+
+function score(){
+  return Math.max(0, 1000 - seconds + Object.keys(collected).length * 50);
+}
+
+function updateStats(){
+  const m = Math.floor(seconds / 60);
+  const s = String(seconds % 60).padStart(2, "0");
+  timeText.textContent = m + ":" + s;
+  scoreText.textContent = score();
+  wordsText.textContent = Object.keys(collected).length + " / " + requiredWords;
+}
+
+function movePlayerVisual(){
+  const old = document.getElementById("player");
+  if(old) old.remove();
+
+  const p = document.createElement("div");
+  setupPlayerElement(p);
+
+  const current = cellAt(playerR, playerC);
+  if(current) current.appendChild(p);
+}
+
+function collectWordIfNeeded(){
+  const current = cellAt(playerR, playerC);
+  if(!current) return;
+
+  const token = current.querySelector(".word-token:not(.hidden-difficulty)");
+  if(token){
+    pendingWord = token.dataset.word;
+    pendingToken = token;
+    spellTarget.textContent = pendingWord;
+    spellInput.value = "";
+    spellFeedback.textContent = "";
+    spellModal.classList.add("show");
+    setTimeout(function(){ spellInput.focus(); }, 50);
+    message.textContent = "Spell " + pendingWord + " to collect it!";
+  }
+}
+
+function completeWordCollection(){
+  if(!pendingWord || !pendingToken) return;
+
+  collected[pendingWord] = true;
+  pendingToken.remove();
+
+  const listItem = document.querySelector('[data-list-word="' + pendingWord + '"]');
+  if(listItem){
+    listItem.classList.remove("not-found");
+    const tick = listItem.querySelector(".tick");
+    if(tick) tick.textContent = "✓";
+  }
+
+  message.textContent = "Collected " + pendingWord + "!";
+  pendingWord = null;
+  pendingToken = null;
+  spellModal.classList.remove("show");
+  updateStats();
+  checkExit();
+}
+
+function checkSpelling(){
+  if(!pendingWord) return;
+
+  const typed = spellInput.value.trim().toUpperCase();
+
+  if(typed === pendingWord){
+    spellFeedback.style.color = "#0f766e";
+    spellFeedback.textContent = "Correct!";
+    setTimeout(completeWordCollection, 250);
+  } else {
+    spellFeedback.style.color = "#dc2626";
+    spellFeedback.textContent = "Try again. Look carefully at the word.";
+    spellInput.select();
+  }
+}
+
+function checkExit(){
+  if(playerR === exitR && playerC === exitC){
+    if(Object.keys(collected).length === requiredWords){
+      clearInterval(timer);
+      const finalScore = score() + 100;
+      winText.textContent = "Score: " + finalScore;
+      winOverlay.classList.add("show");
+    } else {
+      message.textContent = "Collect all the words before using the exit!";
+    }
+  }
+}
+
+function move(dr,dc){
+  if(pendingWord) return;
+  const nr = playerR + dr;
+  const nc = playerC + dc;
+
+  if(nr < 0 || nc < 0 || nr > 14 || nc > 14 || isWall(nr,nc)){
+    message.textContent = "Oops! That's a wall.";
+    return;
+  }
+
+  playerR = nr;
+  playerC = nc;
+  movePlayerVisual();
+  collectWordIfNeeded();
+
+  if(!message.textContent.startsWith("Collected")){
+    message.textContent = "Keep going!";
+  }
+
+  checkExit();
+  updateStats();
+}
+
+function restart(){
+  location.reload();
+}
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "ArrowUp"){ e.preventDefault(); move(-1,0); }
+  if(e.key === "ArrowDown"){ e.preventDefault(); move(1,0); }
+  if(e.key === "ArrowLeft"){ e.preventDefault(); move(0,-1); }
+  if(e.key === "ArrowRight"){ e.preventDefault(); move(0,1); }
+});
+
+document.querySelectorAll(".arrow").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    const dir = btn.dataset.move;
+    if(dir === "up") move(-1,0);
+    if(dir === "down") move(1,0);
+    if(dir === "left") move(0,-1);
+    if(dir === "right") move(0,1);
+  });
+});
+
+document.getElementById("newGameBtn").addEventListener("click", restart);
+document.getElementById("playAgainBtn").addEventListener("click", restart);
+
+spellSubmitBtn.addEventListener("click", checkSpelling);
+spellInput.addEventListener("keydown", function(e){
+  if(e.key === "Enter"){
+    e.preventDefault();
+    checkSpelling();
+  }
+});
+
+const mazeBox = document.getElementById("maze");
+
+mazeBox.addEventListener("touchstart", function(e){
+  if(!e.touches.length) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, {passive:true});
+
+mazeBox.addEventListener("touchend", function(e){
+  if(!e.changedTouches.length) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+
+  if(Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+
+  if(Math.abs(dx) > Math.abs(dy)){
+    if(dx > 0) move(0,1);
+    else move(0,-1);
+  } else {
+    if(dy > 0) move(1,0);
+    else move(-1,0);
+  }
+}, {passive:true});
+
+
+document.querySelectorAll(".character-choice").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    document.querySelectorAll(".character-choice").forEach(function(b){
+      b.classList.remove("selected");
+    });
+    btn.classList.add("selected");
+    selectedCharacter = btn.dataset.character;
+    movePlayerVisual();
+  });
+});
+
+document.getElementById("startGameBtn").addEventListener("click", function(){
+  document.getElementById("startOverlay").classList.add("hide");
+  movePlayerVisual();
+});
+
+
+document.querySelectorAll(".difficulty-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    currentDifficulty = btn.dataset.difficulty;
+    playerR = startR;
+    playerC = startC;
+    seconds = 0;
+    pendingWord = null;
+    pendingToken = null;
+    spellModal.classList.remove("show");
+    winOverlay.classList.remove("show");
+    resetWordProgress();
+    movePlayerVisual();
+    updateStats();
+    message.textContent = "Difficulty changed to " + currentDifficulty + ". Collect " + requiredWords + " words!";
+  });
+});
+
+updateDifficultyDisplay();
+
+timer = setInterval(function(){
+  seconds++;
+  updateStats();
+}, 1000);
+
+resetWordProgress();
+movePlayerVisual();
+updateStats();
+</script>
+
+</body>
+</html>
