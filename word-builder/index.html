@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Word Builder - Bright Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#061946;
+  --red:#ef174d;
+  --orange:#f97316;
+  --yellow:#facc15;
+  --green:#49c600;
+  --blue:#0875f5;
+  --purple:#7030d8;
+  --sky:#38bdf8;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  font-family:'Fredoka', Arial, sans-serif;
+  color:var(--navy);
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);
+  overflow-x:hidden;
+}
+
+.sky-background{
+  position:fixed;
+  inset:0;
+  z-index:-10;
+  overflow:hidden;
+  pointer-events:none;
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);
+}
+
+.sky-background::before{
+  content:"";
+  position:absolute;
+  top:38px;
+  left:38px;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  background:#ffd60a;
+  box-shadow:
+    0 0 35px rgba(255,214,10,.75),
+    0 0 75px rgba(255,214,10,.50),
+    0 0 130px rgba(255,214,10,.28);
+}
+
+.cloud{
+  position:absolute;
+  width:220px;
+  height:74px;
+  background:rgba(255,255,255,.92);
+  border-radius:999px;
+  filter:drop-shadow(0 9px 10px rgba(14,116,144,.16));
+  opacity:.82;
+  animation:cloudDrift linear infinite;
+}
+
+.cloud::before,.cloud::after{
+  content:"";
+  position:absolute;
+  background:rgba(255,255,255,.96);
+  border-radius:50%;
+}
+
+.cloud::before{
+  width:92px;
+  height:92px;
+  left:32px;
+  top:-38px;
+}
+
+.cloud::after{
+  width:118px;
+  height:118px;
+  right:24px;
+  top:-58px;
+}
+
+.cloud.one{top:8%;left:-260px;transform:scale(.75);animation-duration:54s;}
+.cloud.two{top:28%;left:-320px;transform:scale(1.12);animation-duration:72s;animation-delay:-20s;}
+.cloud.three{top:62%;left:-280px;transform:scale(.86);animation-duration:64s;animation-delay:-36s;}
+
+@keyframes cloudDrift{
+  from{margin-left:-380px}
+  to{margin-left:calc(100vw + 520px)}
+}
+
+.side-menu{
+  position:fixed;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:170px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:20;
+}
+
+.side-menu a{
+  background:white;
+  color:#1f2937;
+  text-decoration:none;
+  font-weight:800;
+  text-align:center;
+  padding:12px 16px;
+  border-radius:999px;
+  border:3px solid #bfdbfe;
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+
+.side-menu a:hover{background:#fef3c7}
+
+.sidebar-logo-link{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+
+.sidebar-logo{
+  width:170px;
+  margin:0 auto 10px;
+  padding:12px 12px 14px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff7d6 100%);
+  border-radius:26px;
+  box-shadow:0 7px 16px rgba(0,0,0,.16),0 7px 0 rgba(31,41,55,.10);
+  transform:rotate(-1deg);
+}
+
+.sidebar-bright,.sidebar-arcade{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  white-space:nowrap;
+}
+
+.sidebar-bright span{
+  display:inline-block;
+  font-family:"Baloo 2","Arial Rounded MT Bold",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.68rem;
+  color:var(--c);
+  -webkit-text-stroke:1px white;
+  paint-order:stroke fill;
+  text-shadow:2px 2px 0 white,-2px 2px 0 white,2px -2px 0 white,-2px -2px 0 white,0 4px 0 rgba(31,41,55,.18);
+}
+
+.sidebar-arcade{
+  margin-top:3px;
+  font-family:"Baloo 2","Arial Rounded MT Bold",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.95rem;
+  line-height:.82;
+  letter-spacing:-1px;
+  color:#061946;
+  -webkit-text-stroke:1px white;
+  paint-order:stroke fill;
+  text-shadow:2px 2px 0 white,-2px 2px 0 white,2px -2px 0 white,-2px -2px 0 white,0 4px 0 rgba(31,41,55,.18);
+}
+
+.game{
+  width:min(1080px,100%);
+  margin:0 auto;
+  padding:24px 18px 46px;
+  margin-left:220px;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.title-badge{
+  display:inline-block;
+  position:relative;
+  padding:16px 28px 18px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff7d6 100%);
+  border-radius:42px;
+  box-shadow:0 12px 0 rgba(6,25,70,.12),0 24px 32px rgba(6,25,70,.16);
+  transform:rotate(-1deg);
+}
+
+h1{
+  margin:0;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2.8rem,7vw,5.6rem);
+  line-height:.86;
+  color:#061946;
+  text-shadow:4px 4px 0 white,-4px 4px 0 white,4px -4px 0 white,-4px -4px 0 white,0 8px 0 rgba(6,25,70,.12);
+}
+
+.subtitle{
+  display:inline-block;
+  margin:14px auto 0;
+  background:rgba(255,255,255,.92);
+  border:3px solid white;
+  border-radius:999px;
+  padding:10px 18px;
+  font-size:1.08rem;
+  font-weight:800;
+  color:#164e63;
+}
+
+.main-card{
+  background:rgba(255,255,255,.96);
+  border:5px solid white;
+  border-radius:34px;
+  padding:22px;
+  box-shadow:0 18px 34px rgba(15,23,42,.20);
+}
+
+.screen{display:none}
+.screen.active{display:block}
+
+.instructions{
+  text-align:center;
+  max-width:780px;
+  margin:0 auto 18px;
+  color:#334155;
+  font-size:1.08rem;
+  line-height:1.5;
+  font-weight:700;
+}
+
+.option-heading{
+  text-align:center;
+  font-weight:900;
+  color:#1e3a8a;
+  font-size:1.2rem;
+  margin:18px 0 10px;
+}
+
+.difficulty-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(130px,1fr));
+  gap:14px;
+  margin:12px auto 20px;
+}
+
+.choice{
+  border:4px solid #bfdbfe;
+  border-radius:24px;
+  background:white;
+  padding:18px 12px;
+  font-size:1.05rem;
+  font-weight:900;
+  color:#1e3a8a;
+  cursor:pointer;
+  box-shadow:0 8px 0 #bfdbfe;
+  transition:.12s;
+}
+
+.choice small{
+  display:block;
+  margin-top:5px;
+  color:#64748b;
+  font-weight:800;
+}
+
+.choice:hover,.choice.selected{
+  background:#fef3c7;
+  border-color:#facc15;
+  box-shadow:0 8px 0 #facc15;
+  transform:translateY(-3px) rotate(-1deg);
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+  margin-top:18px;
+}
+
+button{
+  touch-action:manipulation;
+  border:0;
+  border-radius:999px;
+  padding:14px 22px;
+  font-weight:900;
+  font-size:1rem;
+  cursor:pointer;
+}
+
+button:active{transform:scale(.97)}
+
+.primary{
+  background:#ef174d;
+  color:white;
+  font-size:1.15rem;
+  padding:16px 30px;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.24),0 8px 0 rgba(6,25,70,.18);
+}
+
+.secondary{
+  background:#e2e8f0;
+  color:#334155;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.stat{
+  background:#eff6ff;
+  border:3px solid #bfdbfe;
+  border-radius:18px;
+  padding:12px 10px;
+  text-align:center;
+  font-weight:900;
+}
+
+.stat-label{
+  display:block;
+  color:#64748b;
+  font-size:.82rem;
+  margin-bottom:4px;
+}
+
+.stat-value{
+  font-size:1.35rem;
+  color:#1d4ed8;
+}
+
+.play-area{
+  position:relative;
+  background:
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.48) 0 9%,transparent 10%),
+    linear-gradient(135deg,#ecfeff,#fef3c7);
+  border:4px solid #a5f3fc;
+  border-radius:30px;
+  padding:22px;
+  overflow:hidden;
+}
+
+.monster-stage{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  min-height:180px;
+}
+
+.monster{
+  width:160px;
+  height:150px;
+  position:relative;
+  background:
+    radial-gradient(circle at 34% 22%,rgba(255,255,255,.55) 0 10%,transparent 11%),
+    radial-gradient(circle at 72% 80%,rgba(39,0,93,.40) 0 22%,transparent 23%),
+    linear-gradient(145deg,#d8b4fe 0%,#a855f7 38%,#6d28d9 78%,#4c1d95 100%);
+  border:6px solid #061946;
+  border-radius:45% 45% 38% 38%;
+  box-shadow:9px 10px 0 rgba(6,25,70,.25), inset -12px -16px 0 rgba(76,29,149,.35), inset 10px 8px 0 rgba(255,255,255,.25);
+  animation:monsterIdle 1.8s ease-in-out infinite;
+}
+
+@keyframes monsterIdle{
+  0%,100%{transform:translateY(0) rotate(-1deg)}
+  50%{transform:translateY(-8px) rotate(1deg)}
+}
+
+.monster::before{
+  content:"";
+  position:absolute;
+  left:34px;
+  top:34px;
+  width:22px;
+  height:22px;
+  background:white;
+  border:4px solid #061946;
+  border-radius:50%;
+  box-shadow:58px 0 0 white,58px 0 0 4px #061946;
+}
+
+.monster::after{
+  content:"";
+  position:absolute;
+  left:48px;
+  top:94px;
+  width:62px;
+  height:30px;
+  background:#ef4444;
+  border:4px solid #061946;
+  border-radius:0 0 60px 60px;
+  box-shadow:inset 0 -7px 0 rgba(127,29,29,.30);
+}
+
+.monster.happy{
+  animation:monsterCelebrate .45s ease-in-out 3;
+}
+
+@keyframes monsterCelebrate{
+  0%,100%{transform:translateY(0) rotate(-1deg) scale(1)}
+  50%{transform:translateY(-18px) rotate(5deg) scale(1.08)}
+}
+
+.monster.thinking{
+  animation:monsterThink .28s ease-in-out 4;
+}
+
+@keyframes monsterThink{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-7px)}
+  75%{transform:translateX(7px)}
+}
+
+.speech-bubble{
+  position:relative;
+  max-width:440px;
+  background:white;
+  border:4px solid #061946;
+  border-radius:28px;
+  padding:18px 22px;
+  box-shadow:7px 8px 0 rgba(6,25,70,.18);
+}
+
+.speech-bubble::before{
+  content:"";
+  position:absolute;
+  left:-22px;
+  top:60px;
+  width:34px;
+  height:34px;
+  background:white;
+  border-left:4px solid #061946;
+  border-bottom:4px solid #061946;
+  transform:rotate(45deg);
+}
+
+.prompt-label{
+  font-weight:900;
+  color:#64748b;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  font-size:.78rem;
+  letter-spacing:.04em;
+}
+
+.sound-prompt{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2rem,6vw,4.2rem);
+  line-height:.95;
+  color:#5b21b6;
+  letter-spacing:4px;
+  text-align:center;
+}
+
+.build-zone{
+  margin:18px auto 6px;
+  padding:18px;
+  background:white;
+  border:4px dashed #93c5fd;
+  border-radius:26px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  min-height:104px;
+  transition:.15s;
+}
+
+.build-zone.complete{
+  border-color:#facc15;
+  box-shadow:0 0 0 7px rgba(250,204,21,.25);
+  animation:wordCompletePulse .55s ease-in-out;
+}
+
+@keyframes wordCompletePulse{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.035)}
+  100%{transform:scale(1)}
+}
+
+.word-slot{
+  width:86px;
+  min-width:70px;
+  height:64px;
+  border:4px solid #bfdbfe;
+  border-radius:20px;
+  background:#eff6ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  color:#1d4ed8;
+  font-size:1.8rem;
+  box-shadow:inset 0 -6px 0 rgba(37,99,235,.10);
+}
+
+.word-slot.filled{
+  background:#fef3c7;
+  border-color:#facc15;
+  color:#78350f;
+  animation:slotPop .25s ease-in-out;
+}
+
+@keyframes slotPop{
+  0%{transform:scale(.9)}
+  60%{transform:scale(1.12)}
+  100%{transform:scale(1)}
+}
+
+.pieces-area{
+  margin:18px auto 4px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  min-height:100px;
+}
+
+.puzzle-piece{
+  position:relative;
+  min-width:88px;
+  min-height:62px;
+  padding:13px 20px;
+  border:4px solid #061946;
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.62) 0 10%,transparent 11%),
+    linear-gradient(145deg,var(--piece1),var(--piece2));
+  color:#061946;
+  border-radius:18px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:1.85rem;
+  font-weight:900;
+  line-height:1;
+  box-shadow:6px 7px 0 rgba(6,25,70,.20),inset 0 -7px 0 rgba(6,25,70,.10);
+  cursor:pointer;
+  user-select:none;
+  transition:.12s ease;
+}
+
+.puzzle-piece::before{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  right:-15px;
+  top:19px;
+  background:inherit;
+  border:4px solid #061946;
+  border-left:0;
+  border-radius:50%;
+}
+
+.puzzle-piece::after{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  left:28px;
+  bottom:-15px;
+  background:white;
+  border:4px solid #061946;
+  border-top:0;
+  border-radius:50%;
+}
+
+.puzzle-piece:hover{
+  transform:translateY(-8px) rotate(-2deg) scale(1.04);
+}
+
+.puzzle-piece.used{
+  visibility:hidden;
+  pointer-events:none;
+}
+
+.puzzle-piece.wrong{
+  animation:wrongShake .25s ease-in-out 2;
+}
+
+@keyframes wrongShake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px) rotate(-2deg)}
+  75%{transform:translateX(8px) rotate(2deg)}
+}
+
+.flying-piece{
+  position:fixed;
+  z-index:9999;
+  pointer-events:none;
+  animation:flySpin .38s ease-in-out forwards;
+}
+
+@keyframes flySpin{
+  0%{transform:translate(0,0) rotate(0) scale(1)}
+  50%{transform:translate(calc(var(--dx) * .55), calc(var(--dy) * .55 - 35px)) rotate(12deg) scale(1.12)}
+  100%{transform:translate(var(--dx), var(--dy)) rotate(0) scale(1)}
+}
+
+.message{
+  text-align:center;
+  font-weight:900;
+  min-height:30px;
+  color:#164e63;
+  font-size:1.08rem;
+}
+
+.streak-banner{
+  position:fixed;
+  left:50%;
+  top:22%;
+  transform:translate(-50%,-50%) scale(.7);
+  z-index:10000;
+  background:#facc15;
+  color:#78350f;
+  border:5px solid #061946;
+  border-radius:28px;
+  padding:18px 28px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:2.4rem;
+  font-weight:900;
+  box-shadow:9px 10px 0 rgba(6,25,70,.22);
+  opacity:0;
+  pointer-events:none;
+}
+
+.streak-banner.show{
+  animation:streakPop .9s ease-in-out forwards;
+}
+
+@keyframes streakPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-8deg)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1.1) rotate(5deg)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}
+  100%{opacity:0;transform:translate(-50%,-70%) scale(.9)}
+}
+
+.starburst{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+.star{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:16px;
+  height:16px;
+  background:#facc15;
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 56%,79% 91%,50% 70%,21% 91%,32% 56%,2% 35%,39% 35%);
+  animation:starFly .75s ease-out forwards;
+}
+
+@keyframes starFly{
+  from{transform:translate(-50%,-50%) scale(.4);opacity:1}
+  to{transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.1);opacity:0}
+}
+
+.result-box{
+  text-align:center;
+  background:linear-gradient(135deg,#ecfeff,#f5f3ff);
+  border:4px solid #a5f3fc;
+  border-radius:30px;
+  padding:28px;
+}
+
+.result-title{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2.6rem,7vw,5rem);
+  margin:0;
+  color:#5b21b6;
+}
+
+.result-details{
+  font-size:1.25rem;
+  font-weight:800;
+  color:#475569;
+  line-height:1.6;
+  margin-top:10px;
+}
+
+@media(max-width:900px){
+  .side-menu{
+    position:static;
+    transform:none;
+    width:auto;
+    flex-direction:row;
+    justify-content:center;
+    margin:12px auto;
+  }
+
+  .sidebar-logo{display:none}
+  .game{margin-left:auto;padding-top:10px}
+}
+
+@media(max-width:720px){
+  .difficulty-grid{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .monster-stage{flex-direction:column}
+  .speech-bubble::before{display:none}
+}
+
+@media(max-width:520px){
+  .game{padding:8px 10px 34px}
+  .main-card{padding:12px;border-radius:24px}
+  .title-badge{padding:12px 16px 14px;border-radius:30px}
+  h1{font-size:clamp(2.5rem,15vw,4rem)}
+  .subtitle{font-size:.92rem}
+  .difficulty-grid{grid-template-columns:1fr;gap:10px}
+  .choice{box-shadow:0 5px 0 #bfdbfe;padding:16px 10px}
+  .choice.selected,.choice:hover{transform:none;box-shadow:0 5px 0 #facc15}
+  .stats{grid-template-columns:1fr 1fr;gap:6px}
+  .stat{padding:8px;border-width:2px}
+  .stat-value{font-size:1.05rem}
+  .play-area{padding:12px;border-width:3px;border-radius:24px}
+  .monster{width:118px;height:112px;border-width:5px}
+  .monster::before{left:24px;top:25px;width:16px;height:16px;box-shadow:44px 0 0 white,44px 0 0 4px #061946}
+  .monster::after{left:34px;top:70px;width:48px;height:24px}
+  .speech-bubble{padding:14px;border-radius:22px}
+  .sound-prompt{font-size:clamp(2rem,14vw,3.4rem)}
+  .build-zone{padding:12px;gap:7px;min-height:86px}
+  .word-slot{width:62px;min-width:54px;height:52px;font-size:1.35rem;border-width:3px}
+  .puzzle-piece{min-width:70px;min-height:54px;font-size:1.42rem;padding:11px 16px;border-width:3px}
+  .puzzle-piece::before{width:17px;height:17px;right:-12px;top:17px;border-width:3px}
+  .puzzle-piece::after{width:17px;height:17px;left:22px;bottom:-12px;border-width:3px}
+  button{width:100%}
+}
+
+
+/* PUZZLE-THEMED WORD BUILDER HEADER */
+.word-builder-banner{
+  position:relative;
+  width:min(900px,96%);
+  min-height:150px;
+  margin:0 auto;
+  border:8px solid #061946;
+  border-radius:42px;
+  background:
+    radial-gradient(circle at 18% 20%,rgba(255,255,255,.30) 0 13%,transparent 14%),
+    linear-gradient(110deg,#22c55e 0%,#38bdf8 38%,#a855f7 70%,#facc15 100%);
+  box-shadow:
+    0 15px 0 rgba(6,25,70,.92),
+    0 24px 34px rgba(6,25,70,.22),
+    inset 0 8px 0 rgba(255,255,255,.30),
+    inset 0 -10px 0 rgba(6,25,70,.10);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transform:rotate(-.8deg);
+}
+
+.word-builder-banner::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.18) 0 7px,transparent 7px 58px),
+    linear-gradient(0deg,rgba(255,255,255,.16) 0 7px,transparent 7px 58px);
+  opacity:.45;
+}
+
+.word-builder-banner::after{
+  content:"";
+  position:absolute;
+  right:-55px;
+  bottom:-70px;
+  width:240px;
+  height:180px;
+  border-radius:50%;
+  background:rgba(255,255,255,.18);
+  transform:rotate(-18deg);
+}
+
+.banner-title{
+  position:relative;
+  z-index:5;
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:20px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  line-height:.9;
+  letter-spacing:-4px;
+  transform:rotate(.8deg);
+}
+
+.word-text,
+.builder-text{
+  display:inline-block;
+  font-size:clamp(3.8rem,8vw,7.3rem);
+  -webkit-text-stroke:3px #061946;
+  paint-order:stroke fill;
+  text-shadow:
+    5px 5px 0 white,
+    -3px 3px 0 white,
+    3px -3px 0 white,
+    0 10px 0 rgba(6,25,70,.22),
+    0 18px 18px rgba(0,0,0,.20);
+}
+
+.word-text{
+  color:#ffffff;
+  transform:rotate(-2deg);
+}
+
+.builder-text{
+  color:#fef08a;
+  transform:rotate(2deg);
+}
+
+.banner-puzzle{
+  position:absolute;
+  z-index:4;
+  width:116px;
+  height:82px;
+  border:6px solid #061946;
+  border-radius:22px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  font-size:2.3rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#061946;
+  box-shadow:
+    7px 8px 0 rgba(6,25,70,.25),
+    inset 0 -8px 0 rgba(6,25,70,.10);
+}
+
+.banner-puzzle::before{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  top:22px;
+  right:-22px;
+  border:6px solid #061946;
+  border-left:0;
+  border-radius:50%;
+  background:inherit;
+}
+
+.banner-puzzle::after{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  left:36px;
+  bottom:-22px;
+  border:6px solid #061946;
+  border-top:0;
+  border-radius:50%;
+  background:#d9f7ff;
+}
+
+.banner-puzzle.left{
+  left:34px;
+  top:35px;
+  transform:rotate(-9deg);
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.70) 0 12%,transparent 13%),
+    linear-gradient(145deg,#fef08a,#facc15);
+}
+
+.banner-puzzle.right{
+  right:36px;
+  top:36px;
+  transform:rotate(10deg);
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.70) 0 12%,transparent 13%),
+    linear-gradient(145deg,#fecdd3,#fb7185);
+}
+
+.word-builder-banner:hover .banner-puzzle.left{
+  animation:puzzleWiggleLeft .42s ease-in-out infinite alternate;
+}
+
+.word-builder-banner:hover .banner-puzzle.right{
+  animation:puzzleWiggleRight .42s ease-in-out infinite alternate;
+}
+
+@keyframes puzzleWiggleLeft{
+  from{transform:rotate(-11deg) translateY(0)}
+  to{transform:rotate(-3deg) translateY(-8px)}
+}
+
+@keyframes puzzleWiggleRight{
+  from{transform:rotate(10deg) translateY(0)}
+  to{transform:rotate(3deg) translateY(-8px)}
+}
+
+@media(max-width:760px){
+  .word-builder-banner{
+    min-height:128px;
+    border-width:6px;
+    border-radius:34px;
+  }
+
+  .banner-title{
+    flex-direction:column;
+    gap:0;
+    letter-spacing:-2px;
+  }
+
+  .word-text,
+  .builder-text{
+    font-size:clamp(3rem,14vw,5.2rem);
+  }
+
+  .banner-puzzle{
+    width:78px;
+    height:58px;
+    font-size:1.5rem;
+    border-width:4px;
+  }
+
+  .banner-puzzle::before{
+    width:20px;
+    height:20px;
+    top:17px;
+    right:-15px;
+    border-width:4px;
+  }
+
+  .banner-puzzle::after{
+    width:20px;
+    height:20px;
+    left:24px;
+    bottom:-15px;
+    border-width:4px;
+  }
+
+  .banner-puzzle.left{
+    left:12px;
+    top:34px;
+  }
+
+  .banner-puzzle.right{
+    right:12px;
+    top:34px;
+  }
+}
+
+@media(max-width:480px){
+  .word-builder-banner{
+    min-height:116px;
+  }
+
+  .banner-puzzle{
+    opacity:.85;
+    transform:scale(.8);
+  }
+
+  .banner-puzzle.left{
+    left:4px;
+  }
+
+  .banner-puzzle.right{
+    right:4px;
+  }
+}
+
+/* FRIENDLIER WORD BUILDER MONSTER */
+.monster{
+  width:170px !important;
+  height:150px !important;
+  position:relative;
+  background:
+    radial-gradient(circle at 35% 18%,rgba(255,255,255,.70) 0 12%,transparent 13%),
+    radial-gradient(circle at 70% 74%,rgba(91,33,182,.28) 0 24%,transparent 25%),
+    linear-gradient(145deg,#d8b4fe 0%,#b06cff 42%,#7c3aed 78%,#5b21b6 100%) !important;
+  border:6px solid #061946 !important;
+  border-radius:48% 48% 42% 42% !important;
+  box-shadow:
+    9px 10px 0 rgba(6,25,70,.20),
+    inset -12px -15px 0 rgba(76,29,149,.28),
+    inset 12px 9px 0 rgba(255,255,255,.25) !important;
+  animation:monsterIdle 1.8s ease-in-out infinite;
+}
+
+.monster::before{
+  content:"" !important;
+  position:absolute !important;
+  left:34px !important;
+  top:35px !important;
+  width:34px !important;
+  height:38px !important;
+  background:
+    radial-gradient(circle at 38% 35%,#ffffff 0 30%,#dbeafe 31% 100%) !important;
+  border:5px solid #061946 !important;
+  border-radius:50% !important;
+  box-shadow:
+    66px 0 0 #ffffff,
+    66px 0 0 5px #061946 !important;
+}
+
+.monster::after{
+  content:"" !important;
+  position:absolute !important;
+  left:52px !important;
+  top:92px !important;
+  width:62px !important;
+  height:28px !important;
+  background:transparent !important;
+  border:0 !important;
+  border-bottom:8px solid #061946 !important;
+  border-radius:0 0 80px 80px !important;
+  box-shadow:none !important;
+}
+
+.monster .pupil{
+  position:absolute;
+  left:48px;
+  top:50px;
+  width:11px;
+  height:13px;
+  border-radius:50%;
+  background:#061946;
+  z-index:3;
+  box-shadow:66px 0 0 #061946;
+  animation:blink 4.5s ease-in-out infinite;
+}
+
+.monster .cheek{
+  position:absolute;
+  left:24px;
+  top:82px;
+  width:22px;
+  height:13px;
+  background:rgba(251,113,133,.42);
+  border-radius:50%;
+  z-index:2;
+  box-shadow:104px 0 0 rgba(251,113,133,.42);
+}
+
+.monster .horn-left,
+.monster .horn-right{
+  position:absolute;
+  top:-20px;
+  width:34px;
+  height:38px;
+  background:linear-gradient(145deg,#fef3c7,#facc15);
+  border:5px solid #061946;
+  border-radius:50% 50% 12px 12px;
+  z-index:-1;
+}
+
+.monster .horn-left{
+  left:34px;
+  transform:rotate(-18deg);
+}
+
+.monster .horn-right{
+  right:34px;
+  transform:rotate(18deg);
+}
+
+@keyframes blink{
+  0%,92%,100%{transform:scaleY(1)}
+  95%{transform:scaleY(.15)}
+}
+
+
+/* FRIENDLIER WORD BUILDER MONSTER OVERRIDE */
+.monster{
+  width:170px !important;
+  height:150px !important;
+  background:
+    radial-gradient(circle at 35% 18%,rgba(255,255,255,.70) 0 12%,transparent 13%),
+    radial-gradient(circle at 70% 74%,rgba(91,33,182,.28) 0 24%,transparent 25%),
+    linear-gradient(145deg,#d8b4fe 0%,#b06cff 42%,#7c3aed 78%,#5b21b6 100%) !important;
+  border-radius:48% 48% 42% 42% !important;
+  box-shadow:
+    9px 10px 0 rgba(6,25,70,.20),
+    inset -12px -15px 0 rgba(76,29,149,.28),
+    inset 12px 9px 0 rgba(255,255,255,.25) !important;
+}
+
+.monster::before{
+  left:34px !important;
+  top:35px !important;
+  width:34px !important;
+  height:38px !important;
+  background:
+    radial-gradient(circle at 38% 35%,#ffffff 0 30%,#dbeafe 31% 100%) !important;
+  border:5px solid #061946 !important;
+  border-radius:50% !important;
+  box-shadow:
+    66px 0 0 #ffffff,
+    66px 0 0 5px #061946 !important;
+}
+
+.monster::after{
+  left:52px !important;
+  top:92px !important;
+  width:62px !important;
+  height:28px !important;
+  background:transparent !important;
+  border:0 !important;
+  border-bottom:8px solid #061946 !important;
+  border-radius:0 0 80px 80px !important;
+  box-shadow:none !important;
+}
+
+.monster .pupil{
+  position:absolute;
+  left:48px;
+  top:50px;
+  width:11px;
+  height:13px;
+  border-radius:50%;
+  background:#061946;
+  z-index:3;
+  box-shadow:66px 0 0 #061946;
+  animation:blink 4.5s ease-in-out infinite;
+}
+
+.monster .cheek{
+  position:absolute;
+  left:24px;
+  top:82px;
+  width:22px;
+  height:13px;
+  background:rgba(251,113,133,.42);
+  border-radius:50%;
+  z-index:2;
+  box-shadow:104px 0 0 rgba(251,113,133,.42);
+}
+
+.monster .horn-left,
+.monster .horn-right{
+  position:absolute;
+  top:-20px;
+  width:34px;
+  height:38px;
+  background:linear-gradient(145deg,#fef3c7,#facc15);
+  border:5px solid #061946;
+  border-radius:50% 50% 12px 12px;
+  z-index:-1;
+}
+
+.monster .horn-left{
+  left:34px;
+  transform:rotate(-18deg);
+}
+
+.monster .horn-right{
+  right:34px;
+  transform:rotate(18deg);
+}
+
+@keyframes blink{
+  0%,92%,100%{transform:scaleY(1)}
+  95%{transform:scaleY(.15)}
+}
+
+
+/* WORD BUILDER HEADER ONLY - DOES NOT AFFECT GAME PIECES */
+.wb-title-card{
+  position:relative;
+  width:min(920px,96%);
+  height:150px;
+  margin:0 auto;
+  border:8px solid #061946;
+  border-radius:46px;
+  background:
+    radial-gradient(circle at 15% 22%,rgba(255,255,255,.23) 0 14%,transparent 15%),
+    radial-gradient(circle at 82% 78%,rgba(6,25,70,.15) 0 18%,transparent 19%),
+    linear-gradient(110deg,#22c55e 0%,#17b7dd 34%,#7c3aed 68%,#facc15 100%);
+  box-shadow:
+    0 16px 0 rgba(6,25,70,.96),
+    0 28px 34px rgba(6,25,70,.26),
+    inset 0 9px 0 rgba(255,255,255,.30),
+    inset 0 -11px 0 rgba(6,25,70,.12);
+  overflow:hidden;
+  transform:rotate(-.6deg);
+}
+
+.wb-title-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.13) 0 8px,transparent 8px 64px),
+    linear-gradient(0deg,rgba(255,255,255,.11) 0 8px,transparent 8px 64px);
+  opacity:.30;
+}
+
+.wb-title-card::after{
+  content:"";
+  position:absolute;
+  right:-55px;
+  bottom:-80px;
+  width:260px;
+  height:185px;
+  border-radius:50%;
+  background:rgba(255,255,255,.17);
+  transform:rotate(-15deg);
+}
+
+.wb-title-text{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  line-height:.86;
+  letter-spacing:-3px;
+  transform:rotate(.6deg);
+}
+
+.wb-word,
+.wb-builder{
+  display:inline-block;
+  font-size:clamp(3.45rem,6.8vw,6.45rem);
+  -webkit-text-stroke:3px #061946;
+  paint-order:stroke fill;
+  text-shadow:
+    4px 4px 0 #061946,
+    -2px 2px 0 #061946,
+    2px -2px 0 #061946,
+    -2px -2px 0 #061946,
+    0 8px 0 rgba(6,25,70,.25),
+    0 15px 15px rgba(0,0,0,.18);
+}
+
+.wb-word{
+  color:#ffffff;
+  transform:rotate(-2deg);
+}
+
+.wb-builder{
+  color:#fef08a;
+  transform:rotate(2deg);
+}
+
+.wb-piece{
+  position:absolute;
+  z-index:6;
+  width:112px;
+  height:78px;
+  border:6px solid #061946;
+  border-radius:22px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  font-size:2.15rem;
+  color:#061946;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:
+    7px 8px 0 rgba(6,25,70,.25),
+    inset 0 -8px 0 rgba(6,25,70,.12);
+}
+
+.wb-piece::before{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  top:20px;
+  right:-22px;
+  border:6px solid #061946;
+  border-left:0;
+  border-radius:50%;
+  background:inherit;
+}
+
+.wb-piece::after{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  left:36px;
+  bottom:-22px;
+  border:6px solid #061946;
+  border-top:0;
+  border-radius:50%;
+  background:#d9f7ff;
+}
+
+.wb-piece-left{
+  left:32px;
+  top:36px;
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.72) 0 12%,transparent 13%),
+    linear-gradient(145deg,#fef08a,#facc15);
+  animation:wbLeftFloat 1.35s ease-in-out infinite;
+}
+
+.wb-piece-right{
+  right:34px;
+  top:36px;
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.72) 0 12%,transparent 13%),
+    linear-gradient(145deg,#fecdd3,#fb7185);
+  animation:wbRightFloat 1.35s ease-in-out infinite;
+  animation-delay:.18s;
+}
+
+@keyframes wbLeftFloat{
+  0%,100%{transform:rotate(-10deg) translateY(0)}
+  50%{transform:rotate(-4deg) translateY(-9px)}
+}
+
+@keyframes wbRightFloat{
+  0%,100%{transform:rotate(10deg) translateY(0)}
+  50%{transform:rotate(4deg) translateY(-9px)}
+}
+
+@media(max-width:780px){
+  .wb-title-card{
+    height:136px;
+    border-width:6px;
+    border-radius:38px;
+  }
+
+  .wb-title-text{
+    flex-direction:column;
+    gap:0;
+    letter-spacing:-2px;
+  }
+
+  .wb-word,
+  .wb-builder{
+    font-size:clamp(3rem,13vw,5.4rem);
+    -webkit-text-stroke:3px #061946;
+  }
+
+  .wb-piece{
+    width:78px;
+    height:56px;
+    font-size:1.45rem;
+    border-width:4px;
+  }
+
+  .wb-piece::before{
+    width:20px;
+    height:20px;
+    top:16px;
+    right:-15px;
+    border-width:4px;
+  }
+
+  .wb-piece::after{
+    width:20px;
+    height:20px;
+    left:24px;
+    bottom:-15px;
+    border-width:4px;
+  }
+
+  .wb-piece-left{
+    left:12px;
+    top:40px;
+  }
+
+  .wb-piece-right{
+    right:12px;
+    top:40px;
+  }
+}
+
+@media(max-width:500px){
+  .wb-title-card{
+    height:122px;
+  }
+
+  .wb-piece{
+    opacity:.72;
+  }
+
+  .wb-word,
+  .wb-builder{
+    font-size:clamp(2.6rem,15vw,4.5rem);
+  }
+}
+
+
+/* FORCE GAME PUZZLE LETTERS ABOVE THE PUZZLE SHAPE */
+.puzzle-piece{
+  color:#061946 !important;
+}
+
+.puzzle-piece .piece-label{
+  position:relative;
+  z-index:5;
+  display:inline-block;
+  color:#061946 !important;
+  line-height:1;
+  pointer-events:none;
+}
+
+</style>
+</head>
+
+<body>
+<div class="sky-background" aria-hidden="true">
+  <div class="cloud one"></div>
+  <div class="cloud two"></div>
+  <div class="cloud three"></div>
+</div>
+
+<nav class="side-menu">
+<a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home">
+  <div class="sidebar-logo">
+    <div class="sidebar-bright">
+      <span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span><span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span>
+    </div>
+    <div class="sidebar-arcade">ARCADE</div>
+  </div>
+</a>
+<a href="/">Home</a>
+</nav>
+
+<div class="game">
+<header class="header">
+  <div class="wb-title-card" aria-label="Word Builder">
+    <div class="wb-piece wb-piece-left">wo</div>
+    <div class="wb-title-text">
+      <span class="wb-word">Word</span>
+      <span class="wb-builder">Builder</span>
+    </div>
+    <div class="wb-piece wb-piece-right">rd</div>
+  </div>
+  <p class="subtitle">Build words from puzzle pieces!</p>
+</header>
+
+<main class="main-card">
+  <section class="screen active" id="startScreen">
+    <p class="instructions">Choose a level. Look at the sound chunks, then click the puzzle pieces in the correct order to build the word.</p>
+
+    <div class="option-heading">Choose Difficulty</div>
+    <div class="difficulty-grid">
+      <button type="button" class="choice selected" data-level="easy">Easy<small>CVC words</small></button>
+      <button type="button" class="choice" data-level="medium">Medium<small>Digraphs</small></button>
+      <button type="button" class="choice" data-level="hard">Hard<small>Blends</small></button>
+      <button type="button" class="choice" data-level="expert">Expert<small>Chunks</small></button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="startBtn">Start Building</button>
+    </div>
+  </section>
+
+  <section class="screen" id="gameScreen">
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Words</span><span class="stat-value" id="wordsBuilt">0 / 12</span></div>
+      <div class="stat"><span class="stat-label">Score</span><span class="stat-value" id="scoreText">0</span></div>
+      <div class="stat"><span class="stat-label">Streak</span><span class="stat-value" id="streakText">0</span></div>
+      <div class="stat"><span class="stat-label">Mistakes</span><span class="stat-value" id="mistakesText">0</span></div>
+    </div>
+
+    <section class="play-area">
+      <div class="starburst" id="starburst"></div>
+
+      <div class="monster-stage">
+        <div class="monster" id="monster"><span class="horn-left"></span><span class="horn-right"></span><span class="pupil"></span><span class="cheek"></span></div>
+        <div class="speech-bubble">
+          <div class="prompt-label">Blend these sounds</div>
+          <div class="sound-prompt" id="soundPrompt">c a t</div>
+        </div>
+      </div>
+
+      <div class="build-zone" id="buildZone"></div>
+      <div class="pieces-area" id="piecesArea"></div>
+      <div class="message" id="message">Click the puzzle pieces in order.</div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="secondary" id="clearBtn">Clear Word</button>
+      <button type="button" class="secondary" id="menuBtn">Back to Menu</button>
+    </div>
+  </section>
+
+  <section class="screen" id="resultScreen">
+    <div class="result-box">
+      <p class="result-title">Great Building!</p>
+      <div class="result-details" id="resultDetails"></div>
+    </div>
+    <div class="actions">
+      <button type="button" class="primary" id="playAgainBtn">Play Again</button>
+      <button type="button" class="secondary" id="chooseLevelBtn">Choose Difficulty</button>
+    </div>
+  </section>
+</main>
+</div>
+
+<div class="streak-banner" id="streakBanner">STREAK!</div>
+
+<script>
+const WORD_BANKS = {
+  easy: [
+    {word:"cat", chunks:["c","a","t"]},
+    {word:"dog", chunks:["d","o","g"]},
+    {word:"sun", chunks:["s","u","n"]},
+    {word:"hat", chunks:["h","a","t"]},
+    {word:"pin", chunks:["p","i","n"]},
+    {word:"map", chunks:["m","a","p"]},
+    {word:"bed", chunks:["b","e","d"]},
+    {word:"cup", chunks:["c","u","p"]},
+    {word:"jam", chunks:["j","a","m"]},
+    {word:"run", chunks:["r","u","n"]},
+    {word:"fox", chunks:["f","o","x"]},
+    {word:"pig", chunks:["p","i","g"]},
+    {word:"box", chunks:["b","o","x"]},
+    {word:"web", chunks:["w","e","b"]},
+    {word:"hen", chunks:["h","e","n"]},
+    {word:"log", chunks:["l","o","g"]}
+  ],
+  medium: [
+    {word:"ship", chunks:["sh","i","p"]},
+    {word:"shop", chunks:["sh","o","p"]},
+    {word:"chat", chunks:["ch","a","t"]},
+    {word:"chip", chunks:["ch","i","p"]},
+    {word:"thin", chunks:["th","i","n"]},
+    {word:"that", chunks:["th","a","t"]},
+    {word:"duck", chunks:["d","u","ck"]},
+    {word:"kick", chunks:["k","i","ck"]},
+    {word:"ring", chunks:["r","i","ng"]},
+    {word:"song", chunks:["s","o","ng"]},
+    {word:"fish", chunks:["f","i","sh"]},
+    {word:"much", chunks:["m","u","ch"]},
+    {word:"path", chunks:["p","a","th"]},
+    {word:"wing", chunks:["w","i","ng"]},
+    {word:"lock", chunks:["l","o","ck"]},
+    {word:"rush", chunks:["r","u","sh"]}
+  ],
+  hard: [
+    {word:"frog", chunks:["f","r","o","g"]},
+    {word:"stop", chunks:["s","t","o","p"]},
+    {word:"drum", chunks:["d","r","u","m"]},
+    {word:"black", chunks:["b","l","a","ck"]},
+    {word:"spin", chunks:["s","p","i","n"]},
+    {word:"flag", chunks:["f","l","a","g"]},
+    {word:"clap", chunks:["c","l","a","p"]},
+    {word:"brick", chunks:["b","r","i","ck"]},
+    {word:"grass", chunks:["g","r","a","ss"]},
+    {word:"truck", chunks:["t","r","u","ck"]},
+    {word:"crab", chunks:["c","r","a","b"]},
+    {word:"skip", chunks:["s","k","i","p"]},
+    {word:"smell", chunks:["s","m","e","ll"]},
+    {word:"plant", chunks:["p","l","a","n","t"]},
+    {word:"stamp", chunks:["s","t","a","m","p"]}
+  ],
+  expert: [
+    {word:"street", chunks:["s","t","r","ee","t"]},
+    {word:"bright", chunks:["br","igh","t"]},
+    {word:"splash", chunks:["s","p","l","a","sh"]},
+    {word:"cheese", chunks:["ch","ee","s","e"]},
+    {word:"train", chunks:["t","r","ai","n"]},
+    {word:"float", chunks:["f","l","oa","t"]},
+    {word:"green", chunks:["g","r","ee","n"]},
+    {word:"brown", chunks:["br","ow","n"]},
+    {word:"light", chunks:["l","igh","t"]},
+    {word:"spoon", chunks:["s","p","oo","n"]},
+    {word:"storm", chunks:["s","t","or","m"]},
+    {word:"chair", chunks:["ch","air"]},
+    {word:"toast", chunks:["t","oa","s","t"]},
+    {word:"clown", chunks:["c","l","ow","n"]}
+  ]
+};
+
+const TOTAL_WORDS = 12;
+let selectedLevel = "easy";
+let currentWords = [];
+let currentWordIndex = 0;
+let currentWord = null;
+let buildIndex = 0;
+let score = 0;
+let streak = 0;
+let mistakes = 0;
+
+const startScreen = document.getElementById("startScreen");
+const gameScreen = document.getElementById("gameScreen");
+const resultScreen = document.getElementById("resultScreen");
+const choices = document.querySelectorAll(".choice");
+const startBtn = document.getElementById("startBtn");
+const soundPrompt = document.getElementById("soundPrompt");
+const buildZone = document.getElementById("buildZone");
+const piecesArea = document.getElementById("piecesArea");
+const message = document.getElementById("message");
+const wordsBuilt = document.getElementById("wordsBuilt");
+const scoreText = document.getElementById("scoreText");
+const streakText = document.getElementById("streakText");
+const mistakesText = document.getElementById("mistakesText");
+const clearBtn = document.getElementById("clearBtn");
+const menuBtn = document.getElementById("menuBtn");
+const playAgainBtn = document.getElementById("playAgainBtn");
+const chooseLevelBtn = document.getElementById("chooseLevelBtn");
+const resultDetails = document.getElementById("resultDetails");
+const monster = document.getElementById("monster");
+const streakBanner = document.getElementById("streakBanner");
+const starburst = document.getElementById("starburst");
+
+function showScreen(screen){
+  startScreen.classList.remove("active");
+  gameScreen.classList.remove("active");
+  resultScreen.classList.remove("active");
+  screen.classList.add("active");
+}
+
+function shuffle(arr){
+  const copy = arr.slice();
+  for(let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+function updateStats(){
+  wordsBuilt.textContent = currentWordIndex + " / " + TOTAL_WORDS;
+  scoreText.textContent = score;
+  streakText.textContent = streak;
+  mistakesText.textContent = mistakes;
+}
+
+function chooseLevel(level, button){
+  selectedLevel = level;
+  choices.forEach(function(choice){ choice.classList.remove("selected"); });
+  button.classList.add("selected");
+}
+
+choices.forEach(function(button){
+  button.addEventListener("click", function(){
+    chooseLevel(button.dataset.level, button);
+  });
+});
+
+function startGame(){
+  currentWords = shuffle(WORD_BANKS[selectedLevel]).slice(0, TOTAL_WORDS);
+  currentWordIndex = 0;
+  score = 0;
+  streak = 0;
+  mistakes = 0;
+  showScreen(gameScreen);
+  loadWord();
+}
+
+function loadWord(){
+  currentWord = currentWords[currentWordIndex];
+  buildIndex = 0;
+  buildZone.classList.remove("complete");
+  soundPrompt.textContent = currentWord.chunks.join("   ");
+  message.textContent = "Blend the sounds, then build the word.";
+  updateStats();
+
+  buildZone.innerHTML = "";
+  currentWord.chunks.forEach(function(){
+    const slot = document.createElement("div");
+    slot.className = "word-slot";
+    buildZone.appendChild(slot);
+  });
+
+  const distractorCount = getDistractorCount(currentWord.chunks.length);
+  const distractors = makeDistractors(currentWord.chunks, distractorCount);
+
+  // IMPORTANT:
+  // Always include every required chunk. Never shuffle and then trim the full list,
+  // because that can accidentally remove a required piece and make the word impossible.
+  const pieces = shuffle(currentWord.chunks.concat(distractors));
+
+  piecesArea.innerHTML = "";
+  pieces.forEach(function(pieceData, index){
+    const chunkValue = (typeof pieceData === "string") ? pieceData : pieceData.chunk;
+    const pieceId = (typeof pieceData === "string") ? ("piece-" + index + "-" + chunkValue) : pieceData.id;
+
+    const piece = document.createElement("button");
+    piece.type = "button";
+    piece.className = "puzzle-piece";
+    piece.innerHTML = '<span class="piece-label">' + chunkValue + '</span>';
+    piece.dataset.chunk = chunkValue;
+    piece.dataset.pieceId = pieceId;
+    piece.style.setProperty("--piece1", pieceColor(index).one);
+    piece.style.setProperty("--piece2", pieceColor(index).two);
+    piece.addEventListener("click", function(){ handlePieceClick(piece); });
+    piecesArea.appendChild(piece);
+  });
+
+  validateRequiredPiecesVisible();
+}
+
+function getDistractorCount(chunkCount){
+  if(selectedLevel === "easy") return 2;
+  if(selectedLevel === "medium") return 3;
+  if(selectedLevel === "hard") return 3;
+  return 4;
+}
+
+function makeDistractors(chunks, count){
+  const all = ["a","e","i","o","u","b","c","d","f","g","h","j","k","l","m","n","p","r","s","t","w","sh","ch","th","ck","ng","ee","oa","ai","oo","igh","or","ow","air","br","fl","gr","pl","st","sp","tr","dr","cl","fr"];
+
+  const filtered = all.filter(function(item){
+    return chunks.indexOf(item) === -1;
+  });
+
+  return shuffle(filtered).slice(0, count);
+}
+
+
+function validateRequiredPiecesVisible(){
+  const available = {};
+  piecesArea.querySelectorAll(".puzzle-piece").forEach(function(piece){
+    const chunk = piece.dataset.chunk;
+    available[chunk] = (available[chunk] || 0) + 1;
+  });
+
+  const needed = {};
+  currentWord.chunks.forEach(function(chunk){
+    needed[chunk] = (needed[chunk] || 0) + 1;
+  });
+
+  Object.keys(needed).forEach(function(chunk){
+    if(!available[chunk] || available[chunk] < needed[chunk]){
+      console.error("Missing required puzzle piece:", chunk, "Needed:", needed[chunk], "Available:", available[chunk] || 0);
+      message.textContent = "Oops — this word needs a reset. Loading another word.";
+      setTimeout(loadWord, 500);
+    }
+  });
+}
+
+
+function pieceColor(index){
+  const colours = [
+    {one:"#fef08a",two:"#facc15"},
+    {one:"#bfdbfe",two:"#38bdf8"},
+    {one:"#fecdd3",two:"#fb7185"},
+    {one:"#dcfce7",two:"#22c55e"},
+    {one:"#e9d5ff",two:"#a855f7"},
+    {one:"#fed7aa",two:"#f97316"}
+  ];
+  return colours[index % colours.length];
+}
+
+function handlePieceClick(piece){
+  const expected = currentWord.chunks[buildIndex];
+  const chosen = piece.dataset.chunk;
+
+  if(!chosen || chosen === "undefined"){
+    console.error("Puzzle piece has no chunk value:", piece);
+    message.textContent = "Oops — this piece did not load properly. Resetting the word.";
+    setTimeout(loadWord, 400);
+    return;
+  }
+
+  if(chosen !== expected){
+    mistakes++;
+    streak = 0;
+    updateStats();
+    piece.classList.add("wrong");
+    monster.classList.remove("happy");
+    monster.classList.add("thinking");
+    message.textContent = "Not quite. Try the next sound carefully.";
+    setTimeout(function(){
+      piece.classList.remove("wrong");
+      monster.classList.remove("thinking");
+    }, 600);
+    return;
+  }
+
+  animatePieceToSlot(piece, buildIndex, function(){
+    const slot = buildZone.children[buildIndex];
+    slot.textContent = chosen;
+    slot.classList.add("filled");
+    piece.classList.add("used");
+    buildIndex++;
+
+    if(buildIndex >= currentWord.chunks.length){
+      completeWord();
+    }else{
+      message.textContent = "Great! Keep building.";
+    }
+  });
+}
+
+function animatePieceToSlot(piece, slotIndex, callback){
+  const slot = buildZone.children[slotIndex];
+  const pieceRect = piece.getBoundingClientRect();
+  const slotRect = slot.getBoundingClientRect();
+
+  const clone = piece.cloneNode(true);
+  clone.classList.add("flying-piece");
+  clone.style.left = pieceRect.left + "px";
+  clone.style.top = pieceRect.top + "px";
+  clone.style.width = pieceRect.width + "px";
+  clone.style.height = pieceRect.height + "px";
+  clone.style.setProperty("--dx", (slotRect.left + slotRect.width/2 - pieceRect.left - pieceRect.width/2) + "px");
+  clone.style.setProperty("--dy", (slotRect.top + slotRect.height/2 - pieceRect.top - pieceRect.height/2) + "px");
+  document.body.appendChild(clone);
+
+  setTimeout(function(){
+    clone.remove();
+    callback();
+  }, 390);
+}
+
+function completeWord(){
+  buildZone.classList.add("complete");
+  score += 10 + streak * 2;
+  streak++;
+  updateStats();
+  message.textContent = currentWord.word.toUpperCase() + " built!";
+  monster.classList.remove("thinking");
+  monster.classList.add("happy");
+  burstStars();
+
+  if(streak > 0 && streak % 5 === 0){
+    showStreak();
+  }
+
+  setTimeout(function(){
+    monster.classList.remove("happy");
+    currentWordIndex++;
+    if(currentWordIndex >= TOTAL_WORDS){
+      finishGame();
+    }else{
+      loadWord();
+    }
+  }, 1150);
+}
+
+function burstStars(){
+  starburst.innerHTML = "";
+  for(let i = 0; i < 16; i++){
+    const star = document.createElement("div");
+    star.className = "star";
+    const angle = (Math.PI * 2 * i) / 16;
+    const distance = 90 + Math.random() * 80;
+    star.style.setProperty("--x", Math.cos(angle) * distance + "px");
+    star.style.setProperty("--y", Math.sin(angle) * distance + "px");
+    starburst.appendChild(star);
+  }
+  setTimeout(function(){ starburst.innerHTML = ""; }, 900);
+}
+
+function showStreak(){
+  streakBanner.textContent = "STREAK x" + streak + "!";
+  streakBanner.classList.remove("show");
+  void streakBanner.offsetWidth;
+  streakBanner.classList.add("show");
+}
+
+function clearWord(){
+  buildIndex = 0;
+  message.textContent = "Word cleared. Try again.";
+  buildZone.classList.remove("complete");
+  const slots = buildZone.querySelectorAll(".word-slot");
+  slots.forEach(function(slot){
+    slot.textContent = "";
+    slot.classList.remove("filled");
+  });
+  const pieces = piecesArea.querySelectorAll(".puzzle-piece");
+  pieces.forEach(function(piece){
+    piece.classList.remove("used");
+  });
+}
+
+function finishGame(){
+  const accuracy = Math.round((TOTAL_WORDS / Math.max(TOTAL_WORDS + mistakes, 1)) * 100);
+  resultDetails.innerHTML =
+    "<strong>Words Built:</strong> " + TOTAL_WORDS + "<br>" +
+    "<strong>Score:</strong> " + score + "<br>" +
+    "<strong>Accuracy:</strong> " + accuracy + "%<br>" +
+    "<strong>Mistakes:</strong> " + mistakes + "<br>" +
+    "<strong>Best Streak:</strong> " + streak;
+  showScreen(resultScreen);
+}
+
+function backToMenu(){
+  showScreen(startScreen);
+}
+
+startBtn.addEventListener("click", startGame);
+clearBtn.addEventListener("click", clearWord);
+menuBtn.addEventListener("click", backToMenu);
+playAgainBtn.addEventListener("click", startGame);
+chooseLevelBtn.addEventListener("click", backToMenu);
+</script>
+</body>
+</html>
