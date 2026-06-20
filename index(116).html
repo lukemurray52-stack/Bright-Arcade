@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Number Race - Bright Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#061946;
+  --red:#ef174d;
+  --orange:#f97316;
+  --yellow:#facc15;
+  --green:#22c55e;
+  --blue:#0875f5;
+  --purple:#7030d8;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  font-family:'Fredoka',Arial,sans-serif;
+  color:var(--navy);
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);
+  overflow-x:hidden;
+}
+
+.sky-background{
+  position:fixed;
+  inset:0;
+  z-index:-10;
+  overflow:hidden;
+  pointer-events:none;
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);
+}
+
+.sky-background::before{
+  content:"";
+  position:absolute;
+  top:38px;
+  left:38px;
+  width:112px;
+  height:112px;
+  border-radius:50%;
+  background:#ffd60a;
+  box-shadow:
+    0 0 35px rgba(255,214,10,.75),
+    0 0 75px rgba(255,214,10,.50),
+    0 0 130px rgba(255,214,10,.28);
+}
+
+.cloud{
+  position:absolute;
+  width:220px;
+  height:74px;
+  background:rgba(255,255,255,.88);
+  border-radius:999px;
+  filter:drop-shadow(0 9px 10px rgba(14,116,144,.16));
+  opacity:.72;
+  animation:cloudDrift linear infinite;
+}
+
+.cloud::before,.cloud::after{
+  content:"";
+  position:absolute;
+  background:rgba(255,255,255,.96);
+  border-radius:50%;
+}
+
+.cloud::before{
+  width:92px;
+  height:92px;
+  left:32px;
+  top:-38px;
+}
+
+.cloud::after{
+  width:118px;
+  height:118px;
+  right:24px;
+  top:-58px;
+}
+
+.cloud.one{top:8%;left:-260px;transform:scale(.75);animation-duration:54s;}
+.cloud.two{top:30%;left:-320px;transform:scale(1.15);animation-duration:72s;animation-delay:-20s;}
+.cloud.three{top:66%;left:-280px;transform:scale(.9);animation-duration:64s;animation-delay:-36s;}
+
+@keyframes cloudDrift{
+  from{margin-left:-380px}
+  to{margin-left:calc(100vw + 520px)}
+}
+
+/* Sidebar */
+.side-menu{
+  position:fixed;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:170px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:20;
+}
+
+.side-menu a{
+  background:white;
+  color:#1f2937;
+  text-decoration:none;
+  font-weight:800;
+  text-align:center;
+  padding:12px 16px;
+  border-radius:999px;
+  border:3px solid #bfdbfe;
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+
+.sidebar-logo-link{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+
+.sidebar-logo{
+  width:170px;
+  padding:16px 12px 18px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff7d6 100%);
+  border-radius:28px;
+  box-shadow:0 7px 16px rgba(0,0,0,.16),0 7px 0 rgba(31,41,55,.10);
+  transform:rotate(-1deg);
+  overflow:hidden;
+}
+
+.sidebar-bright,.sidebar-arcade{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  white-space:nowrap;
+}
+
+.sidebar-bright span{
+  font-family:"Baloo 2","Fredoka",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.72rem;
+  line-height:.9;
+  color:var(--c);
+  text-shadow:2px 2px 0 rgba(6,25,70,.16);
+}
+
+.sidebar-arcade{
+  margin-top:7px;
+  font-family:"Baloo 2","Fredoka",Arial,sans-serif;
+  font-weight:800;
+  font-size:2rem;
+  line-height:.82;
+  color:#061946;
+  text-shadow:2px 2px 0 rgba(6,25,70,.16);
+}
+
+/* Layout */
+.game{
+  width:min(1120px,100%);
+  margin:0 auto;
+  margin-left:220px;
+  padding:24px 18px 46px;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.title-card{
+  position:relative;
+  width:min(980px,96%);
+  min-height:170px;
+  margin:0 auto;
+  border:8px solid #061946;
+  border-radius:50px;
+  background:
+    radial-gradient(circle at 18% 20%,rgba(255,255,255,.23) 0 13%,transparent 14%),
+    radial-gradient(circle at 82% 78%,rgba(6,25,70,.14) 0 18%,transparent 19%),
+    linear-gradient(110deg,#ef174d 0%,#f97316 45%,#facc15 100%);
+  box-shadow:
+    0 16px 0 rgba(6,25,70,.96),
+    0 28px 34px rgba(6,25,70,.26),
+    inset 0 9px 0 rgba(255,255,255,.30),
+    inset 0 -11px 0 rgba(6,25,70,.12);
+  overflow:hidden;
+  transform:rotate(-.6deg);
+}
+
+.title-text{
+  position:relative;
+  z-index:5;
+  min-height:170px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  line-height:.83;
+  letter-spacing:-3px;
+  transform:rotate(.6deg);
+}
+
+.line1,.line2{
+  display:block;
+  -webkit-text-stroke:4px #000;
+  paint-order:stroke fill;
+  text-shadow:
+    0 7px 0 rgba(0,0,0,.28),
+    0 13px 13px rgba(0,0,0,.20);
+}
+
+.line1{
+  font-size:clamp(3rem,6vw,5.8rem);
+  color:white;
+}
+
+.line2{
+  font-size:clamp(3.2rem,6.5vw,6.2rem);
+  color:#fef08a;
+}
+
+.title-car{
+  position:absolute;
+  left:38px;
+  top:62px;
+  width:124px;
+  height:66px;
+  z-index:6;
+  transform:rotate(-7deg);
+  animation:titleCarBob 1.2s ease-in-out infinite;
+}
+
+.car-body{
+  position:absolute;
+  left:0;
+  top:14px;
+  width:124px;
+  height:46px;
+  border:6px solid #061946;
+  border-radius:24px 30px 18px 18px;
+  background:linear-gradient(145deg,#fecaca,#ef174d);
+  box-shadow:8px 9px 0 rgba(6,25,70,.22),inset 0 -8px 0 rgba(127,29,29,.18);
+}
+
+.car-body::before{
+  content:"";
+  position:absolute;
+  left:25px;
+  top:-25px;
+  width:54px;
+  height:29px;
+  border:6px solid #061946;
+  border-bottom:0;
+  border-radius:22px 22px 0 0;
+  background:linear-gradient(145deg,#dbeafe,#38bdf8);
+}
+
+.car-body::after{
+  content:"";
+  position:absolute;
+  left:24px;
+  bottom:-17px;
+  width:24px;
+  height:24px;
+  background:#061946;
+  border-radius:50%;
+  box-shadow:55px 0 0 #061946;
+}
+
+.title-flag{
+  position:absolute;
+  right:44px;
+  top:34px;
+  width:112px;
+  height:112px;
+  z-index:6;
+  transform:rotate(6deg);
+  animation:flagBob 1.3s ease-in-out infinite;
+}
+
+.title-flag::before{
+  content:"";
+  position:absolute;
+  left:18px;
+  top:6px;
+  width:12px;
+  height:100px;
+  background:#061946;
+  border-radius:999px;
+}
+
+.title-flag::after{
+  content:"";
+  position:absolute;
+  left:30px;
+  top:10px;
+  width:76px;
+  height:54px;
+  border:5px solid #061946;
+  border-radius:8px;
+  background:
+    linear-gradient(45deg,#fff 25%,#061946 25% 50%,#fff 50% 75%,#061946 75%) 0 0/28px 28px;
+  box-shadow:6px 7px 0 rgba(6,25,70,.22);
+}
+
+@keyframes titleCarBob{
+  0%,100%{transform:rotate(-7deg) translateY(0)}
+  50%{transform:rotate(1deg) translateY(-8px)}
+}
+
+@keyframes flagBob{
+  0%,100%{transform:rotate(6deg) translateY(0)}
+  50%{transform:rotate(-2deg) translateY(-8px)}
+}
+
+.subtitle{
+  display:inline-block;
+  margin:18px auto 0;
+  background:white;
+  border:3px solid white;
+  border-radius:999px;
+  padding:10px 18px;
+  font-size:1.08rem;
+  font-weight:800;
+  color:#164e63;
+}
+
+/* Main card */
+.main-card{
+  background:rgba(255,255,255,.96);
+  border:5px solid white;
+  border-radius:34px;
+  padding:22px;
+  box-shadow:0 18px 34px rgba(15,23,42,.20);
+}
+
+.screen{display:none}
+.screen.active{display:block}
+
+.instructions{
+  text-align:center;
+  max-width:850px;
+  margin:0 auto 18px;
+  color:#334155;
+  font-size:1.08rem;
+  line-height:1.5;
+  font-weight:700;
+}
+
+.section-title{
+  text-align:center;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:2rem;
+  line-height:1;
+  margin:22px 0 12px;
+  color:#1e3a8a;
+}
+
+.choice-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  max-width:850px;
+  margin:16px auto 18px;
+}
+
+.choice-btn{
+  border:4px solid #bfdbfe;
+  border-radius:22px;
+  background:white;
+  color:#1e3a8a;
+  box-shadow:0 7px 0 #bfdbfe;
+  font-family:Fredoka,Arial,sans-serif;
+  font-size:1.15rem;
+  font-weight:900;
+  padding:20px 12px;
+  cursor:pointer;
+}
+
+.choice-btn small{
+  display:block;
+  margin-top:6px;
+  color:#64748b;
+  font-size:.82rem;
+}
+
+.choice-btn:hover{
+  background:#fef3c7;
+  border-color:#facc15;
+  box-shadow:0 7px 0 #facc15;
+  transform:translateY(-2px);
+}
+
+.primary,.secondary{
+  touch-action:manipulation;
+  border:0;
+  border-radius:999px;
+  padding:14px 22px;
+  font-weight:900;
+  font-size:1rem;
+  cursor:pointer;
+  font-family:Fredoka,Arial,sans-serif;
+}
+
+.primary{
+  background:#ef174d;
+  color:white;
+  font-size:1.15rem;
+  padding:16px 30px;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.24),0 8px 0 rgba(6,25,70,.18);
+}
+
+.secondary{
+  background:#e2e8f0;
+  color:#334155;
+  text-decoration:none;
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.game-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin-top:18px;
+}
+
+/* Race board */
+.race-board{
+  position:relative;
+  min-height:690px;
+  background:
+    radial-gradient(circle at 16% 14%,rgba(255,255,255,.46) 0 9%,transparent 10%),
+    radial-gradient(circle at 90% 76%,rgba(255,255,255,.26) 0 11%,transparent 12%),
+    linear-gradient(180deg,#ecfeff 0%,#dbeafe 48%,#bae6fd 100%);
+  border:5px solid #a5f3fc;
+  border-radius:34px;
+  overflow:hidden;
+  box-shadow:inset 0 9px 0 rgba(255,255,255,.45),inset 0 -12px 0 rgba(14,116,144,.10);
+  padding:18px;
+}
+
+.status-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.stat{
+  background:#eff6ff;
+  border:3px solid #bfdbfe;
+  border-radius:18px;
+  padding:10px;
+  text-align:center;
+  font-weight:900;
+}
+
+.stat-label{
+  display:block;
+  color:#64748b;
+  font-size:.8rem;
+  margin-bottom:4px;
+}
+
+.stat-value{
+  font-size:1.2rem;
+  color:#1d4ed8;
+}
+
+.track-wrap{
+  position:relative;
+  height:430px;
+  margin:10px auto 18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.track{
+  position:relative;
+  width:min(680px,92vw);
+  height:360px;
+  border-radius:50%;
+  background:
+    radial-gradient(ellipse at center,#86efac 0 37%,transparent 38%),
+    repeating-conic-gradient(from 0deg,#475569 0deg 8deg,#334155 8deg 16deg);
+  border:9px solid #061946;
+  box-shadow:
+    0 12px 0 rgba(6,25,70,.88),
+    0 22px 30px rgba(6,25,70,.24),
+    inset 0 0 0 34px #64748b,
+    inset 0 0 0 44px white,
+    inset 0 0 0 74px #475569;
+}
+
+.track::before{
+  content:"";
+  position:absolute;
+  inset:74px 132px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 20%,rgba(255,255,255,.22) 0 18%,transparent 19%),
+    linear-gradient(145deg,#bbf7d0,#22c55e);
+  border:7px solid #061946;
+}
+
+.start-line{
+  position:absolute;
+  left:50%;
+  bottom:17px;
+  width:68px;
+  height:34px;
+  transform:translateX(-50%);
+  z-index:6;
+  border:4px solid #061946;
+  border-radius:5px;
+  background:
+    linear-gradient(45deg,#fff 25%,#061946 25% 50%,#fff 50% 75%,#061946 75%) 0 0/22px 22px;
+}
+
+.finish-label{
+  position:absolute;
+  left:50%;
+  bottom:-30px;
+  transform:translateX(-50%);
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  color:#061946;
+  font-size:1.15rem;
+}
+
+.kart{
+  position:absolute;
+  width:68px;
+  height:40px;
+  z-index:10;
+  transition:left .25s linear, top .25s linear, transform .25s linear;
+}
+
+.kart-body{
+  position:absolute;
+  inset:8px 0 4px;
+  border:4px solid #061946;
+  border-radius:20px 24px 12px 12px;
+  box-shadow:5px 6px 0 rgba(6,25,70,.20),inset 0 -5px 0 rgba(0,0,0,.14);
+}
+
+.kart-body::before{
+  content:"";
+  position:absolute;
+  left:17px;
+  top:-16px;
+  width:31px;
+  height:18px;
+  border:4px solid #061946;
+  border-bottom:0;
+  border-radius:15px 15px 0 0;
+  background:#dbeafe;
+}
+
+.kart-body::after{
+  content:"";
+  position:absolute;
+  left:10px;
+  bottom:-12px;
+  width:16px;
+  height:16px;
+  background:#061946;
+  border-radius:50%;
+  box-shadow:34px 0 0 #061946;
+}
+
+.player-kart .kart-body{
+  background:linear-gradient(145deg,#fecaca,#ef174d);
+}
+
+.robot-kart .kart-body{
+  background:linear-gradient(145deg,#dbeafe,#0875f5);
+}
+
+.robot-head{
+  position:absolute;
+  left:24px;
+  top:-10px;
+  width:26px;
+  height:24px;
+  border:3px solid #061946;
+  border-radius:8px;
+  background:linear-gradient(145deg,#dbeafe,#38bdf8);
+  z-index:12;
+}
+
+.robot-head::before{
+  content:"";
+  position:absolute;
+  left:5px;
+  top:8px;
+  width:4px;
+  height:4px;
+  background:#061946;
+  border-radius:50%;
+  box-shadow:10px 0 0 #061946;
+}
+
+.countdown-overlay{
+  position:absolute;
+  inset:0;
+  z-index:50;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:rgba(255,255,255,.38);
+  backdrop-filter:blur(2px);
+}
+
+.countdown-overlay.active{
+  display:flex;
+}
+
+.countdown-number{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  font-size:clamp(6rem,18vw,13rem);
+  line-height:.8;
+  color:#ef174d;
+  -webkit-text-stroke:5px #061946;
+  paint-order:stroke fill;
+  text-shadow:0 12px 0 rgba(6,25,70,.22);
+}
+
+.traffic-light{
+  margin-top:12px;
+  width:170px;
+  height:62px;
+  background:#061946;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  padding:9px;
+  box-shadow:0 8px 0 rgba(6,25,70,.22);
+}
+
+.light{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#64748b;
+  border:4px solid white;
+}
+
+.light.red.on{
+  background:#ef4444;
+  box-shadow:0 0 24px #ef4444;
+}
+
+.light.green.on{
+  background:#22c55e;
+  box-shadow:0 0 24px #22c55e;
+}
+
+.question-area{
+  background:white;
+  border:4px solid #bfdbfe;
+  border-radius:28px;
+  padding:16px;
+  text-align:center;
+  box-shadow:0 8px 0 rgba(6,25,70,.10);
+}
+
+.question{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2.2rem,7vw,4.2rem);
+  font-weight:800;
+  line-height:1;
+  color:#5b21b6;
+  margin:0 0 12px;
+}
+
+.answers{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  max-width:780px;
+  margin:0 auto;
+}
+
+.answer-btn{
+  border:4px solid #bfdbfe;
+  border-radius:20px;
+  background:#f8fafc;
+  color:#061946;
+  box-shadow:0 6px 0 #bfdbfe;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:1.7rem;
+  font-weight:800;
+  padding:12px 10px;
+  cursor:pointer;
+}
+
+.answer-btn:hover{
+  background:#fef3c7;
+  border-color:#facc15;
+  box-shadow:0 6px 0 #facc15;
+}
+
+.answer-btn.correct-flash{
+  background:#dcfce7!important;
+  border-color:#22c55e!important;
+}
+
+.answer-btn.wrong-flash{
+  background:#fee2e2!important;
+  border-color:#ef4444!important;
+}
+
+.message{
+  min-height:32px;
+  margin-top:10px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:1.45rem;
+  font-weight:800;
+  color:#061946;
+}
+
+.result-card{
+  text-align:center;
+  background:linear-gradient(135deg,#ecfeff,#f5f3ff);
+  border:4px solid #a5f3fc;
+  border-radius:30px;
+  padding:28px;
+}
+
+.result-card h2{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(3rem,8vw,6rem);
+  line-height:.9;
+  margin:0 0 16px;
+  color:#5b21b6;
+}
+
+.result-word{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2rem,6vw,4rem);
+  color:#f97316;
+  -webkit-text-stroke:2px #061946;
+  paint-order:stroke fill;
+}
+
+.result-details{
+  font-size:1.2rem;
+  font-weight:800;
+  color:#475569;
+  line-height:1.6;
+  margin:14px 0;
+}
+
+@media(max-width:980px){
+  .status-row{grid-template-columns:repeat(2,1fr)}
+  .choice-grid{grid-template-columns:repeat(2,1fr)}
+  .title-car,.title-flag{opacity:.78}
+}
+
+@media(max-width:900px){
+  .side-menu{
+    position:static;
+    transform:none;
+    width:auto;
+    flex-direction:row;
+    justify-content:center;
+    margin:12px auto;
+  }
+
+  .sidebar-logo{display:none}
+  .game{margin-left:auto;padding-top:10px}
+}
+
+@media(max-width:650px){
+  .game{padding:8px 10px 34px}
+  .main-card{padding:12px;border-radius:24px}
+  .title-card{min-height:142px;border-width:6px;border-radius:38px}
+  .title-text{min-height:142px}
+  .line1{font-size:clamp(2.4rem,13vw,4.2rem)}
+  .line2{font-size:clamp(2.5rem,14vw,4.4rem)}
+  .title-car{
+    left:8px;
+    top:70px;
+    transform:scale(.58) rotate(-7deg);
+    transform-origin:left top;
+  }
+  .title-flag{
+    right:4px;
+    top:50px;
+    transform:scale(.58) rotate(6deg);
+    transform-origin:right top;
+  }
+  .race-board{min-height:620px;padding:10px}
+  .track-wrap{height:310px}
+  .track{
+    width:330px;
+    height:230px;
+    border-width:7px;
+    box-shadow:0 9px 0 rgba(6,25,70,.88),inset 0 0 0 24px #64748b,inset 0 0 0 32px white,inset 0 0 0 52px #475569;
+  }
+  .track::before{
+    inset:58px 82px;
+    border-width:5px;
+  }
+  .kart{width:52px;height:32px}
+  .kart-body{border-width:3px}
+  .kart-body::before{left:13px;width:25px;height:14px;border-width:3px;top:-13px}
+  .kart-body::after{left:7px;bottom:-10px;width:13px;height:13px;box-shadow:27px 0 0 #061946}
+  .start-line{width:52px;height:28px;bottom:11px}
+  .answers{grid-template-columns:repeat(2,1fr)}
+  .answer-btn{font-size:1.35rem}
+  .status-row{grid-template-columns:1fr}
+  .primary,.secondary{width:100%}
+}
+
+/* clearer race lanes */
+.track::after{
+  content:"";
+  position:absolute;
+  inset:48px 82px;
+  border:5px dashed rgba(255,255,255,.82);
+  border-radius:50%;
+  pointer-events:none;
+}
+
+.player-kart{
+  z-index:12;
+}
+
+.robot-kart{
+  z-index:11;
+}
+
+@media(max-width:650px){
+  .track::after{
+    inset:35px 52px;
+    border-width:4px;
+  }
+}
+
+
+/* STRAIGHT TWO-LANE TRACK VERSION */
+.track-wrap{
+  height:330px !important;
+}
+
+.track{
+  width:min(840px,96%) !important;
+  height:240px !important;
+  border-radius:34px !important;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.28) 0 2px,transparent 2px 52px),
+    linear-gradient(180deg,#64748b 0 46%,#facc15 46% 54%,#475569 54% 100%) !important;
+  border:9px solid #061946 !important;
+  box-shadow:
+    0 12px 0 rgba(6,25,70,.88),
+    0 22px 30px rgba(6,25,70,.24),
+    inset 0 9px 0 rgba(255,255,255,.20),
+    inset 0 -10px 0 rgba(0,0,0,.14) !important;
+  overflow:visible;
+}
+
+.track::before{
+  content:"START" !important;
+  position:absolute !important;
+  left:18px !important;
+  top:-42px !important;
+  width:auto !important;
+  height:auto !important;
+  inset:auto !important;
+  border:0 !important;
+  border-radius:999px !important;
+  background:#ffffff !important;
+  color:#061946 !important;
+  padding:8px 16px !important;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif !important;
+  font-weight:800 !important;
+  font-size:1.1rem !important;
+  box-shadow:0 6px 0 rgba(6,25,70,.18) !important;
+}
+
+.track::after{
+  content:"FINISH" !important;
+  position:absolute !important;
+  right:8px !important;
+  top:-42px !important;
+  inset:auto !important;
+  width:auto !important;
+  height:auto !important;
+  border:0 !important;
+  border-radius:999px !important;
+  background:#ffffff !important;
+  color:#061946 !important;
+  padding:8px 16px !important;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif !important;
+  font-weight:800 !important;
+  font-size:1.1rem !important;
+  box-shadow:0 6px 0 rgba(6,25,70,.18) !important;
+}
+
+.start-line{
+  left:18px !important;
+  top:0 !important;
+  bottom:auto !important;
+  transform:none !important;
+  width:28px !important;
+  height:100% !important;
+  border-radius:8px !important;
+  background:
+    linear-gradient(45deg,#fff 25%,#061946 25% 50%,#fff 50% 75%,#061946 75%) 0 0/22px 22px !important;
+  z-index:6 !important;
+}
+
+.finish-line{
+  position:absolute;
+  right:18px;
+  top:0;
+  width:28px;
+  height:100%;
+  z-index:6;
+  border:4px solid #061946;
+  border-radius:8px;
+  background:
+    linear-gradient(45deg,#fff 25%,#061946 25% 50%,#fff 50% 75%,#061946 75%) 0 0/22px 22px;
+}
+
+.finish-label{
+  display:none !important;
+}
+
+.lane-label{
+  position:absolute;
+  left:58px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  font-size:1.35rem;
+  color:white;
+  text-shadow:2px 2px 0 #061946;
+  z-index:8;
+}
+
+.lane-label.player{
+  top:48px;
+}
+
+.lane-label.robot{
+  bottom:46px;
+}
+
+.kart{
+  width:78px !important;
+  height:46px !important;
+  transition:left .25s linear, top .25s linear, transform .25s linear !important;
+}
+
+.kart-body{
+  inset:9px 0 4px !important;
+}
+
+.player-kart,
+.robot-kart{
+  transform:rotate(0deg) !important;
+}
+
+@media(max-width:650px){
+  .track-wrap{
+    height:260px !important;
+  }
+
+  .track{
+    width:100% !important;
+    height:190px !important;
+    border-width:7px !important;
+    border-radius:26px !important;
+  }
+
+  .track::before,
+  .track::after{
+    top:-36px !important;
+    font-size:.9rem !important;
+    padding:7px 12px !important;
+  }
+
+  .start-line,
+  .finish-line{
+    width:22px !important;
+    border-width:3px !important;
+  }
+
+  .lane-label{
+    left:45px !important;
+    font-size:1rem !important;
+  }
+
+  .lane-label.player{
+    top:38px !important;
+  }
+
+  .lane-label.robot{
+    bottom:36px !important;
+  }
+
+  .kart{
+    width:54px !important;
+    height:34px !important;
+  }
+}
+
+
+/* Typed answer version */
+.typed-answer-area{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  max-width:620px;
+  margin:0 auto;
+}
+
+.answer-input{
+  width:min(340px,100%);
+  padding:17px 20px;
+  border:5px solid #bfdbfe;
+  border-radius:22px;
+  font-family:Fredoka,Arial,sans-serif;
+  font-size:2rem;
+  font-weight:900;
+  text-align:center;
+  color:#061946;
+  outline:none;
+  background:#f8fafc;
+  box-shadow:0 6px 0 #bfdbfe;
+}
+
+.answer-input:focus{
+  border-color:#facc15;
+  box-shadow:0 6px 0 #facc15,0 0 0 6px rgba(250,204,21,.25);
+}
+
+.answer-input.correct-flash{
+  background:#dcfce7!important;
+  border-color:#22c55e!important;
+  box-shadow:0 6px 0 #22c55e!important;
+}
+
+.answer-input.wrong-flash{
+  background:#fee2e2!important;
+  border-color:#ef4444!important;
+  box-shadow:0 6px 0 #ef4444!important;
+}
+
+.answer-submit{
+  white-space:nowrap;
+}
+
+@media(max-width:650px){
+  .typed-answer-area{
+    flex-direction:column;
+  }
+
+  .answer-input{
+    font-size:1.6rem;
+  }
+}
+
+
+/* Lane positioning fix */
+.lane-label{
+  left:130px !important;
+  pointer-events:none;
+}
+
+.lane-label.player{
+  top:36px !important;
+}
+
+.lane-label.robot{
+  bottom:32px !important;
+}
+
+@media(max-width:650px){
+  .lane-label{
+    left:86px !important;
+  }
+
+  .lane-label.player{
+    top:28px !important;
+  }
+
+  .lane-label.robot{
+    bottom:24px !important;
+  }
+}
+
+
+/* Red vs Blue theme update */
+.title-card{
+  background:
+    radial-gradient(circle at 18% 20%,rgba(255,255,255,.25) 0 13%,transparent 14%),
+    radial-gradient(circle at 82% 78%,rgba(6,25,70,.16) 0 18%,transparent 19%),
+    linear-gradient(112deg,
+      #ef174d 0%,
+      #ef174d 37%,
+      #f97316 46%,
+      #ffffff 49%,
+      #38bdf8 52%,
+      #0875f5 63%,
+      #0875f5 100%
+    ) !important;
+}
+
+.title-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(
+      112deg,
+      transparent 0 18px,
+      rgba(255,255,255,.22) 18px 24px,
+      transparent 24px 42px
+    );
+  opacity:.45;
+  pointer-events:none;
+  mix-blend-mode:soft-light;
+}
+
+.line1{
+  color:#ffffff !important;
+}
+
+.line2{
+  color:#fef08a !important;
+}
+
+.primary{
+  background:
+    linear-gradient(105deg,
+      #ef174d 0%,
+      #ef174d 42%,
+      #ffffff 48%,
+      #38bdf8 54%,
+      #0875f5 100%
+    ) !important;
+  color:white !important;
+  text-shadow:2px 2px 0 rgba(6,25,70,.45);
+}
+
+.choice-btn:hover{
+  background:
+    linear-gradient(105deg,
+      #fee2e2 0%,
+      #fee2e2 44%,
+      #ffffff 49%,
+      #dbeafe 55%,
+      #dbeafe 100%
+    ) !important;
+  border-color:#061946 !important;
+  box-shadow:0 7px 0 rgba(6,25,70,.35) !important;
+}
+
+.player-kart .kart-body{
+  background:linear-gradient(145deg,#fecaca,#ef174d) !important;
+}
+
+.robot-kart .kart-body{
+  background:linear-gradient(145deg,#dbeafe,#0875f5) !important;
+}
+
+.subtitle{
+  background:
+    linear-gradient(105deg,
+      #fff 0%,
+      #fee2e2 35%,
+      #ffffff 50%,
+      #dbeafe 65%,
+      #fff 100%
+    ) !important;
+  color:#061946 !important;
+}
+
+
+/* Finish line alignment fix */
+.finish-line{
+  right:18px !important;
+}
+
+.start-line{
+  left:18px !important;
+}
+
+
+/* Stronger finish-line reach fix */
+.finish-line{
+  right:18px !important;
+  width:28px !important;
+}
+
+.start-line{
+  left:18px !important;
+  width:28px !important;
+}
+
+</style>
+</head>
+
+<body>
+<div class="sky-background" aria-hidden="true">
+  <div class="cloud one"></div>
+  <div class="cloud two"></div>
+  <div class="cloud three"></div>
+</div>
+
+<nav class="side-menu">
+<a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home">
+  <div class="sidebar-logo">
+    <div class="sidebar-bright">
+      <span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span><span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span>
+    </div>
+    <div class="sidebar-arcade">ARCADE</div>
+  </div>
+</a>
+<a href="/">Home</a>
+</nav>
+
+<div class="game">
+<header class="header">
+  <div class="title-card">
+    <div class="title-car"><div class="car-body"></div></div>
+    <div class="title-text">
+      <span class="line1">Number</span>
+      <span class="line2">Race</span>
+    </div>
+    <div class="title-flag"></div>
+  </div>
+  <p class="subtitle">Answer addition and subtraction questions to race the robot!</p>
+</header>
+
+<main class="main-card">
+  <section class="screen active" id="digitScreen">
+    <p class="instructions">Choose the size of the numbers. This changes the types of addition and subtraction questions in the race.</p>
+    <h2 class="section-title">Choose Number Size</h2>
+    <div class="choice-grid" id="digitGrid"></div>
+  </section>
+
+  <section class="screen" id="difficultyScreen">
+    <p class="instructions">Choose your robot opponent. Higher difficulty means the robot car moves faster.</p>
+    <h2 class="section-title">Choose Difficulty</h2>
+    <div class="choice-grid" id="difficultyGrid"></div>
+  </section>
+
+  <section class="screen" id="gameScreen">
+    <section class="race-board">
+      <div class="status-row">
+        <div class="stat"><span class="stat-label">Numbers</span><span class="stat-value" id="digitsText">1 Digit</span></div>
+        <div class="stat"><span class="stat-label">Difficulty</span><span class="stat-value" id="difficultyText">Easy</span></div>
+        <div class="stat"><span class="stat-label">You</span><span class="stat-value" id="playerProgressText">0/15</span></div>
+        <div class="stat"><span class="stat-label">Robot</span><span class="stat-value" id="robotProgressText">0/15</span></div>
+      </div>
+
+      <div class="track-wrap">
+        <div class="track" id="track">
+          <div class="start-line"></div>
+          <div class="finish-line"></div>
+          <div class="finish-label">START / FINISH</div>
+          <div class="lane-label player">YOU</div>
+          <div class="lane-label robot">ROBOT</div>
+          <div class="kart player-kart" id="playerKart"><div class="kart-body"></div></div>
+          <div class="kart robot-kart" id="robotKart"><div class="robot-head"></div><div class="kart-body"></div></div>
+        </div>
+
+        <div class="countdown-overlay" id="countdownOverlay">
+          <div class="countdown-number" id="countdownNumber">3</div>
+          <div class="traffic-light">
+            <div class="light red on" id="redLight"></div>
+            <div class="light green" id="greenLight"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="question-area">
+        <div class="question" id="questionText">Ready?</div>
+        <div class="typed-answer-area">
+          <input type="number" inputmode="numeric" class="answer-input" id="answerInput" placeholder="Type answer" disabled>
+          <button type="button" class="primary answer-submit" id="answerSubmit" disabled>Submit</button>
+        </div>
+        <div class="message" id="message">Choose your settings to begin.</div>
+      </div>
+    </section>
+
+    <div class="game-actions">
+      <button type="button" class="secondary" id="newGameBtn">New Game</button>
+    </div>
+  </section>
+
+  <section class="screen" id="resultScreen">
+    <div class="result-card">
+      <h2 id="resultTitle">You Win!</h2>
+      <p id="resultSummary">You beat the robot to the finish line.</p>
+      <div class="result-word" id="resultWord">FINISH!</div>
+      <div class="result-details" id="resultDetails"></div>
+    </div>
+
+    <div class="game-actions">
+      <button type="button" class="primary" id="playAgainBtn">Race Again</button>
+      <button type="button" class="secondary" id="menuBtn">Choose Settings</button>
+      <a href="/" class="secondary">Back to Bright Arcade</a>
+    </div>
+  </section>
+</main>
+</div>
+
+<script>
+const TOTAL_SPACES = 15;
+
+const digitOptions = {
+  1: {label:"1 Digit", min:1, max:9},
+  2: {label:"2 Digit", min:10, max:99},
+  3: {label:"3 Digit", min:100, max:999},
+  4: {label:"4 Digit", min:1000, max:9999}
+};
+
+const difficulties = {
+  easy: {label:"Easy"},
+  medium: {label:"Medium"},
+  hard: {label:"Hard"},
+  extreme: {label:"Extreme"}
+};
+
+// Robot time to complete the full 15-space race, in seconds.
+const robotRaceTimes = {
+  1: {easy:110, medium:95, hard:80, extreme:70},
+  2: {easy:290, medium:245, hard:200, extreme:170},
+  3: {easy:560, medium:470, hard:380, extreme:320},
+  4: {easy:920, medium:770, hard:620, extreme:520}
+};
+
+let selectedDigits = null;
+let selectedDifficulty = null;
+let playerProgress = 0;
+let robotProgress = 0;
+let currentAnswer = 0;
+let raceActive = false;
+let robotTimer = null;
+let robotStepMs = 3000;
+let questionsAnswered = 0;
+let mistakes = 0;
+
+const digitScreen = document.getElementById("digitScreen");
+const difficultyScreen = document.getElementById("difficultyScreen");
+const gameScreen = document.getElementById("gameScreen");
+const resultScreen = document.getElementById("resultScreen");
+
+const digitGrid = document.getElementById("digitGrid");
+const difficultyGrid = document.getElementById("difficultyGrid");
+const digitsText = document.getElementById("digitsText");
+const difficultyText = document.getElementById("difficultyText");
+const playerProgressText = document.getElementById("playerProgressText");
+const robotProgressText = document.getElementById("robotProgressText");
+const playerKart = document.getElementById("playerKart");
+const robotKart = document.getElementById("robotKart");
+const questionText = document.getElementById("questionText");
+const answerInput = document.getElementById("answerInput");
+const answerSubmit = document.getElementById("answerSubmit");
+const message = document.getElementById("message");
+const countdownOverlay = document.getElementById("countdownOverlay");
+const countdownNumber = document.getElementById("countdownNumber");
+const redLight = document.getElementById("redLight");
+const greenLight = document.getElementById("greenLight");
+
+const resultTitle = document.getElementById("resultTitle");
+const resultSummary = document.getElementById("resultSummary");
+const resultWord = document.getElementById("resultWord");
+const resultDetails = document.getElementById("resultDetails");
+
+function showScreen(screen){
+  digitScreen.classList.remove("active");
+  difficultyScreen.classList.remove("active");
+  gameScreen.classList.remove("active");
+  resultScreen.classList.remove("active");
+  screen.classList.add("active");
+}
+
+function buildMenus(){
+  Object.keys(digitOptions).forEach(key => {
+    const data = digitOptions[key];
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "choice-btn";
+    btn.innerHTML = data.label + "<small>Addition and subtraction</small>";
+    btn.addEventListener("click", () => {
+      selectedDigits = Number(key);
+      showScreen(difficultyScreen);
+    });
+    digitGrid.appendChild(btn);
+  });
+
+  Object.keys(difficulties).forEach(key => {
+    const data = difficulties[key];
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "choice-btn";
+    btn.textContent = data.label;
+    btn.addEventListener("click", () => {
+      selectedDifficulty = key;
+      startRaceSetup();
+    });
+    difficultyGrid.appendChild(btn);
+  });
+}
+
+function startRaceSetup(){
+  playerProgress = 0;
+  robotProgress = 0;
+  questionsAnswered = 0;
+  mistakes = 0;
+  raceActive = false;
+  clearInterval(robotTimer);
+
+  digitsText.textContent = digitOptions[selectedDigits].label;
+  difficultyText.textContent = difficulties[selectedDifficulty].label;
+  playerProgressText.textContent = "0/" + TOTAL_SPACES;
+  robotProgressText.textContent = "0/" + TOTAL_SPACES;
+  answerInput.value = "";
+  answerInput.disabled = true;
+  answerSubmit.disabled = true;
+  questionText.textContent = "Get ready!";
+  message.textContent = "Wait for the green light.";
+
+  robotStepMs = (robotRaceTimes[selectedDigits][selectedDifficulty] / TOTAL_SPACES) * 1000;
+
+  showScreen(gameScreen);
+  setTimeout(() => {
+    updateKarts();
+    runCountdown();
+  }, 50);
+}
+
+function runCountdown(){
+  countdownOverlay.classList.add("active");
+  redLight.classList.add("on");
+  greenLight.classList.remove("on");
+  const steps = ["3","2","1","GO!"];
+  let index = 0;
+
+  countdownNumber.textContent = steps[index];
+
+  const timer = setInterval(() => {
+    index++;
+    if(index >= steps.length){
+      clearInterval(timer);
+      countdownOverlay.classList.remove("active");
+      beginRace();
+      return;
+    }
+
+    countdownNumber.textContent = steps[index];
+
+    if(steps[index] === "GO!"){
+      redLight.classList.remove("on");
+      greenLight.classList.add("on");
+    }
+  }, 850);
+}
+
+function beginRace(){
+  raceActive = true;
+  message.textContent = "Go! Answer correctly to move your car.";
+  generateQuestion();
+
+  robotTimer = setInterval(() => {
+    if(!raceActive) return;
+    robotProgress += 1;
+    updateKarts();
+
+    if(robotProgress >= TOTAL_SPACES){
+      setTimeout(() => endRace("robot"), 450);
+    }
+  }, robotStepMs);
+}
+
+function randInt(min,max){
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function generateQuestion(){
+  const range = digitOptions[selectedDigits];
+  let a = randInt(range.min, range.max);
+  let b = randInt(range.min, range.max);
+  const isAddition = Math.random() < 0.5;
+
+  if(isAddition){
+    currentAnswer = a + b;
+    questionText.textContent = a + " + " + b;
+  }else{
+    if(b > a){
+      const temp = a;
+      a = b;
+      b = temp;
+    }
+    currentAnswer = a - b;
+    questionText.textContent = a + " - " + b;
+  }
+
+  buildAnswers();
+}
+
+function buildAnswers(){
+  answerInput.value = "";
+  answerInput.disabled = false;
+  answerSubmit.disabled = false;
+  setTimeout(() => answerInput.focus(), 50);
+}
+
+function handleAnswer(){
+  if(!raceActive) return;
+
+  const raw = answerInput.value.trim();
+
+  if(raw === ""){
+    message.textContent = "Type an answer first.";
+    return;
+  }
+
+  const value = Number(raw);
+
+  if(value === currentAnswer){
+    answerInput.classList.add("correct-flash");
+    playerProgress += 1;
+    questionsAnswered += 1;
+    message.textContent = "Correct! Keep racing.";
+    updateKarts();
+
+    if(playerProgress >= TOTAL_SPACES){
+      setTimeout(() => endRace("player"), 450);
+      return;
+    }
+
+    answerInput.disabled = true;
+    answerSubmit.disabled = true;
+
+    setTimeout(() => {
+      answerInput.classList.remove("correct-flash");
+      generateQuestion();
+    }, 250);
+  }else{
+    answerInput.classList.add("wrong-flash");
+    mistakes += 1;
+    message.textContent = "Not quite! Try the next one.";
+    answerInput.value = "";
+
+    setTimeout(() => {
+      answerInput.classList.remove("wrong-flash");
+      generateQuestion();
+    }, 450);
+  }
+}
+
+function updateKarts(){
+  playerProgressText.textContent = Math.min(playerProgress, TOTAL_SPACES) + "/" + TOTAL_SPACES;
+  robotProgressText.textContent = Math.min(robotProgress, TOTAL_SPACES) + "/" + TOTAL_SPACES;
+
+  positionKart(playerKart, playerProgress, "player");
+  positionKart(robotKart, robotProgress, "robot");
+}
+
+function positionKart(el, progress, lane){
+  const track = document.getElementById("track");
+  const w = track.clientWidth;
+  const h = track.clientHeight;
+  const carWidth = el.offsetWidth || 78;
+
+  // Exact finish logic:
+  // 0 correct = car starts just after the start line.
+  // 14 correct = the FRONT of the car touches the finish line.
+  // 15 correct = the car crosses the finish line and wins.
+  const startLeft = 52;
+  const finishLineLeft = w - 46;
+
+  const touchFinishLeft = finishLineLeft - carWidth;
+  const crossFinishLeft = finishLineLeft + 10;
+
+  let x;
+
+  if(progress >= TOTAL_SPACES){
+    x = crossFinishLeft;
+  }else{
+    const clamped = Math.min(progress, TOTAL_SPACES - 1);
+    x = startLeft + (clamped / (TOTAL_SPACES - 1)) * (touchFinishLeft - startLeft);
+  }
+
+  const playerY = h * 0.25;
+  const robotY = h * 0.75;
+  const y = lane === "player" ? playerY : robotY;
+
+  el.style.left = x + "px";
+  el.style.top = (y - el.offsetHeight / 2) + "px";
+  el.style.transform = "rotate(0deg)";
+}
+
+function endRace(winner){
+  if(!raceActive) return;
+  raceActive = false;
+  clearInterval(robotTimer);
+
+  if(winner === "player"){
+    resultTitle.textContent = "You Win!";
+    resultSummary.textContent = "You beat the robot to the finish line.";
+    resultWord.textContent = "FINISH!";
+  }else{
+    resultTitle.textContent = "Robot Wins!";
+    resultSummary.textContent = "The robot reached the finish line first.";
+    resultWord.textContent = "TRY AGAIN!";
+  }
+
+  resultDetails.innerHTML =
+    "<strong>Number size:</strong> " + digitOptions[selectedDigits].label + "<br>" +
+    "<strong>Difficulty:</strong> " + difficulties[selectedDifficulty].label + "<br>" +
+    "<strong>Correct answers:</strong> " + questionsAnswered + "<br>" +
+    "<strong>Mistakes:</strong> " + mistakes;
+
+  showScreen(resultScreen);
+}
+
+answerSubmit.addEventListener("click", handleAnswer);
+
+answerInput.addEventListener("keydown", e => {
+  if(e.key === "Enter"){
+    handleAnswer();
+  }
+});
+
+document.getElementById("newGameBtn").addEventListener("click", () => {
+  raceActive = false;
+  clearInterval(robotTimer);
+  showScreen(digitScreen);
+});
+
+document.getElementById("menuBtn").addEventListener("click", () => {
+  raceActive = false;
+  clearInterval(robotTimer);
+  showScreen(digitScreen);
+});
+
+document.getElementById("playAgainBtn").addEventListener("click", () => {
+  startRaceSetup();
+});
+
+window.addEventListener("resize", updateKarts);
+
+buildMenus();
+updateKarts();
+</script>
+</body>
+</html>
