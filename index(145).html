@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sentence Scramble - Bright Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#061946;
+  --blue:#0875f5;
+  --purple:#7030d8;
+  --yellow:#facc15;
+  --green:#22c55e;
+  --red:#ef174d;
+  --orange:#f97316;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:'Fredoka',Arial,sans-serif;
+  color:var(--navy);
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);
+  overflow-x:hidden;
+}
+.sky-background{
+  position:fixed;
+  inset:0;
+  z-index:-10;
+  overflow:hidden;
+  pointer-events:none;
+}
+.sky-background::before{
+  content:"";
+  position:absolute;
+  top:36px;
+  left:36px;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  background:#ffd60a;
+  box-shadow:0 0 35px rgba(255,214,10,.75),0 0 75px rgba(255,214,10,.50),0 0 130px rgba(255,214,10,.28);
+}
+.cloud{
+  position:absolute;
+  width:220px;
+  height:74px;
+  background:rgba(255,255,255,.88);
+  border-radius:999px;
+  opacity:.68;
+  animation:cloudDrift linear infinite;
+}
+.cloud::before,.cloud::after{content:"";position:absolute;background:rgba(255,255,255,.96);border-radius:50%}
+.cloud::before{width:92px;height:92px;left:32px;top:-38px}
+.cloud::after{width:118px;height:118px;right:24px;top:-58px}
+.cloud.one{top:8%;left:-260px;transform:scale(.75);animation-duration:54s}
+.cloud.two{top:30%;left:-320px;transform:scale(1.15);animation-duration:72s;animation-delay:-20s}
+.cloud.three{top:66%;left:-280px;transform:scale(.9);animation-duration:64s;animation-delay:-36s}
+.cloud.four{top:48%;left:-350px;transform:scale(.55);animation-duration:82s;animation-delay:-12s;opacity:.45}
+.cloud.five{top:77%;left:-310px;transform:scale(1.05);animation-duration:94s;animation-delay:-44s;opacity:.38}
+@keyframes cloudDrift{from{margin-left:-380px}to{margin-left:calc(100vw + 520px)}}
+
+.side-menu{
+  position:fixed;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:170px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:20;
+}
+.side-menu a{
+  background:white;
+  color:#1f2937;
+  text-decoration:none;
+  font-weight:800;
+  text-align:center;
+  padding:12px 16px;
+  border-radius:999px;
+  border:3px solid #bfdbfe;
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+.sidebar-logo-link{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+.sidebar-logo{
+  width:170px;
+  padding:16px 12px 18px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff7d6 100%);
+  border-radius:28px;
+  box-shadow:0 7px 16px rgba(0,0,0,.16),0 7px 0 rgba(31,41,55,.10);
+  transform:rotate(-1deg);
+  overflow:hidden;
+}
+.sidebar-bright,.sidebar-arcade{display:flex;justify-content:center;align-items:center;white-space:nowrap}
+.sidebar-bright span{
+  font-family:"Baloo 2","Fredoka",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.72rem;
+  line-height:.9;
+  color:var(--c);
+  text-shadow:2px 2px 0 rgba(6,25,70,.16);
+}
+.sidebar-arcade{
+  margin-top:7px;
+  font-family:"Baloo 2","Fredoka",Arial,sans-serif;
+  font-weight:800;
+  font-size:2rem;
+  line-height:.82;
+  color:#061946;
+  text-shadow:2px 2px 0 rgba(6,25,70,.16);
+}
+.game{
+  width:min(1080px,100%);
+  margin:0 auto;
+  margin-left:220px;
+  padding:24px 18px 46px;
+}
+.header{text-align:center;margin-bottom:18px}
+.title-card{
+  position:relative;
+  width:min(940px,96%);
+  min-height:168px;
+  margin:0 auto;
+  border:8px solid #061946;
+  border-radius:50px;
+  background:
+    radial-gradient(circle at 16% 22%,rgba(255,255,255,.25) 0 13%,transparent 14%),
+    radial-gradient(circle at 82% 78%,rgba(6,25,70,.15) 0 18%,transparent 19%),
+    linear-gradient(110deg,#7030d8 0%,#0875f5 42%,#22c55e 72%,#facc15 100%);
+  box-shadow:0 16px 0 rgba(6,25,70,.96),0 28px 34px rgba(6,25,70,.26),inset 0 9px 0 rgba(255,255,255,.30),inset 0 -11px 0 rgba(6,25,70,.12);
+  overflow:hidden;
+  transform:rotate(-.6deg);
+}
+.title-text{
+  position:relative;
+  z-index:5;
+  min-height:168px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  line-height:.82;
+  letter-spacing:-3px;
+  transform:rotate(.6deg);
+}
+.title-text span{
+  display:block;
+  font-size:clamp(3.15rem,7.2vw,6.1rem);
+  -webkit-text-stroke:5px #000;
+  paint-order:stroke fill;
+  text-shadow:0 8px 0 rgba(0,0,0,.28),0 15px 14px rgba(0,0,0,.20);
+}
+.title-text .sentence{color:#fff}
+.title-text .scramble{color:#fef08a}
+.corner-icon{
+  position:absolute;
+  z-index:6;
+  width:112px;
+  height:96px;
+  border:6px solid #061946;
+  border-radius:34px;
+  background:linear-gradient(145deg,#ffffff,#fef3c7);
+  box-shadow:8px 9px 0 rgba(6,25,70,.24),inset 0 -8px 0 rgba(6,25,70,.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:3.4rem;
+}
+.corner-icon.left{left:34px;top:38px;transform:rotate(-8deg)}
+.corner-icon.right{right:34px;top:38px;transform:rotate(7deg)}
+.subtitle{
+  display:inline-block;
+  margin:16px auto 0;
+  background:white;
+  border:3px solid white;
+  border-radius:999px;
+  padding:10px 18px;
+  font-size:1.05rem;
+  font-weight:800;
+  color:#164e63;
+}
+.card{
+  background:rgba(255,255,255,.96);
+  border:5px solid white;
+  border-radius:34px;
+  padding:18px;
+  box-shadow:0 18px 34px rgba(15,23,42,.20);
+}
+.screen{display:none}
+.screen.active{display:block}
+.instructions{
+  text-align:center;
+  max-width:820px;
+  margin:0 auto 18px;
+  color:#334155;
+  font-size:1.08rem;
+  line-height:1.5;
+  font-weight:800;
+}
+.mode-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  max-width:900px;
+  margin:22px auto;
+}
+.choice{
+  touch-action:manipulation;
+  border:4px solid #bfdbfe;
+  border-radius:24px;
+  background:white;
+  padding:22px 14px;
+  font-size:1.2rem;
+  font-weight:900;
+  color:#1e3a8a;
+  cursor:pointer;
+  box-shadow:0 8px 0 #bfdbfe;
+  transition:.12s;
+}
+.choice small{display:block;margin-top:5px;color:#64748b;font-weight:800}
+.choice:hover,.choice.selected{
+  background:#fef3c7;
+  border-color:#facc15;
+  box-shadow:0 8px 0 #facc15;
+  transform:translateY(-3px) rotate(-1deg);
+}
+button{
+  touch-action:manipulation;
+  border:0;
+  border-radius:999px;
+  padding:14px 22px;
+  font-weight:900;
+  font-size:1rem;
+  cursor:pointer;
+}
+button:active{transform:scale(.97)}
+.primary{
+  background:#ef174d;
+  color:white;
+  font-size:1.15rem;
+  padding:16px 30px;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.24),0 8px 0 rgba(6,25,70,.18);
+}
+.secondary{background:#e2e8f0;color:#334155}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+  margin-top:18px;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:14px;
+}
+.stat{
+  background:#eff6ff;
+  border:3px solid #bfdbfe;
+  border-radius:18px;
+  padding:12px;
+  text-align:center;
+  font-weight:900;
+}
+.stat-label{display:block;color:#64748b;font-size:.9rem;margin-bottom:4px}
+.stat-value{font-size:1.25rem;color:#1d4ed8}
+.message{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  background:#fef3c7;
+  border:3px solid #facc15;
+  border-radius:999px;
+  padding:8px 16px;
+  font-weight:900;
+  color:#78350f;
+  margin:8px auto 14px;
+  max-width:760px;
+}
+.sentence-preview{
+  min-height:96px;
+  background:linear-gradient(145deg,#f8fafc,#e0f2fe);
+  border:4px solid #bfdbfe;
+  border-radius:28px;
+  padding:18px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:16px;
+}
+.drop-zone{
+  min-height:110px;
+  background:#fff7ed;
+  border:4px dashed #fb923c;
+  border-radius:28px;
+  padding:16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:18px;
+}
+.word-bank{
+  min-height:110px;
+  background:#f5f3ff;
+  border:4px solid #c4b5fd;
+  border-radius:28px;
+  padding:16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+}
+.word-tile{
+  border:4px solid #061946;
+  border-radius:18px;
+  padding:11px 16px;
+  background:linear-gradient(145deg,#ffffff,#dbeafe);
+  color:#061946;
+  font-weight:900;
+  font-size:1.12rem;
+  box-shadow:0 6px 0 rgba(6,25,70,.24),inset 0 -5px 0 rgba(37,99,235,.08);
+  cursor:pointer;
+  user-select:none;
+  touch-action:manipulation;
+}
+.word-tile:hover{transform:translateY(-2px) rotate(-1deg)}
+.word-tile.used{opacity:.35;pointer-events:none}
+.drop-zone .word-tile{
+  background:linear-gradient(145deg,#ffffff,#fef3c7);
+}
+.ghost-text{
+  color:#94a3b8;
+  font-weight:900;
+}
+.reward-scene{
+  min-height:150px;
+  background:linear-gradient(180deg,#dbeafe,#f0fdf4);
+  border:4px solid #a5f3fc;
+  border-radius:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  font-size:4rem;
+  overflow:hidden;
+  margin:16px auto 0;
+  max-width:800px;
+}
+.reward-scene.animate .actor{animation:actorBounce .7s ease infinite}
+.reward-scene.animate .object{animation:objectWiggle .8s ease infinite}
+.reward-scene.animate .arrow{animation:arrowZoom .75s ease infinite}
+@keyframes actorBounce{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(5deg)}}
+@keyframes objectWiggle{0%,100%{transform:rotate(-6deg) scale(1)}50%{transform:rotate(6deg) scale(1.08)}}
+@keyframes arrowZoom{0%,100%{transform:translateX(0);opacity:.45}50%{transform:translateX(8px);opacity:1}}
+.results{
+  text-align:center;
+  background:linear-gradient(135deg,#ecfeff,#f5f3ff);
+  border:4px solid #a5f3fc;
+  border-radius:30px;
+  padding:28px;
+}
+.results h2{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2.6rem,7vw,5rem);
+  margin:0;
+  color:#5b21b6;
+}
+.result-details{
+  font-size:1.2rem;
+  font-weight:800;
+  color:#475569;
+  line-height:1.7;
+  margin-top:12px;
+}
+.star-row{font-size:2.4rem;margin-top:8px}
+.create-box{
+  max-width:800px;
+  margin:18px auto 0;
+  background:#f8fafc;
+  border:4px solid #dbeafe;
+  border-radius:28px;
+  padding:18px;
+}
+textarea{
+  width:100%;
+  min-height:90px;
+  border:4px solid #bfdbfe;
+  border-radius:22px;
+  padding:14px;
+  font-family:Fredoka,Arial,sans-serif;
+  font-size:1.05rem;
+  font-weight:800;
+  color:#061946;
+  resize:vertical;
+}
+@media(max-width:900px){
+  .side-menu{position:static;transform:none;width:auto;flex-direction:row;justify-content:center;margin:12px auto}
+  .sidebar-logo{display:none}
+  .game{margin-left:auto;padding-top:10px}
+}
+@media(max-width:720px){
+  .mode-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr);gap:6px}
+  .stat{padding:9px 5px;border-width:2px}
+  .stat-label{font-size:.72rem}
+  .stat-value{font-size:1rem}
+  .word-tile{font-size:1rem;padding:9px 12px;border-width:3px}
+  .corner-icon{transform:scale(.62)!important;top:42px!important}
+  .corner-icon.left{left:0}
+  .corner-icon.right{right:0}
+  .reward-scene{font-size:3rem}
+}
+@media(max-width:520px){
+  .game{padding:8px 8px 30px}
+  .card{padding:10px;border-radius:24px}
+  .title-card{min-height:138px;border-width:6px;border-radius:38px}
+  .title-text{min-height:138px}
+  .title-text span{font-size:clamp(2.45rem,12vw,4.4rem)}
+  .subtitle{font-size:.92rem;padding:8px 13px}
+  button{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="sky-background" aria-hidden="true">
+  <div class="cloud one"></div>
+  <div class="cloud two"></div>
+  <div class="cloud three"></div>
+  <div class="cloud four"></div>
+  <div class="cloud five"></div>
+</div>
+
+<nav class="side-menu">
+<a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home">
+  <div class="sidebar-logo">
+    <div class="sidebar-bright">
+      <span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span><span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span>
+    </div>
+    <div class="sidebar-arcade">ARCADE</div>
+  </div>
+</a>
+<a href="/">Home</a>
+</nav>
+
+<div class="game">
+<header class="header">
+  <div class="title-card">
+    <div class="corner-icon left">🧩</div>
+    <div class="title-text"><span class="sentence">Sentence</span><span class="scramble">Scramble</span></div>
+    <div class="corner-icon right">✏️</div>
+  </div>
+  <p class="subtitle">Put the silly sentence back together.</p>
+</header>
+
+<main class="card">
+  <section class="screen active" id="startScreen">
+    <p class="instructions">
+      Tap the mixed-up words in the correct order. The sentences are silly, but the order matters.
+    </p>
+
+    <div class="mode-grid">
+      <button type="button" class="choice selected" data-level="short">
+        🐣 Short
+        <small>4–5 word sentences</small>
+      </button>
+      <button type="button" class="choice" data-level="silly">
+        🐔 Silly
+        <small>6–8 word sentences</small>
+      </button>
+      <button type="button" class="choice" data-level="crazy">
+        🤪 Crazy
+        <small>Longer sentences</small>
+      </button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="startBtn">Start Game</button>
+      <button type="button" class="secondary" id="createBtn">Create Your Own</button>
+    </div>
+
+    <div class="create-box" id="createBox" style="display:none;">
+      <p class="instructions" style="margin-bottom:10px;">Type a silly sentence and the game will scramble it.</p>
+      <textarea id="customSentence" maxlength="120">The duck danced on the toilet.</textarea>
+      <div class="actions">
+        <button type="button" class="primary" id="playCustomBtn">Scramble My Sentence</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="gameScreen">
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Sentence</span><span class="stat-value" id="roundText">1 / 8</span></div>
+      <div class="stat"><span class="stat-label">Stars</span><span class="stat-value" id="starsText">0</span></div>
+      <div class="stat"><span class="stat-label">Mistakes</span><span class="stat-value" id="mistakesText">0</span></div>
+      <div class="stat"><span class="stat-label">Time</span><span class="stat-value" id="timeText">0s</span></div>
+    </div>
+
+    <div class="message" id="message">Build the sentence.</div>
+
+    <div class="drop-zone" id="answerZone">
+      <span class="ghost-text">Tap words below to build your sentence here.</span>
+    </div>
+
+    <div class="word-bank" id="wordBank"></div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="checkBtn">Check</button>
+      <button type="button" class="secondary" id="undoBtn">Undo</button>
+      <button type="button" class="secondary" id="clearAnswerBtn">Clear</button>
+      <button type="button" class="secondary" id="menuBtn">Back to Menu</button>
+    </div>
+
+    <div class="reward-scene" id="rewardScene" style="display:none;">
+      <span class="actor" id="sceneActor">🦆</span>
+      <span class="arrow">➡️</span>
+      <span class="object" id="sceneObject">🚽</span>
+    </div>
+  </section>
+
+  <section class="screen" id="resultScreen">
+    <div class="results">
+      <h2>Scramble Solved!</h2>
+      <div class="star-row" id="finalStars">⭐⭐⭐</div>
+      <div class="result-details" id="resultDetails"></div>
+    </div>
+    <div class="actions">
+      <button type="button" class="primary" id="playAgainBtn">Play Again</button>
+      <button type="button" class="secondary" id="chooseLevelBtn">Choose Level</button>
+    </div>
+  </section>
+</main>
+</div>
+
+<script>
+const sentences = {
+  short: [
+    {text:"The duck danced.", scene:["🦆","💃"]},
+    {text:"The pig burped.", scene:["🐷","💨"]},
+    {text:"The worm waved.", scene:["🪱","👋"]},
+    {text:"The toilet flew.", scene:["🚽","🚀"]},
+    {text:"The chicken slipped.", scene:["🐔","🍌"]},
+    {text:"The sock sneezed.", scene:["🧦","🤧"]},
+    {text:"The frog laughed.", scene:["🐸","😂"]},
+    {text:"The cheese stank.", scene:["🧀","💨"]},
+    {text:"The monkey screamed.", scene:["🐵","😱"]},
+    {text:"The banana bounced.", scene:["🍌","🏀"]}
+  ],
+  silly: [
+    {text:"The duck wore sunglasses.", scene:["🦆","😎"]},
+    {text:"The worm ate pizza.", scene:["🪱","🍕"]},
+    {text:"The pig drove quickly.", scene:["🐷","🏎️"]},
+    {text:"The fart scared the monkey.", scene:["💨","🐵"]},
+    {text:"The chicken danced on the toilet.", scene:["🐔","🚽"]},
+    {text:"The booger flew to space.", scene:["👃","🚀"]},
+    {text:"The smelly sock won the race.", scene:["🧦","🏆"]},
+    {text:"The frog wore tiny underpants.", scene:["🐸","🩲"]},
+    {text:"The fly stole the cheese.", scene:["🪰","🧀"]},
+    {text:"The banana shouted at the pig.", scene:["🍌","🐷"]}
+  ],
+  crazy: [
+    {text:"The giant worm ate a pizza under the table.", scene:["🪱","🍕"]},
+    {text:"A smelly sock blasted into space before lunch.", scene:["🧦","🚀"]},
+    {text:"The muddy pig drove a tiny race car.", scene:["🐷","🏎️"]},
+    {text:"The toilet flew over the school library.", scene:["🚽","📚"]},
+    {text:"A dancing chicken slipped on a banana peel.", scene:["🐔","🍌"]},
+    {text:"The superhero sausage rescued the frightened duck.", scene:["🌭","🦆"]},
+    {text:"A sneaky fly stole cheese from the fridge.", scene:["🪰","🧀"]},
+    {text:"The booger bounced across the classroom floor.", scene:["👃","🏫"]},
+    {text:"A loud fart scared every monkey in town.", scene:["💨","🐵"]},
+    {text:"The frog wore underpants during the disco.", scene:["🐸","🩲"]}
+  ]
+};
+
+let level = "short";
+let round = 0;
+let gameSet = [];
+let current = null;
+let answer = [];
+let selectedTiles = [];
+let stars = 0;
+let mistakes = 0;
+let startTime = 0;
+let elapsed = 0;
+let timer = null;
+let customMode = false;
+
+const startScreen = document.getElementById("startScreen");
+const gameScreen = document.getElementById("gameScreen");
+const resultScreen = document.getElementById("resultScreen");
+const wordBank = document.getElementById("wordBank");
+const answerZone = document.getElementById("answerZone");
+const message = document.getElementById("message");
+const roundText = document.getElementById("roundText");
+const starsText = document.getElementById("starsText");
+const mistakesText = document.getElementById("mistakesText");
+const timeText = document.getElementById("timeText");
+const rewardScene = document.getElementById("rewardScene");
+const sceneActor = document.getElementById("sceneActor");
+const sceneObject = document.getElementById("sceneObject");
+const resultDetails = document.getElementById("resultDetails");
+const finalStars = document.getElementById("finalStars");
+const createBox = document.getElementById("createBox");
+const customSentence = document.getElementById("customSentence");
+
+function showScreen(screen){
+  startScreen.classList.remove("active");
+  gameScreen.classList.remove("active");
+  resultScreen.classList.remove("active");
+  screen.classList.add("active");
+}
+
+function shuffle(arr){
+  const copy = arr.slice();
+  for(let i=copy.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [copy[i],copy[j]] = [copy[j],copy[i]];
+  }
+  return copy;
+}
+
+function startGame(){
+  customMode = false;
+  gameSet = shuffle(sentences[level]).slice(0,8);
+  round = 0;
+  stars = 0;
+  mistakes = 0;
+  elapsed = 0;
+  startTime = Date.now();
+  clearInterval(timer);
+  timer = setInterval(updateTimer, 500);
+  showScreen(gameScreen);
+  loadRound();
+}
+
+function startCustom(){
+  const text = customSentence.value.trim().replace(/\s+/g," ");
+  if(text.split(" ").length < 3){
+    customSentence.value = "The duck danced on the toilet.";
+    return;
+  }
+  customMode = true;
+  gameSet = [{text:text, scene:["🧩","✏️"]}];
+  round = 0;
+  stars = 0;
+  mistakes = 0;
+  elapsed = 0;
+  startTime = Date.now();
+  clearInterval(timer);
+  timer = setInterval(updateTimer, 500);
+  showScreen(gameScreen);
+  loadRound();
+}
+
+function updateTimer(){
+  elapsed = Math.floor((Date.now() - startTime) / 1000);
+  timeText.textContent = elapsed + "s";
+}
+
+function cleanWord(word){
+  return word.replace(/[.,!?;:]/g,"");
+}
+
+function sentenceWords(text){
+  return text.split(" ");
+}
+
+function loadRound(){
+  rewardScene.style.display = "none";
+  rewardScene.classList.remove("animate");
+  current = gameSet[round];
+  answer = [];
+  selectedTiles = [];
+  const words = sentenceWords(current.text);
+  const scrambled = shuffle(words);
+  renderWords(scrambled);
+  renderAnswer();
+  roundText.textContent = (round + 1) + " / " + gameSet.length;
+  starsText.textContent = stars;
+  mistakesText.textContent = mistakes;
+  message.textContent = "Build the sentence.";
+}
+
+function renderWords(words){
+  wordBank.innerHTML = "";
+  words.forEach((word, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "word-tile";
+    btn.textContent = word;
+    btn.dataset.index = index;
+    btn.addEventListener("click", () => selectWord(btn, word));
+    wordBank.appendChild(btn);
+  });
+}
+
+function selectWord(btn, word){
+  if(btn.classList.contains("used")) return;
+  btn.classList.add("used");
+  answer.push(word);
+  selectedTiles.push(btn);
+  renderAnswer();
+}
+
+function renderAnswer(){
+  answerZone.innerHTML = "";
+  if(answer.length === 0){
+    const ghost = document.createElement("span");
+    ghost.className = "ghost-text";
+    ghost.textContent = "Tap words below to build your sentence here.";
+    answerZone.appendChild(ghost);
+    return;
+  }
+  answer.forEach((word, index) => {
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = "word-tile";
+    tile.textContent = word;
+    tile.addEventListener("click", () => removeWord(index));
+    answerZone.appendChild(tile);
+  });
+}
+
+function removeWord(index){
+  const removed = answer.splice(index,1)[0];
+  const tile = selectedTiles.splice(index,1)[0];
+  if(tile) tile.classList.remove("used");
+  renderAnswer();
+}
+
+function undo(){
+  if(answer.length === 0) return;
+  answer.pop();
+  const tile = selectedTiles.pop();
+  if(tile) tile.classList.remove("used");
+  renderAnswer();
+}
+
+function clearAnswer(){
+  answer = [];
+  selectedTiles.forEach(tile => tile.classList.remove("used"));
+  selectedTiles = [];
+  renderAnswer();
+}
+
+function checkAnswer(){
+  const built = answer.join(" ").trim();
+  if(built === current.text){
+    const wordCount = sentenceWords(current.text).length;
+    let earned = 1;
+    if(mistakes === 0) earned++;
+    if(elapsed < (round + 1) * (wordCount + 7)) earned++;
+    stars += earned;
+    starsText.textContent = stars;
+    message.textContent = "Correct! " + "⭐".repeat(earned);
+    playReward();
+    setTimeout(nextRound, 1200);
+  }else{
+    mistakes++;
+    mistakesText.textContent = mistakes;
+    message.textContent = "Not quite. Try moving the words around.";
+  }
+}
+
+function playReward(){
+  sceneActor.textContent = current.scene ? current.scene[0] : "🧩";
+  sceneObject.textContent = current.scene ? current.scene[1] : "✨";
+  rewardScene.style.display = "flex";
+  rewardScene.classList.add("animate");
+}
+
+function nextRound(){
+  round++;
+  if(round >= gameSet.length){
+    finishGame();
+  }else{
+    loadRound();
+  }
+}
+
+function finishGame(){
+  clearInterval(timer);
+  updateTimer();
+  const maxStars = gameSet.length * 3;
+  finalStars.textContent = "⭐".repeat(Math.max(1, Math.min(3, Math.round(stars / gameSet.length))));
+  resultDetails.innerHTML = `
+    You earned <strong>${stars}</strong> out of <strong>${maxStars}</strong> stars.<br>
+    Mistakes: <strong>${mistakes}</strong><br>
+    Time: <strong>${elapsed}</strong> seconds.
+  `;
+  showScreen(resultScreen);
+}
+
+function backToMenu(){
+  clearInterval(timer);
+  showScreen(startScreen);
+}
+
+document.querySelectorAll(".choice").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".choice").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    level = btn.dataset.level;
+  });
+});
+
+document.getElementById("startBtn").addEventListener("click", startGame);
+document.getElementById("createBtn").addEventListener("click", () => {
+  createBox.style.display = createBox.style.display === "none" ? "block" : "none";
+});
+document.getElementById("playCustomBtn").addEventListener("click", startCustom);
+document.getElementById("checkBtn").addEventListener("click", checkAnswer);
+document.getElementById("undoBtn").addEventListener("click", undo);
+document.getElementById("clearAnswerBtn").addEventListener("click", clearAnswer);
+document.getElementById("menuBtn").addEventListener("click", backToMenu);
+document.getElementById("playAgainBtn").addEventListener("click", startGame);
+document.getElementById("chooseLevelBtn").addEventListener("click", backToMenu);
+</script>
+</body>
+</html>
