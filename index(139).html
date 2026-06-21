@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>100 - Bright Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#061946;--blue:#0875f5;--purple:#7030d8;--yellow:#facc15;--green:#22c55e;--red:#ef174d;--orange:#f97316}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:'Fredoka',Arial,sans-serif;color:var(--navy);background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);overflow-x:hidden}
+.sky-background{position:fixed;inset:0;z-index:-10;overflow:hidden;pointer-events:none;background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%)}
+.sky-background::before{content:"";position:absolute;top:38px;left:38px;width:112px;height:112px;border-radius:50%;background:#ffd60a;box-shadow:0 0 35px rgba(255,214,10,.75),0 0 75px rgba(255,214,10,.50),0 0 130px rgba(255,214,10,.28)}
+.cloud{position:absolute;width:220px;height:74px;background:rgba(255,255,255,.88);border-radius:999px;filter:drop-shadow(0 9px 10px rgba(14,116,144,.16));opacity:.72;animation:cloudDrift linear infinite}
+.cloud::before,.cloud::after{content:"";position:absolute;background:rgba(255,255,255,.96);border-radius:50%}
+.cloud::before{width:92px;height:92px;left:32px;top:-38px}.cloud::after{width:118px;height:118px;right:24px;top:-58px}
+.cloud.one{top:8%;left:-260px;transform:scale(.75);animation-duration:54s}.cloud.two{top:30%;left:-320px;transform:scale(1.15);animation-duration:72s;animation-delay:-20s}.cloud.three{top:66%;left:-280px;transform:scale(.9);animation-duration:64s;animation-delay:-36s}
+@keyframes cloudDrift{from{margin-left:-380px}to{margin-left:calc(100vw + 520px)}}
+.side-menu{position:fixed;left:20px;top:50%;transform:translateY(-50%);width:170px;display:flex;flex-direction:column;gap:12px;z-index:20}
+.side-menu a{background:white;color:#1f2937;text-decoration:none;font-weight:800;text-align:center;padding:12px 16px;border-radius:999px;border:3px solid #bfdbfe;box-shadow:0 6px 14px rgba(0,0,0,.15)}
+.sidebar-logo-link{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+.sidebar-logo{width:170px;padding:16px 12px 18px;background:linear-gradient(180deg,#ffffff 0%,#fff7d6 100%);border-radius:28px;box-shadow:0 7px 16px rgba(0,0,0,.16),0 7px 0 rgba(31,41,55,.10);transform:rotate(-1deg);overflow:hidden}
+.sidebar-bright,.sidebar-arcade{display:flex;justify-content:center;align-items:center;white-space:nowrap}
+.sidebar-bright span{font-family:"Baloo 2","Fredoka",Arial,sans-serif;font-weight:800;font-size:1.72rem;line-height:.9;color:var(--c);text-shadow:2px 2px 0 rgba(6,25,70,.16)}
+.sidebar-arcade{margin-top:7px;font-family:"Baloo 2","Fredoka",Arial,sans-serif;font-weight:800;font-size:2rem;line-height:.82;color:#061946;text-shadow:2px 2px 0 rgba(6,25,70,.16)}
+.game{width:min(1080px,100%);margin:0 auto;margin-left:220px;padding:24px 18px 46px}
+.header{text-align:center;margin-bottom:18px}
+.title-card{position:relative;width:min(900px,96%);min-height:170px;margin:0 auto;border:8px solid #061946;border-radius:50px;background:radial-gradient(circle at 16% 22%,rgba(255,255,255,.25) 0 13%,transparent 14%),radial-gradient(circle at 82% 78%,rgba(6,25,70,.15) 0 18%,transparent 19%),linear-gradient(110deg,#22c55e 0%,#facc15 45%,#ef174d 100%);box-shadow:0 16px 0 rgba(6,25,70,.96),0 28px 34px rgba(6,25,70,.26),inset 0 9px 0 rgba(255,255,255,.30),inset 0 -11px 0 rgba(6,25,70,.12);overflow:hidden;transform:rotate(-.6deg)}
+.title-text{position:relative;z-index:5;min-height:170px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:"Baloo 2",Fredoka,Arial,sans-serif;font-weight:800;line-height:.8;transform:rotate(.6deg)}
+.big-100{font-size:clamp(6rem,15vw,10rem);color:#fff;-webkit-text-stroke:5px #000;paint-order:stroke fill;text-shadow:0 9px 0 rgba(0,0,0,.28),0 15px 14px rgba(0,0,0,.2)}
+.target-badge,.plus-bubble{position:absolute;border:6px solid #061946;display:flex;align-items:center;justify-content:center;font-family:"Baloo 2",Fredoka,Arial,sans-serif;font-weight:800;box-shadow:8px 9px 0 rgba(6,25,70,.24),inset 0 -8px 0 rgba(6,25,70,.12)}
+.target-badge{right:32px;top:38px;width:116px;height:100px;border-radius:30px;background:linear-gradient(145deg,#ffffff,#fef3c7);font-size:3.2rem;color:#ef174d;transform:rotate(7deg)}
+.plus-bubble{left:34px;top:42px;width:108px;height:94px;border-radius:30px;background:linear-gradient(145deg,#dbeafe,#38bdf8);font-size:4rem;color:#fff;-webkit-text-stroke:3px #061946;paint-order:stroke fill;transform:rotate(-8deg)}
+.subtitle{display:inline-block;margin:18px auto 0;background:white;border:3px solid white;border-radius:999px;padding:10px 18px;font-size:1.08rem;font-weight:800;color:#164e63}
+.card{background:rgba(255,255,255,.96);border:5px solid white;border-radius:34px;padding:22px;box-shadow:0 18px 34px rgba(15,23,42,.20)}
+.screen{display:none}.screen.active{display:block}
+.instructions{text-align:center;max-width:820px;margin:0 auto 18px;color:#334155;font-size:1.08rem;line-height:1.5;font-weight:700}
+.mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:780px;margin:20px auto}
+.choice{touch-action:manipulation;border:4px solid #bfdbfe;border-radius:24px;background:white;padding:22px 14px;font-size:1.2rem;font-weight:900;color:#1e3a8a;cursor:pointer;box-shadow:0 8px 0 #bfdbfe;transition:.12s}
+.choice small{display:block;margin-top:5px;color:#64748b;font-weight:800}
+.choice:hover,.choice.selected{background:#fef3c7;border-color:#facc15;box-shadow:0 8px 0 #facc15;transform:translateY(-3px) rotate(-1deg)}
+button{touch-action:manipulation;border:0;border-radius:999px;padding:14px 22px;font-weight:900;font-size:1rem;cursor:pointer}
+button:active{transform:scale(.97)}
+.primary{background:#ef174d;color:white;font-size:1.15rem;padding:16px 30px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.24),0 8px 0 rgba(6,25,70,.18)}
+.secondary{background:#e2e8f0;color:#334155}
+.actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:18px}
+.play-area{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.total-card{grid-column:1 / -1;text-align:center;background:linear-gradient(135deg,#ecfeff,#fef3c7);border:5px solid #a5f3fc;border-radius:34px;padding:20px;box-shadow:0 10px 0 rgba(6,25,70,.14)}
+.total-label{font-weight:900;color:#475569;font-size:1.05rem}
+.total-number{font-family:"Baloo 2",Fredoka,Arial,sans-serif;font-size:clamp(5rem,15vw,9rem);line-height:.8;font-weight:800;color:#5b21b6;-webkit-text-stroke:4px #061946;paint-order:stroke fill;text-shadow:0 8px 0 rgba(6,25,70,.20)}
+
+.panel{background:#f8fafc;border:4px solid #dbeafe;border-radius:28px;padding:18px}
+.panel h2{margin:0 0 10px;font-family:"Baloo 2",Fredoka,Arial,sans-serif;font-size:2rem;color:#1e3a8a;text-align:center}
+.turn-banner{text-align:center;margin-bottom:14px;font-size:1.3rem;font-weight:900;color:#5b21b6}
+.move-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.move-btn{border:4px solid #061946;border-radius:22px;background:linear-gradient(145deg,#ffffff,#dbeafe);box-shadow:0 7px 0 rgba(6,25,70,.24),inset 0 -6px 0 rgba(37,99,235,.10);color:#061946;font-family:"Baloo 2",Fredoka,Arial,sans-serif;font-size:2rem;font-weight:800;padding:14px 4px}
+.move-btn:hover:not(:disabled){background:linear-gradient(145deg,#fef08a,#facc15);transform:translateY(-2px)}
+.move-btn:disabled{opacity:.35;cursor:not-allowed}
+.log{min-height:280px;max-height:360px;overflow:auto;display:flex;flex-direction:column-reverse;gap:8px;padding:4px}
+.log-entry{background:white;border:3px solid #bfdbfe;border-radius:18px;padding:10px 12px;font-weight:800;color:#334155}
+.log-entry.player{border-color:#22c55e;background:#f0fdf4}
+.log-entry.computer{border-color:#f97316;background:#fff7ed}
+.log-entry.win{border-color:#ef174d;background:#fff1f2;color:#9f1239}
+.message{text-align:center;min-height:34px;margin-top:14px;font-weight:900;color:#164e63}
+.results{text-align:center;background:linear-gradient(135deg,#ecfeff,#f5f3ff);border:4px solid #a5f3fc;border-radius:30px;padding:28px}
+.results h2{font-family:"Baloo 2",Fredoka,Arial,sans-serif;font-size:clamp(2.6rem,7vw,5rem);margin:0;color:#5b21b6}
+.result-details{font-size:1.2rem;font-weight:800;color:#475569;line-height:1.7;margin-top:12px}
+
+@media(max-width:900px){.side-menu{position:static;transform:none;width:auto;flex-direction:row;justify-content:center;margin:12px auto}.sidebar-logo{display:none}.game{margin-left:auto;padding-top:10px}}
+@media(max-width:720px){.play-area{grid-template-columns:1fr}.mode-grid{grid-template-columns:1fr}.title-card{min-height:145px;border-radius:40px}.title-text{min-height:145px}.plus-bubble,.target-badge{transform:scale(.65);transform-origin:center}.plus-bubble{left:6px;top:42px}.target-badge{right:2px;top:38px}}
+@media(max-width:520px){.game{padding:8px 10px 34px}.card{padding:12px;border-radius:24px}.move-grid{gap:7px}.move-btn{font-size:1.35rem;border-width:3px;border-radius:16px;padding:12px 2px}.total-number{font-size:5rem}button{width:100%}}
+</style>
+</head>
+<body>
+<div class="sky-background" aria-hidden="true"><div class="cloud one"></div><div class="cloud two"></div><div class="cloud three"></div></div>
+<nav class="side-menu">
+<a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home"><div class="sidebar-logo"><div class="sidebar-bright"><span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span><span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span></div><div class="sidebar-arcade">ARCADE</div></div></a>
+<a href="/">Home</a>
+</nav>
+<div class="game">
+<header class="header"><div class="title-card"><div class="plus-bubble">+</div><div class="title-text"><span class="big-100">100</span></div><div class="target-badge">100</div></div><p class="subtitle">Be the first to say 100!</p></header>
+<main class="card">
+<section class="screen active" id="startScreen"><p class="instructions">Start at 0. On each turn, add a number from 1 to 10. The player who reaches exactly 100 wins.</p><div class="mode-grid"><button type="button" class="choice selected" data-mode="computer">Player vs Computer<small>The computer goes first and changes its style each game.</small></button><button type="button" class="choice" data-mode="two">Two Player<small>Take turns on the same screen.</small></button></div><div class="actions"><button type="button" class="primary" id="startBtn">Start Game</button></div></section>
+<section class="screen" id="gameScreen"><div class="play-area"><section class="total-card"><div class="total-label">Current Total</div><div class="total-number" id="totalNumber">0</div></section><section class="panel"><h2>Your Move</h2><div class="turn-banner" id="turnBanner">Choose a number to add.</div><div class="move-grid" id="moveGrid"></div><div class="message" id="message">Add 1 to 10.</div></section><section class="panel"><h2>Game Log</h2><div class="log" id="log"></div></section></div><div class="actions"><button type="button" class="secondary" id="restartBtn">Restart</button><button type="button" class="secondary" id="menuBtn">Back to Menu</button></div></section>
+<section class="screen" id="resultScreen"><div class="results"><h2 id="resultTitle">You Win!</h2><div class="result-details" id="resultDetails"></div></div><div class="actions"><button type="button" class="primary" id="playAgainBtn">Play Again</button><button type="button" class="secondary" id="chooseModeBtn">Choose Mode</button></div></section>
+</main></div>
+<script>
+const TARGET=100,MAX_ADD=10,MAGIC_STEP=11;
+const keyNumbers=[1,12,23,34,45,56,67,78,89,100];
+let mode="computer",total=0,turn="player",gameOver=false,moves=[];
+const startScreen=document.getElementById("startScreen"),gameScreen=document.getElementById("gameScreen"),resultScreen=document.getElementById("resultScreen"),totalNumber=document.getElementById("totalNumber"),progressBar=document.getElementById("progressBar"),moveGrid=document.getElementById("moveGrid"),turnBanner=document.getElementById("turnBanner"),message=document.getElementById("message"),log=document.getElementById("log"),resultTitle=document.getElementById("resultTitle"),resultDetails=document.getElementById("resultDetails");
+function showScreen(screen){startScreen.classList.remove("active");gameScreen.classList.remove("active");resultScreen.classList.remove("active");screen.classList.add("active")}
+function buildMoves(){moveGrid.innerHTML="";for(let i=1;i<=MAX_ADD;i++){const b=document.createElement("button");b.type="button";b.className="move-btn";b.textContent="+"+i;b.dataset.value=i;b.addEventListener("click",()=>playerMove(i));moveGrid.appendChild(b)}}
+function setButtonsEnabled(enabled){document.querySelectorAll(".move-btn").forEach(btn=>{const value=Number(btn.dataset.value);btn.disabled=!enabled||gameOver||total+value>TARGET})}
+function updateDisplay(){totalNumber.textContent=total;if(gameOver){setButtonsEnabled(false);return}if(mode==="two"){turnBanner.textContent=turn==="player"?"Player 1's turn":"Player 2's turn";message.textContent="Choose a number from 1 to 10.";setButtonsEnabled(true)}else{if(turn==="player"){turnBanner.textContent="Your turn";message.textContent="Choose a number from 1 to 10.";setButtonsEnabled(true)}else{turnBanner.textContent="Computer is thinking...";message.textContent="Wait for the computer.";setButtonsEnabled(false)}}}
+function addLog(text,type){const entry=document.createElement("div");entry.className="log-entry "+(type||"");entry.textContent=text;log.prepend(entry)}
+function addMove(amount,who){total+=amount;moves.push({who,amount,total});if(who==="computer"){addLog("Computer adds "+amount+" → "+total,"computer")}else if(mode==="two"){addLog((who==="player"?"Player 1":"Player 2")+" adds "+amount+" → "+total,"player")}else{addLog("You add "+amount+" → "+total,"player")}if(total>=TARGET){finishGame(who);return}if(mode==="two"){turn=turn==="player"?"computer":"player";updateDisplay()}else{turn=who==="player"?"computer":"player";updateDisplay();if(turn==="computer"){setTimeout(computerMove,700)}}}
+function playerMove(amount){if(gameOver)return;if(mode==="computer"&&turn!=="player")return;if(total+amount>TARGET)return;addMove(amount,turn)}
+function computerMove(){if(gameOver||mode!=="computer")return;let amount=chooseComputerMove();addMove(amount,"computer")}
+function chooseComputerMove(){
+ const remaining=TARGET-total;
+ if(remaining<=MAX_ADD)return remaining;
+
+ const legalMoves=[];
+ for(let i=1;i<=MAX_ADD;i++){
+   if(total+i<=TARGET)legalMoves.push(i);
+ }
+
+ // Includes 1,12,23,34,45,56,67,78,89.
+ // Non-strategy modes avoid these so the computer does not start the winning sequence.
+ const keyTargets=keyNumbers.filter(n=>n<TARGET);
+
+ function pick(pool){
+   return pool[Math.floor(Math.random()*pool.length)];
+ }
+
+ function randomMove(){
+   return pick(legalMoves);
+ }
+
+ function avoidsKeyMove(){
+   const nonKey=legalMoves.filter(n=>!keyTargets.includes(total+n));
+   return pick(nonKey.length?nonKey:legalMoves);
+ }
+
+ function sensibleMove(){
+   const safer=legalMoves.filter(n=>{
+     const newTotal=total+n;
+     return TARGET-newTotal>MAX_ADD&&!keyTargets.includes(newTotal);
+   });
+   return safer.length?pick(safer):avoidsKeyMove();
+ }
+
+ function strategicMove(){
+   const possibleKeys=keyNumbers.filter(n=>n>total&&n<TARGET&&n-total>=1&&n-total<=MAX_ADD);
+   if(possibleKeys.length)return possibleKeys[0]-total;
+
+   const last=moves[moves.length-1];
+   if(last&&last.who==="player"){
+     const reply=MAGIC_STEP-last.amount;
+     if(reply>=1&&reply<=MAX_ADD&&total+reply<=TARGET)return reply;
+   }
+   return sensibleMove();
+ }
+
+ // Computer always goes first. It may open with 1, but not every time.
+ // Stronger hidden styles are more likely to notice that 1 is a useful opening.
+ if(total===0){
+   if(computerStyle==="beginner"){
+     return Math.random()<0.08 ? 1 : avoidsKeyMove();
+   }
+   if(computerStyle==="average"){
+     return Math.random()<0.18 ? 1 : avoidsKeyMove();
+   }
+   if(computerStyle==="sharp"){
+     return Math.random()<0.35 ? 1 : avoidsKeyMove();
+   }
+   return Math.random()<0.55 ? 1 : avoidsKeyMove();
+ }
+
+ if(computerStyle==="beginner"){
+   return Math.random()<0.75?avoidsKeyMove():randomMove();
+ }
+
+ if(computerStyle==="average"){
+   return Math.random()<0.80?sensibleMove():avoidsKeyMove();
+ }
+
+ if(computerStyle==="sharp"){
+   if(total<computerSwitchPoint)return Math.random()<0.80?sensibleMove():avoidsKeyMove();
+   return Math.random()<0.38?strategicMove():sensibleMove();
+ }
+
+ // Expert is rare and only switches to strategy later.
+ if(total<computerSwitchPoint)return Math.random()<0.70?sensibleMove():avoidsKeyMove();
+ return Math.random()<0.55?strategicMove():sensibleMove();
+}
+function finishGame(winner){gameOver=true;updateDisplay();let title;if(mode==="two"){title=winner==="player"?"Player 1 Wins!":"Player 2 Wins!"}else{title=winner==="player"?"You Win!":"Computer Wins!"}resultTitle.textContent=title;resultDetails.textContent="The final total was 100 after "+moves.length+" moves.";addLog(title+" Reached 100.","win");setTimeout(()=>showScreen(resultScreen),700)}
+function startGame(){
+ total=0;
+ gameOver=false;
+ moves=[];
+ log.innerHTML="";
+
+ const styleRoll=Math.random();
+ if(styleRoll<0.55){
+   computerStyle="beginner";
+ }else if(styleRoll<0.85){
+   computerStyle="average";
+ }else if(styleRoll<0.97){
+   computerStyle="sharp";
+ }else{
+   computerStyle="expert";
+ }
+
+ // Strategy only appears later, never from the opening.
+ computerSwitchPoint=[45,56,67][Math.floor(Math.random()*3)];
+
+ turn=mode==="computer"?"computer":"player";
+ showScreen(gameScreen);
+ updateDisplay();
+ if(mode==="computer"){
+   setTimeout(computerMove,700);
+ }
+}
+function backToMenu(){showScreen(startScreen)}
+document.querySelectorAll(".choice").forEach(btn=>{btn.addEventListener("click",()=>{document.querySelectorAll(".choice").forEach(b=>b.classList.remove("selected"));btn.classList.add("selected");mode=btn.dataset.mode})});
+document.getElementById("startBtn").addEventListener("click",startGame);
+document.getElementById("restartBtn").addEventListener("click",startGame);
+document.getElementById("menuBtn").addEventListener("click",backToMenu);
+document.getElementById("playAgainBtn").addEventListener("click",startGame);
+document.getElementById("chooseModeBtn").addEventListener("click",backToMenu);
+buildMoves();
+</script>
+</body></html>
