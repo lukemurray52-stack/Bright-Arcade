@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Word Connections - Bright Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#061946;
+  --blue:#0875f5;
+  --purple:#7030d8;
+  --yellow:#facc15;
+  --green:#22c55e;
+  --red:#ef174d;
+  --orange:#f97316;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:'Fredoka',Arial,sans-serif;
+  color:var(--navy);
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 48%,#d9f7ff 100%);
+  overflow-x:hidden;
+}
+.sky{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(circle at 12% 14%,rgba(255,255,255,.75) 0 5%,transparent 5.3%),
+    radial-gradient(circle at 84% 22%,rgba(255,255,255,.6) 0 7%,transparent 7.3%),
+    linear-gradient(180deg,#38bdf8,#7dd3fc 48%,#d9f7ff);
+}
+.side-menu{
+  position:fixed;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:170px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  z-index:20;
+}
+.side-menu a{
+  color:#1f2937;
+  text-decoration:none;
+  font-weight:800;
+  text-align:center;
+}
+.sidebar-logo-link{background:transparent!important}
+.sidebar-logo{
+  width:170px;
+  padding:16px 12px 18px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff7d6 100%);
+  border-radius:28px;
+  box-shadow:0 7px 16px rgba(0,0,0,.16),0 7px 0 rgba(31,41,55,.10);
+  transform:rotate(-1deg);
+}
+.sidebar-bright,.sidebar-arcade{display:flex;justify-content:center;align-items:center;white-space:nowrap}
+.sidebar-bright span{
+  font-family:"Baloo 2","Fredoka",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.72rem;
+  line-height:.9;
+  color:var(--c);
+  text-shadow:2px 2px 0 rgba(6,25,70,.16);
+}
+.sidebar-arcade{
+  margin-top:7px;
+  font-family:"Baloo 2","Fredoka",Arial,sans-serif;
+  font-weight:800;
+  font-size:2rem;
+  line-height:.82;
+  color:#061946;
+  text-shadow:2px 2px 0 rgba(6,25,70,.16);
+}
+.home-link{
+  display:block;
+  width:125px;
+  padding:12px 15px;
+  border-radius:999px;
+  background:white;
+  border:3px solid #bfdbfe;
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+.game{
+  width:min(1080px,calc(100% - 230px));
+  margin:0 auto 0 215px;
+  padding:24px 18px 46px;
+}
+.header{text-align:center;margin-bottom:18px}
+.title-card{
+  position:relative;
+  width:min(940px,96%);
+  min-height:158px;
+  margin:0 auto;
+  border:8px solid var(--navy);
+  border-radius:50px;
+  background:
+    radial-gradient(circle at 15% 25%,rgba(255,255,255,.25) 0 13%,transparent 14%),
+    radial-gradient(circle at 84% 76%,rgba(6,25,70,.14) 0 17%,transparent 18%),
+    linear-gradient(110deg,#ef174d 0%,#f97316 23%,#facc15 46%,#22c55e 69%,#0875f5 100%);
+  box-shadow:0 16px 0 rgba(6,25,70,.96),0 28px 34px rgba(6,25,70,.26),inset 0 9px 0 rgba(255,255,255,.30),inset 0 -11px 0 rgba(6,25,70,.12);
+  overflow:hidden;
+  transform:rotate(-.5deg);
+}
+.title-text{
+  min-height:158px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  line-height:.82;
+  transform:rotate(.5deg);
+}
+.title-text span{
+  display:block;
+  font-size:clamp(3.1rem,7vw,5.8rem);
+  -webkit-text-stroke:5px #000;
+  paint-order:stroke fill;
+  text-shadow:0 8px 0 rgba(0,0,0,.28),0 15px 14px rgba(0,0,0,.20);
+}
+.title-text .word{color:white}
+.title-text .connections{color:#fef08a}
+.subtitle{
+  display:inline-block;
+  margin:16px auto 0;
+  background:white;
+  border-radius:999px;
+  padding:10px 18px;
+  font-weight:800;
+  color:#164e63;
+}
+.card{
+  background:rgba(255,255,255,.96);
+  border:5px solid white;
+  border-radius:34px;
+  padding:20px;
+  box-shadow:0 18px 34px rgba(15,23,42,.20);
+}
+.screen{display:none}
+.screen.active{display:block}
+.instructions{
+  text-align:center;
+  max-width:820px;
+  margin:0 auto 18px;
+  color:#334155;
+  font-size:1.08rem;
+  line-height:1.45;
+  font-weight:800;
+}
+.setting-title{
+  text-align:center;
+  margin:20px 0 10px;
+  font-size:1.15rem;
+  font-weight:900;
+  color:#334155;
+}
+.option-grid{
+  display:grid;
+  gap:14px;
+  max-width:900px;
+  margin:0 auto;
+}
+.option-grid.three{grid-template-columns:repeat(3,1fr)}
+.option-grid.two{grid-template-columns:repeat(2,1fr);max-width:620px}
+.option-grid.five{grid-template-columns:repeat(5,1fr)}
+.choice{
+  border:4px solid #bfdbfe;
+  border-radius:22px;
+  background:white;
+  padding:17px 12px;
+  font-size:1.05rem;
+  font-weight:900;
+  color:#1e3a8a;
+  cursor:pointer;
+  box-shadow:0 7px 0 #bfdbfe;
+}
+.choice:hover,.choice.selected{
+  background:#fef3c7;
+  border-color:#facc15;
+  box-shadow:0 7px 0 #facc15;
+  transform:translateY(-2px);
+}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+  margin-top:22px;
+}
+button{
+  touch-action:manipulation;
+  font-family:inherit;
+}
+.primary,.secondary{
+  border:0;
+  border-radius:999px;
+  padding:15px 24px;
+  font-weight:900;
+  font-size:1.05rem;
+  cursor:pointer;
+}
+.primary{
+  background:var(--red);
+  color:white;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.22),0 8px 0 rgba(6,25,70,.16);
+}
+.secondary{background:#e2e8f0;color:#334155}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-bottom:15px;
+}
+.stat{
+  text-align:center;
+  background:#eff6ff;
+  border:3px solid #bfdbfe;
+  border-radius:18px;
+  padding:10px;
+  font-weight:900;
+}
+.stat-label{display:block;color:#64748b;font-size:.85rem}
+.stat-value{display:block;color:#1d4ed8;font-size:1.25rem;margin-top:3px}
+.game-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(290px,.85fr);
+  gap:18px;
+  align-items:stretch;
+}
+.question-panel{
+  background:linear-gradient(145deg,#f8fafc,#eef2ff);
+  border:4px solid #c4b5fd;
+  border-radius:28px;
+  padding:22px;
+  text-align:center;
+}
+.prompt{
+  color:#475569;
+  font-size:1.15rem;
+  font-weight:900;
+  margin-bottom:12px;
+}
+.target-word{
+  display:inline-block;
+  min-width:220px;
+  padding:15px 26px;
+  border-radius:24px;
+  background:linear-gradient(145deg,#ffffff,#fef3c7);
+  border:5px solid var(--navy);
+  box-shadow:0 8px 0 rgba(6,25,70,.22);
+  font-size:clamp(2rem,5vw,3.6rem);
+  font-weight:900;
+  margin-bottom:20px;
+}
+.answer-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+.answer-btn{
+  min-height:64px;
+  border:4px solid #bfdbfe;
+  border-radius:20px;
+  background:white;
+  color:#1e3a8a;
+  font-size:1.15rem;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 6px 0 #bfdbfe;
+}
+.answer-btn:hover{transform:translateY(-2px)}
+.answer-btn.correct{background:#dcfce7;border-color:#22c55e;box-shadow:0 6px 0 #22c55e;color:#166534}
+.answer-btn.wrong{background:#fee2e2;border-color:#ef4444;box-shadow:0 6px 0 #ef4444;color:#991b1b}
+.type-wrap{max-width:560px;margin:0 auto}
+#typedAnswer{
+  width:100%;
+  border:4px solid #bfdbfe;
+  border-radius:20px;
+  padding:15px 16px;
+  font-family:inherit;
+  font-size:1.25rem;
+  font-weight:800;
+  text-align:center;
+  color:var(--navy);
+}
+.message{
+  min-height:48px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  margin:16px auto 0;
+  padding:10px 15px;
+  border-radius:22px;
+  background:#fef3c7;
+  border:3px solid #facc15;
+  color:#78350f;
+  font-weight:900;
+}
+.paint-panel{
+  background:#fff7ed;
+  border:4px solid #fdba74;
+  border-radius:28px;
+  padding:16px;
+}
+.paint-title{
+  text-align:center;
+  font-weight:900;
+  color:#9a3412;
+  margin-bottom:10px;
+}
+.studio-reward{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:16px;
+  align-items:center;
+}
+.easel{
+  position:relative;
+  width:min(235px,90%);
+  height:190px;
+  margin:0 auto;
+}
+.easel-board{
+  position:relative;
+  z-index:3;
+  width:100%;
+  min-height:125px;
+  padding:18px 12px;
+  border:8px solid #7c2d12;
+  border-radius:18px;
+  background:linear-gradient(145deg,#fffaf0,#fef3c7);
+  box-shadow:0 8px 0 rgba(124,45,18,.28);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  color:#78350f;
+  line-height:1.05;
+}
+.easel-board span{font-size:1rem;font-weight:800}
+.easel-board strong{
+  display:block;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:1.6rem;
+  color:#5b21b6;
+}
+.easel-leg{
+  position:absolute;
+  top:112px;
+  width:14px;
+  height:78px;
+  border-radius:999px;
+  background:#92400e;
+  z-index:1;
+}
+.easel-leg.left{left:57px;transform:rotate(11deg)}
+.easel-leg.right{right:57px;transform:rotate(-11deg)}
+.easel-bar{
+  position:absolute;
+  left:28px;
+  right:28px;
+  top:120px;
+  height:15px;
+  border-radius:999px;
+  background:#b45309;
+  z-index:2;
+}
+.palette{
+  position:relative;
+  width:min(320px,95%);
+  aspect-ratio:1.35/1;
+  margin:0 auto;
+  border:6px solid #7c2d12;
+  border-radius:48% 52% 50% 46% / 52% 48% 54% 46%;
+  background:linear-gradient(145deg,#f8d9ad,#e9b979);
+  box-shadow:inset 0 8px 0 rgba(255,255,255,.35),0 10px 0 rgba(124,45,18,.24);
+}
+.thumb-hole{
+  position:absolute;
+  right:8%;
+  bottom:12%;
+  width:20%;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:#fff7ed;
+  border:5px solid #7c2d12;
+  box-shadow:inset 0 4px 0 rgba(0,0,0,.08);
+}
+.paint-piece{
+  position:absolute;
+  width:15%;
+  aspect-ratio:1;
+  border-radius:55% 45% 58% 42% / 48% 58% 42% 52%;
+  background:#f8fafc;
+  border:3px solid rgba(255,255,255,.75);
+  box-shadow:inset 0 5px 0 rgba(255,255,255,.45),0 4px 0 rgba(124,45,18,.14);
+  opacity:.22;
+}
+.paint-piece.revealed{opacity:1}
+.p1{left:11%;top:15%}.p2{left:29%;top:11%}.p3{left:47%;top:14%}.p4{left:65%;top:18%}.p5{left:18%;top:34%}
+.p6{left:38%;top:33%}.p7{left:57%;top:36%}.p8{left:10%;top:55%}.p9{left:29%;top:54%}.p10{left:49%;top:57%}
+.p11{left:18%;top:72%}.p12{left:39%;top:72%}.p13{left:62%;top:57%}.p14{left:74%;top:38%}.p15{left:7%;top:35%}
+.p16{left:68%;top:70%}.p17{left:31%;top:28%}.p18{left:52%;top:27%}.p19{left:23%;top:61%}.p20{left:48%;top:66%}
+.p1.revealed{background:#ef4444}.p2.revealed{background:#f97316}.p3.revealed{background:#facc15}.p4.revealed{background:#84cc16}
+.p5.revealed{background:#22c55e}.p6.revealed{background:#14b8a6}.p7.revealed{background:#06b6d4}.p8.revealed{background:#3b82f6}
+.p9.revealed{background:#6366f1}.p10.revealed{background:#8b5cf6}.p11.revealed{background:#a855f7}.p12.revealed{background:#d946ef}
+.p13.revealed{background:#ec4899}.p14.revealed{background:#f43f5e}.p15.revealed{background:#0ea5e9}.p16.revealed{background:#10b981}
+.p17.revealed{background:#eab308}.p18.revealed{background:#fb7185}.p19.revealed{background:#7c3aed}.p20.revealed{background:#0891b2}
+.progress-text{
+  text-align:center;
+  margin-top:10px;
+  color:#475569;
+  font-weight:900;
+}
+.results{
+  text-align:center;
+  background:linear-gradient(135deg,#ecfeff,#f5f3ff);
+  border:4px solid #a5f3fc;
+  border-radius:30px;
+  padding:28px;
+}
+.results h2{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2.6rem,7vw,5rem);
+  margin:0;
+  color:#5b21b6;
+}
+.result-details{
+  font-size:1.2rem;
+  font-weight:800;
+  color:#475569;
+  line-height:1.7;
+  margin-top:12px;
+}
+
+.answer-mode-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:22px;
+  max-width:850px;
+  margin:24px auto 10px;
+}
+.answer-mode-card{
+  min-height:230px;
+  border:7px solid #bfdbfe;
+  border-radius:34px;
+  background:linear-gradient(145deg,#ffffff,#eff6ff);
+  padding:28px 24px;
+  cursor:pointer;
+  box-shadow:0 12px 0 #bfdbfe,0 18px 28px rgba(15,23,42,.12);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#1e3a8a;
+}
+.answer-mode-card:hover,
+.answer-mode-card.selected{
+  transform:translateY(-3px);
+  border-color:#facc15;
+  background:linear-gradient(145deg,#fffdf5,#fef3c7);
+  box-shadow:0 12px 0 #facc15,0 18px 28px rgba(15,23,42,.14);
+}
+.mode-title{
+  display:block;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2rem,4vw,3.2rem);
+  line-height:1;
+  font-weight:800;
+  color:#5b21b6;
+  margin-bottom:16px;
+}
+.mode-description{
+  display:block;
+  max-width:300px;
+  font-size:1.15rem;
+  line-height:1.35;
+  font-weight:800;
+  color:#475569;
+}
+
+@media(max-width:900px){
+  .side-menu{position:static;transform:none;width:auto;flex-direction:row;justify-content:center;margin:12px auto}
+  .sidebar-logo{display:none}
+  .game{width:100%;margin:0 auto;padding-top:8px}
+}
+@media(max-width:760px){
+  .answer-mode-grid{grid-template-columns:1fr}
+  .answer-mode-card{min-height:180px}
+
+  .option-grid.three,.option-grid.five{grid-template-columns:1fr}
+  .option-grid.two{grid-template-columns:1fr}
+  .game-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .game{padding:8px 8px 30px}
+  .card{padding:11px;border-radius:24px}
+  .title-card{min-height:132px;border-width:6px;border-radius:38px}
+  .title-text{min-height:132px}
+  .title-text span{font-size:clamp(2.4rem,12vw,4.2rem)}
+  .answer-grid{grid-template-columns:1fr}
+  .primary,.secondary{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="sky"></div>
+
+<nav class="side-menu">
+  <a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home">
+    <div class="sidebar-logo">
+      <div class="sidebar-bright">
+        <span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span><span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span>
+      </div>
+      <div class="sidebar-arcade">ARCADE</div>
+    </div>
+  </a>
+  <a href="/" class="home-link">Home</a>
+</nav>
+
+<div class="game">
+  <header class="header">
+    <div class="title-card">
+      <div class="title-text">
+        <span class="word">Word</span>
+        <span class="connections">Connections</span>
+      </div>
+    </div>
+    <p class="subtitle">Fill the Palette</p>
+  </header>
+
+  <main class="card">
+    <section class="screen active" id="menuScreen">
+      <p class="instructions">Choose your settings, then connect words with similar or opposite meanings.</p>
+
+      <div class="setting-title">Choose the relationship</div>
+      <div class="option-grid two">
+        <button class="choice selected" data-setting="relationship" data-value="synonym">Synonyms</button>
+        <button class="choice" data-setting="relationship" data-value="antonym">Antonyms</button>
+      </div>
+
+      <div class="setting-title">Choose the difficulty</div>
+      <div class="option-grid three">
+        <button class="choice selected" data-setting="difficulty" data-value="easy">Easy</button>
+        <button class="choice" data-setting="difficulty" data-value="medium">Medium</button>
+        <button class="choice" data-setting="difficulty" data-value="hard">Hard</button>
+      </div>
+
+      <div class="setting-title">Choose the number of questions</div>
+      <div class="option-grid five">
+        <button class="choice selected" data-setting="questionCount" data-value="5">5 Questions</button>
+        <button class="choice" data-setting="questionCount" data-value="10">10 Questions</button>
+        <button class="choice" data-setting="questionCount" data-value="15">15 Questions</button>
+        <button class="choice" data-setting="questionCount" data-value="20">20 Questions</button>
+        <button class="choice" data-setting="questionCount" data-value="unlimited">Unlimited</button>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="continueBtn">Continue</button>
+      </div>
+    </section>
+
+    <section class="screen" id="answerModeScreen">
+      <p class="instructions">Choose how you would like to answer.</p>
+      <div class="answer-mode-grid">
+        <button class="answer-mode-card selected" data-mode="multiple">
+          <span class="mode-title">Multiple Choice</span>
+          <span class="mode-description">Choose from six possible answers.</span>
+        </button>
+        <button class="answer-mode-card" data-mode="type">
+          <span class="mode-title">Type the Answer</span>
+          <span class="mode-description">Type your own related word.</span>
+        </button>
+      </div>
+      <div class="actions">
+        <button class="secondary" id="backToMenuBtn">Back</button>
+        <button class="primary" id="beginGameBtn">Start Game</button>
+      </div>
+    </section>
+
+    <section class="screen" id="gameScreen">
+      <div class="stats">
+        <div class="stat"><span class="stat-label">Question</span><span class="stat-value" id="questionText">1 / 5</span></div>
+        <div class="stat"><span class="stat-label">Correct</span><span class="stat-value" id="scoreText">0</span></div>
+        <div class="stat"><span class="stat-label">Relationship</span><span class="stat-value" id="relationshipText">Synonym</span></div>
+      </div>
+
+      <div class="game-grid">
+        <section class="question-panel">
+          <div class="prompt" id="promptText">Find a synonym for:</div>
+          <div class="target-word" id="targetWord">big</div>
+
+          <div id="multipleArea">
+            <div class="answer-grid" id="answerGrid"></div>
+          </div>
+
+          <div id="typeArea" style="display:none">
+            <div class="type-wrap">
+              <input id="typedAnswer" type="text" autocomplete="off" spellcheck="false" placeholder="Type your answer">
+              <div class="actions">
+                <button class="primary" id="checkTypedBtn">Check Answer</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="message" id="message">Choose an answer.</div>
+
+          <div class="actions">
+            <button class="secondary" id="nextBtn" style="display:none">Next Question</button>
+            <button class="secondary" id="menuBtn">Back to Menu</button>
+          </div>
+        </section>
+
+        <aside class="paint-panel">
+          <div class="paint-title">Your Palette</div>
+          <div class="studio-reward">
+            <div class="easel">
+              <div class="easel-board">
+                <span>Today's</span>
+                <strong id="easelWord">Synonym</strong>
+                <span>Challenge</span>
+              </div>
+              <div class="easel-leg left"></div>
+              <div class="easel-leg right"></div>
+              <div class="easel-bar"></div>
+            </div>
+            <div class="palette" id="canvas" aria-label="Colour palette progress">
+              <div class="thumb-hole"></div>
+              <div class="paint-piece p1"></div><div class="paint-piece p2"></div><div class="paint-piece p3"></div><div class="paint-piece p4"></div><div class="paint-piece p5"></div>
+              <div class="paint-piece p6"></div><div class="paint-piece p7"></div><div class="paint-piece p8"></div><div class="paint-piece p9"></div><div class="paint-piece p10"></div>
+              <div class="paint-piece p11"></div><div class="paint-piece p12"></div><div class="paint-piece p13"></div><div class="paint-piece p14"></div><div class="paint-piece p15"></div>
+              <div class="paint-piece p16"></div><div class="paint-piece p17"></div><div class="paint-piece p18"></div><div class="paint-piece p19"></div><div class="paint-piece p20"></div>
+            </div>
+          </div>
+          <div class="progress-text" id="progressText">0% complete</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="screen" id="resultScreen">
+      <div class="results">
+        <h2>Palette Complete!</h2>
+        <div class="result-details" id="resultDetails"></div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="playAgainBtn">Play Again</button>
+        <button class="secondary" id="settingsBtn">Change Settings</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const wordBank = {"easy":[{"word":"big","synonyms":["large","huge","giant"],"antonyms":["small","little","tiny","miniature"]},{"word":"large","synonyms":["big","huge","giant"],"antonyms":["small","little","tiny","miniature"]},{"word":"huge","synonyms":["big","large","giant"],"antonyms":["small","little","tiny","miniature"]},{"word":"giant","synonyms":["big","large","huge"],"antonyms":["small","little","tiny","miniature"]},{"word":"small","synonyms":["little","tiny","miniature"],"antonyms":["big","large","huge","giant"]},{"word":"little","synonyms":["small","tiny","miniature"],"antonyms":["big","large","huge","giant"]},{"word":"tiny","synonyms":["small","little","miniature"],"antonyms":["big","large","huge","giant"]},{"word":"miniature","synonyms":["small","little","tiny"],"antonyms":["big","large","huge","giant"]},{"word":"happy","synonyms":["glad","cheerful","joyful"],"antonyms":["sad","unhappy","gloomy","miserable"]},{"word":"glad","synonyms":["happy","cheerful","joyful"],"antonyms":["sad","unhappy","gloomy","miserable"]},{"word":"cheerful","synonyms":["happy","glad","joyful"],"antonyms":["sad","unhappy","gloomy","miserable"]},{"word":"joyful","synonyms":["happy","glad","cheerful"],"antonyms":["sad","unhappy","gloomy","miserable"]},{"word":"sad","synonyms":["unhappy","gloomy","miserable"],"antonyms":["happy","glad","cheerful","joyful"]},{"word":"unhappy","synonyms":["sad","gloomy","miserable"],"antonyms":["happy","glad","cheerful","joyful"]},{"word":"gloomy","synonyms":["sad","unhappy","miserable"],"antonyms":["happy","glad","cheerful","joyful"]},{"word":"fast","synonyms":["quick","speedy","swift"],"antonyms":["slow","sluggish","unhurried","leisurely"]},{"word":"quick","synonyms":["fast","speedy","swift"],"antonyms":["slow","sluggish","unhurried","leisurely"]},{"word":"speedy","synonyms":["fast","quick","swift"],"antonyms":["slow","sluggish","unhurried","leisurely"]},{"word":"swift","synonyms":["fast","quick","speedy"],"antonyms":["slow","sluggish","unhurried","leisurely"]},{"word":"slow","synonyms":["sluggish","unhurried","leisurely"],"antonyms":["fast","quick","speedy","swift"]},{"word":"sluggish","synonyms":["slow","unhurried","leisurely"],"antonyms":["fast","quick","speedy","swift"]},{"word":"hot","synonyms":["warm","boiling","scorching"],"antonyms":["cold","cool","chilly","freezing"]},{"word":"warm","synonyms":["hot","boiling","scorching"],"antonyms":["cold","cool","chilly","freezing"]},{"word":"boiling","synonyms":["hot","warm","scorching"],"antonyms":["cold","cool","chilly","freezing"]},{"word":"cold","synonyms":["cool","chilly","freezing"],"antonyms":["hot","warm","boiling","scorching"]},{"word":"cool","synonyms":["cold","chilly","freezing"],"antonyms":["hot","warm","boiling","scorching"]},{"word":"chilly","synonyms":["cold","cool","freezing"],"antonyms":["hot","warm","boiling","scorching"]},{"word":"freezing","synonyms":["cold","cool","chilly"],"antonyms":["hot","warm","boiling","scorching"]},{"word":"loud","synonyms":["noisy","booming","deafening"],"antonyms":["quiet","silent","hushed","soundless"]},{"word":"noisy","synonyms":["loud","booming","deafening"],"antonyms":["quiet","silent","hushed","soundless"]},{"word":"booming","synonyms":["loud","noisy","deafening"],"antonyms":["quiet","silent","hushed","soundless"]},{"word":"quiet","synonyms":["silent","hushed","soundless"],"antonyms":["loud","noisy","booming","deafening"]},{"word":"silent","synonyms":["quiet","hushed","soundless"],"antonyms":["loud","noisy","booming","deafening"]},{"word":"hushed","synonyms":["quiet","silent","soundless"],"antonyms":["loud","noisy","booming","deafening"]},{"word":"strong","synonyms":["powerful","tough","sturdy"],"antonyms":["weak","frail","feeble","flimsy"]},{"word":"powerful","synonyms":["strong","tough","sturdy"],"antonyms":["weak","frail","feeble","flimsy"]},{"word":"tough","synonyms":["strong","powerful","sturdy"],"antonyms":["weak","frail","feeble","flimsy"]},{"word":"sturdy","synonyms":["strong","powerful","tough"],"antonyms":["weak","frail","feeble","flimsy"]},{"word":"weak","synonyms":["frail","feeble","flimsy"],"antonyms":["strong","powerful","tough","sturdy"]},{"word":"frail","synonyms":["weak","feeble","flimsy"],"antonyms":["strong","powerful","tough","sturdy"]},{"word":"clean","synonyms":["tidy","spotless","neat"],"antonyms":["dirty","messy","filthy","grimy"]},{"word":"tidy","synonyms":["clean","spotless","neat"],"antonyms":["dirty","messy","filthy","grimy"]},{"word":"spotless","synonyms":["clean","tidy","neat"],"antonyms":["dirty","messy","filthy","grimy"]},{"word":"neat","synonyms":["clean","tidy","spotless"],"antonyms":["dirty","messy","filthy","grimy"]},{"word":"dirty","synonyms":["messy","filthy","grimy"],"antonyms":["clean","tidy","spotless","neat"]},{"word":"messy","synonyms":["dirty","filthy","grimy"],"antonyms":["clean","tidy","spotless","neat"]},{"word":"filthy","synonyms":["dirty","messy","grimy"],"antonyms":["clean","tidy","spotless","neat"]},{"word":"grimy","synonyms":["dirty","messy","filthy"],"antonyms":["clean","tidy","spotless","neat"]},{"word":"easy","synonyms":["simple","effortless","straightforward"],"antonyms":["hard","difficult","tricky","challenging"]},{"word":"simple","synonyms":["easy","effortless","straightforward"],"antonyms":["hard","difficult","tricky","challenging"]},{"word":"effortless","synonyms":["easy","simple","straightforward"],"antonyms":["hard","difficult","tricky","challenging"]},{"word":"hard","synonyms":["difficult","tricky","challenging"],"antonyms":["easy","simple","effortless","straightforward"]},{"word":"difficult","synonyms":["hard","tricky","challenging"],"antonyms":["easy","simple","effortless","straightforward"]},{"word":"tricky","synonyms":["hard","difficult","challenging"],"antonyms":["easy","simple","effortless","straightforward"]},{"word":"old","synonyms":["aged","elderly","ancient"],"antonyms":["young","youthful","junior","new"]},{"word":"aged","synonyms":["old","elderly","ancient"],"antonyms":["young","youthful","junior","new"]},{"word":"young","synonyms":["youthful","junior","new"],"antonyms":["old","aged","elderly","ancient"]},{"word":"youthful","synonyms":["young","junior","new"],"antonyms":["old","aged","elderly","ancient"]},{"word":"junior","synonyms":["young","youthful","new"],"antonyms":["old","aged","elderly","ancient"]},{"word":"new","synonyms":["young","youthful","junior"],"antonyms":["old","aged","elderly","ancient"]},{"word":"bright","synonyms":["shiny","glowing","radiant"],"antonyms":["dark","dim","dull","shadowy"]},{"word":"shiny","synonyms":["bright","glowing","radiant"],"antonyms":["dark","dim","dull","shadowy"]},{"word":"glowing","synonyms":["bright","shiny","radiant"],"antonyms":["dark","dim","dull","shadowy"]},{"word":"dark","synonyms":["dim","dull","shadowy"],"antonyms":["bright","shiny","glowing","radiant"]},{"word":"dim","synonyms":["dark","dull","shadowy"],"antonyms":["bright","shiny","glowing","radiant"]},{"word":"dull","synonyms":["dark","dim","shadowy"],"antonyms":["bright","shiny","glowing","radiant"]},{"word":"shadowy","synonyms":["dark","dim","dull"],"antonyms":["bright","shiny","glowing","radiant"]},{"word":"kind","synonyms":["nice","caring","gentle"],"antonyms":["mean","cruel","unkind","nasty"]},{"word":"nice","synonyms":["kind","caring","gentle"],"antonyms":["mean","cruel","unkind","nasty"]},{"word":"caring","synonyms":["kind","nice","gentle"],"antonyms":["mean","cruel","unkind","nasty"]},{"word":"gentle","synonyms":["kind","nice","caring"],"antonyms":["mean","cruel","unkind","nasty"]},{"word":"mean","synonyms":["cruel","unkind","nasty"],"antonyms":["kind","nice","caring","gentle"]},{"word":"cruel","synonyms":["mean","unkind","nasty"],"antonyms":["kind","nice","caring","gentle"]},{"word":"unkind","synonyms":["mean","cruel","nasty"],"antonyms":["kind","nice","caring","gentle"]},{"word":"nasty","synonyms":["mean","cruel","unkind"],"antonyms":["kind","nice","caring","gentle"]},{"word":"wet","synonyms":["damp","soaked","moist"],"antonyms":["dry","parched","arid","dehydrated"]},{"word":"damp","synonyms":["wet","soaked","moist"],"antonyms":["dry","parched","arid","dehydrated"]},{"word":"soaked","synonyms":["wet","damp","moist"],"antonyms":["dry","parched","arid","dehydrated"]},{"word":"moist","synonyms":["wet","damp","soaked"],"antonyms":["dry","parched","arid","dehydrated"]},{"word":"dry","synonyms":["parched","arid","dehydrated"],"antonyms":["wet","damp","soaked","moist"]},{"word":"parched","synonyms":["dry","arid","dehydrated"],"antonyms":["wet","damp","soaked","moist"]},{"word":"arid","synonyms":["dry","parched","dehydrated"],"antonyms":["wet","damp","soaked","moist"]},{"word":"full","synonyms":["filled","packed","complete"],"antonyms":["empty","vacant","hollow","blank"]},{"word":"filled","synonyms":["full","packed","complete"],"antonyms":["empty","vacant","hollow","blank"]},{"word":"packed","synonyms":["full","filled","complete"],"antonyms":["empty","vacant","hollow","blank"]},{"word":"complete","synonyms":["full","filled","packed"],"antonyms":["empty","vacant","hollow","blank"]},{"word":"empty","synonyms":["vacant","hollow","blank"],"antonyms":["full","filled","packed","complete"]},{"word":"vacant","synonyms":["empty","hollow","blank"],"antonyms":["full","filled","packed","complete"]},{"word":"hollow","synonyms":["empty","vacant","blank"],"antonyms":["full","filled","packed","complete"]},{"word":"blank","synonyms":["empty","vacant","hollow"],"antonyms":["full","filled","packed","complete"]},{"word":"early","synonyms":["prompt","punctual","ahead"],"antonyms":["late","delayed","overdue","behind"]},{"word":"prompt","synonyms":["early","punctual","ahead"],"antonyms":["late","delayed","overdue","behind"]},{"word":"ahead","synonyms":["early","prompt","punctual"],"antonyms":["late","delayed","overdue","behind"]},{"word":"late","synonyms":["delayed","overdue","behind"],"antonyms":["early","prompt","punctual","ahead"]},{"word":"delayed","synonyms":["late","overdue","behind"],"antonyms":["early","prompt","punctual","ahead"]},{"word":"behind","synonyms":["late","delayed","overdue"],"antonyms":["early","prompt","punctual","ahead"]},{"word":"smooth","synonyms":["silky","even","flat"],"antonyms":["rough","bumpy","coarse","uneven"]},{"word":"silky","synonyms":["smooth","even","flat"],"antonyms":["rough","bumpy","coarse","uneven"]},{"word":"even","synonyms":["smooth","silky","flat"],"antonyms":["rough","bumpy","coarse","uneven"]},{"word":"flat","synonyms":["smooth","silky","even"],"antonyms":["rough","bumpy","coarse","uneven"]},{"word":"rough","synonyms":["bumpy","coarse","uneven"],"antonyms":["smooth","silky","even","flat"]},{"word":"bumpy","synonyms":["rough","coarse","uneven"],"antonyms":["smooth","silky","even","flat"]},{"word":"coarse","synonyms":["rough","bumpy","uneven"],"antonyms":["smooth","silky","even","flat"]},{"word":"uneven","synonyms":["rough","bumpy","coarse"],"antonyms":["smooth","silky","even","flat"]},{"word":"near","synonyms":["close","nearby","adjacent"],"antonyms":["far","distant","remote","faraway"]},{"word":"close","synonyms":["near","nearby","adjacent"],"antonyms":["far","distant","remote","faraway"]},{"word":"nearby","synonyms":["near","close","adjacent"],"antonyms":["far","distant","remote","faraway"]},{"word":"far","synonyms":["distant","remote","faraway"],"antonyms":["near","close","nearby","adjacent"]},{"word":"distant","synonyms":["far","remote","faraway"],"antonyms":["near","close","nearby","adjacent"]},{"word":"remote","synonyms":["far","distant","faraway"],"antonyms":["near","close","nearby","adjacent"]},{"word":"faraway","synonyms":["far","distant","remote"],"antonyms":["near","close","nearby","adjacent"]},{"word":"open","synonyms":["unlocked","ajar","uncovered"],"antonyms":["closed","shut","locked","sealed"]},{"word":"unlocked","synonyms":["open","ajar","uncovered"],"antonyms":["closed","shut","locked","sealed"]},{"word":"ajar","synonyms":["open","unlocked","uncovered"],"antonyms":["closed","shut","locked","sealed"]},{"word":"uncovered","synonyms":["open","unlocked","ajar"],"antonyms":["closed","shut","locked","sealed"]},{"word":"closed","synonyms":["shut","locked","sealed"],"antonyms":["open","unlocked","ajar","uncovered"]},{"word":"shut","synonyms":["closed","locked","sealed"],"antonyms":["open","unlocked","ajar","uncovered"]},{"word":"locked","synonyms":["closed","shut","sealed"],"antonyms":["open","unlocked","ajar","uncovered"]},{"word":"sealed","synonyms":["closed","shut","locked"],"antonyms":["open","unlocked","ajar","uncovered"]},{"word":"begin","synonyms":["start","commence","launch"],"antonyms":["finish","end","conclude","stop"]},{"word":"start","synonyms":["begin","commence","launch"],"antonyms":["finish","end","conclude","stop"]},{"word":"commence","synonyms":["begin","start","launch"],"antonyms":["finish","end","conclude","stop"]},{"word":"launch","synonyms":["begin","start","commence"],"antonyms":["finish","end","conclude","stop"]},{"word":"finish","synonyms":["end","conclude","stop"],"antonyms":["begin","start","commence","launch"]},{"word":"end","synonyms":["finish","conclude","stop"],"antonyms":["begin","start","commence","launch"]},{"word":"conclude","synonyms":["finish","end","stop"],"antonyms":["begin","start","commence","launch"]},{"word":"stop","synonyms":["finish","end","conclude"],"antonyms":["begin","start","commence","launch"]},{"word":"laugh","synonyms":["giggle","chuckle","snicker"],"antonyms":["cry","sob","weep","wail"]},{"word":"giggle","synonyms":["laugh","chuckle","snicker"],"antonyms":["cry","sob","weep","wail"]},{"word":"chuckle","synonyms":["laugh","giggle","snicker"],"antonyms":["cry","sob","weep","wail"]},{"word":"snicker","synonyms":["laugh","giggle","chuckle"],"antonyms":["cry","sob","weep","wail"]},{"word":"cry","synonyms":["sob","weep","wail"],"antonyms":["laugh","giggle","chuckle","snicker"]},{"word":"sob","synonyms":["cry","weep","wail"],"antonyms":["laugh","giggle","chuckle","snicker"]},{"word":"weep","synonyms":["cry","sob","wail"],"antonyms":["laugh","giggle","chuckle","snicker"]},{"word":"wail","synonyms":["cry","sob","weep"],"antonyms":["laugh","giggle","chuckle","snicker"]},{"word":"safe","synonyms":["secure","protected","harmless"],"antonyms":["dangerous","unsafe","risky","hazardous"]},{"word":"secure","synonyms":["safe","protected","harmless"],"antonyms":["dangerous","unsafe","risky","hazardous"]},{"word":"protected","synonyms":["safe","secure","harmless"],"antonyms":["dangerous","unsafe","risky","hazardous"]},{"word":"harmless","synonyms":["safe","secure","protected"],"antonyms":["dangerous","unsafe","risky","hazardous"]},{"word":"dangerous","synonyms":["unsafe","risky","hazardous"],"antonyms":["safe","secure","protected","harmless"]},{"word":"unsafe","synonyms":["dangerous","risky","hazardous"],"antonyms":["safe","secure","protected","harmless"]},{"word":"risky","synonyms":["dangerous","unsafe","hazardous"],"antonyms":["safe","secure","protected","harmless"]},{"word":"high","synonyms":["tall","elevated","lofty"],"antonyms":["low","short","sunken","lowered"]},{"word":"tall","synonyms":["high","elevated","lofty"],"antonyms":["low","short","sunken","lowered"]},{"word":"low","synonyms":["short","sunken","lowered"],"antonyms":["high","tall","elevated","lofty"]},{"word":"short","synonyms":["low","sunken","lowered"],"antonyms":["high","tall","elevated","lofty"]},{"word":"sunken","synonyms":["low","short","lowered"],"antonyms":["high","tall","elevated","lofty"]},{"word":"lowered","synonyms":["low","short","sunken"],"antonyms":["high","tall","elevated","lofty"]},{"word":"inside","synonyms":["indoors","interior","within"],"antonyms":["outside","outdoors","exterior","beyond"]},{"word":"indoors","synonyms":["inside","interior","within"],"antonyms":["outside","outdoors","exterior","beyond"]},{"word":"interior","synonyms":["inside","indoors","within"],"antonyms":["outside","outdoors","exterior","beyond"]},{"word":"within","synonyms":["inside","indoors","interior"],"antonyms":["outside","outdoors","exterior","beyond"]},{"word":"outside","synonyms":["outdoors","exterior","beyond"],"antonyms":["inside","indoors","interior","within"]},{"word":"outdoors","synonyms":["outside","exterior","beyond"],"antonyms":["inside","indoors","interior","within"]},{"word":"beyond","synonyms":["outside","outdoors","exterior"],"antonyms":["inside","indoors","interior","within"]},{"word":"push","synonyms":["shove","press","nudge"],"antonyms":["pull","tug","drag","yank"]},{"word":"shove","synonyms":["push","press","nudge"],"antonyms":["pull","tug","drag","yank"]},{"word":"press","synonyms":["push","shove","nudge"],"antonyms":["pull","tug","drag","yank"]},{"word":"nudge","synonyms":["push","shove","press"],"antonyms":["pull","tug","drag","yank"]},{"word":"pull","synonyms":["tug","drag","yank"],"antonyms":["push","shove","press","nudge"]},{"word":"tug","synonyms":["pull","drag","yank"],"antonyms":["push","shove","press","nudge"]},{"word":"drag","synonyms":["pull","tug","yank"],"antonyms":["push","shove","press","nudge"]},{"word":"yank","synonyms":["pull","tug","drag"],"antonyms":["push","shove","press","nudge"]},{"word":"give","synonyms":["offer","donate","share"],"antonyms":["take","grab","keep","withhold"]},{"word":"offer","synonyms":["give","donate","share"],"antonyms":["take","grab","keep","withhold"]},{"word":"donate","synonyms":["give","offer","share"],"antonyms":["take","grab","keep","withhold"]},{"word":"share","synonyms":["give","offer","donate"],"antonyms":["take","grab","keep","withhold"]},{"word":"take","synonyms":["grab","keep","withhold"],"antonyms":["give","offer","donate","share"]},{"word":"grab","synonyms":["take","keep","withhold"],"antonyms":["give","offer","donate","share"]},{"word":"keep","synonyms":["take","grab","withhold"],"antonyms":["give","offer","donate","share"]},{"word":"enter","synonyms":["arrive","come","approach"],"antonyms":["leave","depart","go","exit"]},{"word":"arrive","synonyms":["enter","come","approach"],"antonyms":["leave","depart","go","exit"]},{"word":"come","synonyms":["enter","arrive","approach"],"antonyms":["leave","depart","go","exit"]},{"word":"approach","synonyms":["enter","arrive","come"],"antonyms":["leave","depart","go","exit"]},{"word":"leave","synonyms":["depart","go","exit"],"antonyms":["enter","arrive","come","approach"]},{"word":"depart","synonyms":["leave","go","exit"],"antonyms":["enter","arrive","come","approach"]},{"word":"go","synonyms":["leave","depart","exit"],"antonyms":["enter","arrive","come","approach"]},{"word":"exit","synonyms":["leave","depart","go"],"antonyms":["enter","arrive","come","approach"]},{"word":"win","synonyms":["succeed","triumph","prevail"],"antonyms":["lose","fail","fall","flop"]},{"word":"succeed","synonyms":["win","triumph","prevail"],"antonyms":["lose","fail","fall","flop"]},{"word":"triumph","synonyms":["win","succeed","prevail"],"antonyms":["lose","fail","fall","flop"]},{"word":"lose","synonyms":["fail","fall","flop"],"antonyms":["win","succeed","triumph","prevail"]},{"word":"fail","synonyms":["lose","fall","flop"],"antonyms":["win","succeed","triumph","prevail"]},{"word":"fall","synonyms":["lose","fail","flop"],"antonyms":["win","succeed","triumph","prevail"]},{"word":"flop","synonyms":["lose","fail","fall"],"antonyms":["win","succeed","triumph","prevail"]},{"word":"love","synonyms":["like","adore","enjoy"],"antonyms":["hate","dislike","detest","loathe"]},{"word":"like","synonyms":["love","adore","enjoy"],"antonyms":["hate","dislike","detest","loathe"]},{"word":"adore","synonyms":["love","like","enjoy"],"antonyms":["hate","dislike","detest","loathe"]},{"word":"enjoy","synonyms":["love","like","adore"],"antonyms":["hate","dislike","detest","loathe"]},{"word":"hate","synonyms":["dislike","detest","loathe"],"antonyms":["love","like","adore","enjoy"]},{"word":"dislike","synonyms":["hate","detest","loathe"],"antonyms":["love","like","adore","enjoy"]},{"word":"awake","synonyms":["alert","conscious","watchful"],"antonyms":["asleep","sleepy","drowsy","unconscious"]},{"word":"alert","synonyms":["awake","conscious","watchful"],"antonyms":["asleep","sleepy","drowsy","unconscious"]},{"word":"watchful","synonyms":["awake","alert","conscious"],"antonyms":["asleep","sleepy","drowsy","unconscious"]},{"word":"asleep","synonyms":["sleepy","drowsy","unconscious"],"antonyms":["awake","alert","conscious","watchful"]},{"word":"sleepy","synonyms":["asleep","drowsy","unconscious"],"antonyms":["awake","alert","conscious","watchful"]},{"word":"drowsy","synonyms":["asleep","sleepy","unconscious"],"antonyms":["awake","alert","conscious","watchful"]},{"word":"alive","synonyms":["living","active","breathing"],"antonyms":["dead","lifeless","deceased","inanimate"]},{"word":"living","synonyms":["alive","active","breathing"],"antonyms":["dead","lifeless","deceased","inanimate"]},{"word":"active","synonyms":["alive","living","breathing"],"antonyms":["dead","lifeless","deceased","inanimate"]},{"word":"breathing","synonyms":["alive","living","active"],"antonyms":["dead","lifeless","deceased","inanimate"]},{"word":"dead","synonyms":["lifeless","deceased","inanimate"],"antonyms":["alive","living","active","breathing"]},{"word":"lifeless","synonyms":["dead","deceased","inanimate"],"antonyms":["alive","living","active","breathing"]},{"word":"rich","synonyms":["wealthy","prosperous","affluent"],"antonyms":["poor","needy","broke","penniless"]},{"word":"wealthy","synonyms":["rich","prosperous","affluent"],"antonyms":["poor","needy","broke","penniless"]},{"word":"poor","synonyms":["needy","broke","penniless"],"antonyms":["rich","wealthy","prosperous","affluent"]},{"word":"needy","synonyms":["poor","broke","penniless"],"antonyms":["rich","wealthy","prosperous","affluent"]},{"word":"broke","synonyms":["poor","needy","penniless"],"antonyms":["rich","wealthy","prosperous","affluent"]},{"word":"remember","synonyms":["recall","recollect","retain"],"antonyms":["forget","overlook","ignore","miss"]},{"word":"recall","synonyms":["remember","recollect","retain"],"antonyms":["forget","overlook","ignore","miss"]},{"word":"forget","synonyms":["overlook","ignore","miss"],"antonyms":["remember","recall","recollect","retain"]},{"word":"overlook","synonyms":["forget","ignore","miss"],"antonyms":["remember","recall","recollect","retain"]},{"word":"ignore","synonyms":["forget","overlook","miss"],"antonyms":["remember","recall","recollect","retain"]},{"word":"miss","synonyms":["forget","overlook","ignore"],"antonyms":["remember","recall","recollect","retain"]},{"word":"add","synonyms":["join","include","attach"],"antonyms":["remove","subtract","delete","detach"]},{"word":"join","synonyms":["add","include","attach"],"antonyms":["remove","subtract","delete","detach"]},{"word":"include","synonyms":["add","join","attach"],"antonyms":["remove","subtract","delete","detach"]},{"word":"attach","synonyms":["add","join","include"],"antonyms":["remove","subtract","delete","detach"]},{"word":"remove","synonyms":["subtract","delete","detach"],"antonyms":["add","join","include","attach"]},{"word":"delete","synonyms":["remove","subtract","detach"],"antonyms":["add","join","include","attach"]},{"word":"detach","synonyms":["remove","subtract","delete"],"antonyms":["add","join","include","attach"]},{"word":"same","synonyms":["equal","matching","identical"],"antonyms":["different","unequal","unlike","distinct"]},{"word":"equal","synonyms":["same","matching","identical"],"antonyms":["different","unequal","unlike","distinct"]},{"word":"matching","synonyms":["same","equal","identical"],"antonyms":["different","unequal","unlike","distinct"]},{"word":"different","synonyms":["unequal","unlike","distinct"],"antonyms":["same","equal","matching","identical"]},{"word":"unequal","synonyms":["different","unlike","distinct"],"antonyms":["same","equal","matching","identical"]},{"word":"unlike","synonyms":["different","unequal","distinct"],"antonyms":["same","equal","matching","identical"]},{"word":"true","synonyms":["correct","right","accurate"],"antonyms":["false","wrong","untrue","incorrect"]},{"word":"correct","synonyms":["true","right","accurate"],"antonyms":["false","wrong","untrue","incorrect"]},{"word":"right","synonyms":["true","correct","accurate"],"antonyms":["false","wrong","untrue","incorrect"]},{"word":"false","synonyms":["wrong","untrue","incorrect"],"antonyms":["true","correct","right","accurate"]},{"word":"wrong","synonyms":["false","untrue","incorrect"],"antonyms":["true","correct","right","accurate"]},{"word":"untrue","synonyms":["false","wrong","incorrect"],"antonyms":["true","correct","right","accurate"]},{"word":"beautiful","synonyms":["pretty","lovely","attractive"],"antonyms":["ugly","plain","unattractive","hideous"]},{"word":"pretty","synonyms":["beautiful","lovely","attractive"],"antonyms":["ugly","plain","unattractive","hideous"]},{"word":"lovely","synonyms":["beautiful","pretty","attractive"],"antonyms":["ugly","plain","unattractive","hideous"]},{"word":"attractive","synonyms":["beautiful","pretty","lovely"],"antonyms":["ugly","plain","unattractive","hideous"]},{"word":"ugly","synonyms":["plain","unattractive","hideous"],"antonyms":["beautiful","pretty","lovely","attractive"]},{"word":"plain","synonyms":["ugly","unattractive","hideous"],"antonyms":["beautiful","pretty","lovely","attractive"]},{"word":"unattractive","synonyms":["ugly","plain","hideous"],"antonyms":["beautiful","pretty","lovely","attractive"]},{"word":"brave","synonyms":["bold","fearless","courageous"],"antonyms":["scared","afraid","fearful","cowardly"]},{"word":"bold","synonyms":["brave","fearless","courageous"],"antonyms":["scared","afraid","fearful","cowardly"]},{"word":"fearless","synonyms":["brave","bold","courageous"],"antonyms":["scared","afraid","fearful","cowardly"]},{"word":"scared","synonyms":["afraid","fearful","cowardly"],"antonyms":["brave","bold","fearless","courageous"]},{"word":"afraid","synonyms":["scared","fearful","cowardly"],"antonyms":["brave","bold","fearless","courageous"]},{"word":"fearful","synonyms":["scared","afraid","cowardly"],"antonyms":["brave","bold","fearless","courageous"]},{"word":"calm","synonyms":["peaceful","relaxed","content"],"antonyms":["angry","mad","cross","furious"]},{"word":"peaceful","synonyms":["calm","relaxed","content"],"antonyms":["angry","mad","cross","furious"]},{"word":"relaxed","synonyms":["calm","peaceful","content"],"antonyms":["angry","mad","cross","furious"]},{"word":"content","synonyms":["calm","peaceful","relaxed"],"antonyms":["angry","mad","cross","furious"]},{"word":"angry","synonyms":["mad","cross","furious"],"antonyms":["calm","peaceful","relaxed","content"]},{"word":"mad","synonyms":["angry","cross","furious"],"antonyms":["calm","peaceful","relaxed","content"]},{"word":"cross","synonyms":["angry","mad","furious"],"antonyms":["calm","peaceful","relaxed","content"]},{"word":"polite","synonyms":["courteous","respectful","well-mannered"],"antonyms":["rude","impolite","disrespectful","discourteous"]},{"word":"respectful","synonyms":["polite","courteous","well-mannered"],"antonyms":["rude","impolite","disrespectful","discourteous"]},{"word":"well-mannered","synonyms":["polite","courteous","respectful"],"antonyms":["rude","impolite","disrespectful","discourteous"]},{"word":"rude","synonyms":["impolite","disrespectful","discourteous"],"antonyms":["polite","courteous","respectful","well-mannered"]},{"word":"impolite","synonyms":["rude","disrespectful","discourteous"],"antonyms":["polite","courteous","respectful","well-mannered"]},{"word":"honest","synonyms":["truthful","sincere","trustworthy"],"antonyms":["dishonest","lying","deceitful","untruthful"]},{"word":"truthful","synonyms":["honest","sincere","trustworthy"],"antonyms":["dishonest","lying","deceitful","untruthful"]},{"word":"dishonest","synonyms":["lying","deceitful","untruthful"],"antonyms":["honest","truthful","sincere","trustworthy"]},{"word":"lying","synonyms":["dishonest","deceitful","untruthful"],"antonyms":["honest","truthful","sincere","trustworthy"]},{"word":"careful","synonyms":["cautious","attentive","thorough"],"antonyms":["careless","reckless","hasty","sloppy"]},{"word":"careless","synonyms":["reckless","hasty","sloppy"],"antonyms":["careful","cautious","attentive","thorough"]},{"word":"hasty","synonyms":["careless","reckless","sloppy"],"antonyms":["careful","cautious","attentive","thorough"]},{"word":"sloppy","synonyms":["careless","reckless","hasty"],"antonyms":["careful","cautious","attentive","thorough"]},{"word":"healthy","synonyms":["well","fit","robust"],"antonyms":["sick","ill","unwell","ailing"]},{"word":"well","synonyms":["healthy","fit","robust"],"antonyms":["sick","ill","unwell","ailing"]},{"word":"fit","synonyms":["healthy","well","robust"],"antonyms":["sick","ill","unwell","ailing"]},{"word":"sick","synonyms":["ill","unwell","ailing"],"antonyms":["healthy","well","fit","robust"]},{"word":"ill","synonyms":["sick","unwell","ailing"],"antonyms":["healthy","well","fit","robust"]},{"word":"unwell","synonyms":["sick","ill","ailing"],"antonyms":["healthy","well","fit","robust"]},{"word":"heavy","synonyms":["weighty","massive","dense"],"antonyms":["light","weightless","airy","feathery"]},{"word":"weighty","synonyms":["heavy","massive","dense"],"antonyms":["light","weightless","airy","feathery"]},{"word":"massive","synonyms":["heavy","weighty","dense"],"antonyms":["light","weightless","airy","feathery"]},{"word":"dense","synonyms":["heavy","weighty","massive"],"antonyms":["light","weightless","airy","feathery"]},{"word":"light","synonyms":["weightless","airy","feathery"],"antonyms":["heavy","weighty","massive","dense"]},{"word":"airy","synonyms":["light","weightless","feathery"],"antonyms":["heavy","weighty","massive","dense"]},{"word":"thick","synonyms":["broad","wide","chunky"],"antonyms":["thin","narrow","slim","skinny"]},{"word":"broad","synonyms":["thick","wide","chunky"],"antonyms":["thin","narrow","slim","skinny"]},{"word":"wide","synonyms":["thick","broad","chunky"],"antonyms":["thin","narrow","slim","skinny"]},{"word":"chunky","synonyms":["thick","broad","wide"],"antonyms":["thin","narrow","slim","skinny"]},{"word":"thin","synonyms":["narrow","slim","skinny"],"antonyms":["thick","broad","wide","chunky"]},{"word":"narrow","synonyms":["thin","slim","skinny"],"antonyms":["thick","broad","wide","chunky"]},{"word":"slim","synonyms":["thin","narrow","skinny"],"antonyms":["thick","broad","wide","chunky"]},{"word":"skinny","synonyms":["thin","narrow","slim"],"antonyms":["thick","broad","wide","chunky"]},{"word":"straight","synonyms":["direct","level","upright"],"antonyms":["crooked","bent","curved","twisted"]},{"word":"direct","synonyms":["straight","level","upright"],"antonyms":["crooked","bent","curved","twisted"]},{"word":"level","synonyms":["straight","direct","upright"],"antonyms":["crooked","bent","curved","twisted"]},{"word":"crooked","synonyms":["bent","curved","twisted"],"antonyms":["straight","direct","level","upright"]},{"word":"bent","synonyms":["crooked","curved","twisted"],"antonyms":["straight","direct","level","upright"]},{"word":"curved","synonyms":["crooked","bent","twisted"],"antonyms":["straight","direct","level","upright"]},{"word":"twisted","synonyms":["crooked","bent","curved"],"antonyms":["straight","direct","level","upright"]},{"word":"useful","synonyms":["helpful","handy","practical"],"antonyms":["useless","unhelpful","pointless","worthless"]},{"word":"helpful","synonyms":["useful","handy","practical"],"antonyms":["useless","unhelpful","pointless","worthless"]},{"word":"handy","synonyms":["useful","helpful","practical"],"antonyms":["useless","unhelpful","pointless","worthless"]},{"word":"practical","synonyms":["useful","helpful","handy"],"antonyms":["useless","unhelpful","pointless","worthless"]},{"word":"useless","synonyms":["unhelpful","pointless","worthless"],"antonyms":["useful","helpful","handy","practical"]},{"word":"unhelpful","synonyms":["useless","pointless","worthless"],"antonyms":["useful","helpful","handy","practical"]},{"word":"pointless","synonyms":["useless","unhelpful","worthless"],"antonyms":["useful","helpful","handy","practical"]}],"medium":[{"word":"enormous","synonyms":["immense","gigantic","colossal"],"antonyms":["minuscule","minute","petite","compact"]},{"word":"immense","synonyms":["enormous","gigantic","colossal"],"antonyms":["minuscule","minute","petite","compact"]},{"word":"gigantic","synonyms":["enormous","immense","colossal"],"antonyms":["minuscule","minute","petite","compact"]},{"word":"colossal","synonyms":["enormous","immense","gigantic"],"antonyms":["minuscule","minute","petite","compact"]},{"word":"minuscule","synonyms":["minute","petite","compact"],"antonyms":["enormous","immense","gigantic","colossal"]},{"word":"minute","synonyms":["minuscule","petite","compact"],"antonyms":["enormous","immense","gigantic","colossal"]},{"word":"petite","synonyms":["minuscule","minute","compact"],"antonyms":["enormous","immense","gigantic","colossal"]},{"word":"compact","synonyms":["minuscule","minute","petite"],"antonyms":["enormous","immense","gigantic","colossal"]},{"word":"jolly","synonyms":["cheerful","upbeat","delighted"],"antonyms":["sorrowful","dejected","downcast","mournful"]},{"word":"upbeat","synonyms":["cheerful","jolly","delighted"],"antonyms":["sorrowful","dejected","downcast","mournful"]},{"word":"delighted","synonyms":["cheerful","jolly","upbeat"],"antonyms":["sorrowful","dejected","downcast","mournful"]},{"word":"sorrowful","synonyms":["dejected","downcast","mournful"],"antonyms":["cheerful","jolly","upbeat","delighted"]},{"word":"dejected","synonyms":["sorrowful","downcast","mournful"],"antonyms":["cheerful","jolly","upbeat","delighted"]},{"word":"downcast","synonyms":["sorrowful","dejected","mournful"],"antonyms":["cheerful","jolly","upbeat","delighted"]},{"word":"mournful","synonyms":["sorrowful","dejected","downcast"],"antonyms":["cheerful","jolly","upbeat","delighted"]},{"word":"rapid","synonyms":["brisk","hasty","accelerated"],"antonyms":["gradual","leisurely","sluggish","delayed"]},{"word":"brisk","synonyms":["rapid","hasty","accelerated"],"antonyms":["gradual","leisurely","sluggish","delayed"]},{"word":"accelerated","synonyms":["rapid","brisk","hasty"],"antonyms":["gradual","leisurely","sluggish","delayed"]},{"word":"gradual","synonyms":["leisurely","sluggish","delayed"],"antonyms":["rapid","brisk","hasty","accelerated"]},{"word":"leisurely","synonyms":["gradual","sluggish","delayed"],"antonyms":["rapid","brisk","hasty","accelerated"]},{"word":"furious","synonyms":["irate","enraged","outraged"],"antonyms":["calm","composed","placid","untroubled"]},{"word":"irate","synonyms":["furious","enraged","outraged"],"antonyms":["calm","composed","placid","untroubled"]},{"word":"enraged","synonyms":["furious","irate","outraged"],"antonyms":["calm","composed","placid","untroubled"]},{"word":"outraged","synonyms":["furious","irate","enraged"],"antonyms":["calm","composed","placid","untroubled"]},{"word":"composed","synonyms":["calm","placid","untroubled"],"antonyms":["furious","irate","enraged","outraged"]},{"word":"placid","synonyms":["calm","composed","untroubled"],"antonyms":["furious","irate","enraged","outraged"]},{"word":"untroubled","synonyms":["calm","composed","placid"],"antonyms":["furious","irate","enraged","outraged"]},{"word":"ancient","synonyms":["antique","archaic","historic"],"antonyms":["modern","current","recent","contemporary"]},{"word":"antique","synonyms":["ancient","archaic","historic"],"antonyms":["modern","current","recent","contemporary"]},{"word":"archaic","synonyms":["ancient","antique","historic"],"antonyms":["modern","current","recent","contemporary"]},{"word":"historic","synonyms":["ancient","antique","archaic"],"antonyms":["modern","current","recent","contemporary"]},{"word":"modern","synonyms":["current","recent","contemporary"],"antonyms":["ancient","antique","archaic","historic"]},{"word":"current","synonyms":["modern","recent","contemporary"],"antonyms":["ancient","antique","archaic","historic"]},{"word":"recent","synonyms":["modern","current","contemporary"],"antonyms":["ancient","antique","archaic","historic"]},{"word":"contemporary","synonyms":["modern","current","recent"],"antonyms":["ancient","antique","archaic","historic"]},{"word":"courageous","synonyms":["brave","heroic","valiant"],"antonyms":["timid","cowardly","fearful","fainthearted"]},{"word":"heroic","synonyms":["brave","courageous","valiant"],"antonyms":["timid","cowardly","fearful","fainthearted"]},{"word":"valiant","synonyms":["brave","courageous","heroic"],"antonyms":["timid","cowardly","fearful","fainthearted"]},{"word":"timid","synonyms":["cowardly","fearful","fainthearted"],"antonyms":["brave","courageous","heroic","valiant"]},{"word":"cowardly","synonyms":["timid","fearful","fainthearted"],"antonyms":["brave","courageous","heroic","valiant"]},{"word":"fainthearted","synonyms":["timid","cowardly","fearful"],"antonyms":["brave","courageous","heroic","valiant"]},{"word":"fragile","synonyms":["delicate","brittle","breakable"],"antonyms":["durable","sturdy","resilient","robust"]},{"word":"delicate","synonyms":["fragile","brittle","breakable"],"antonyms":["durable","sturdy","resilient","robust"]},{"word":"brittle","synonyms":["fragile","delicate","breakable"],"antonyms":["durable","sturdy","resilient","robust"]},{"word":"breakable","synonyms":["fragile","delicate","brittle"],"antonyms":["durable","sturdy","resilient","robust"]},{"word":"durable","synonyms":["sturdy","resilient","robust"],"antonyms":["fragile","delicate","brittle","breakable"]},{"word":"resilient","synonyms":["durable","sturdy","robust"],"antonyms":["fragile","delicate","brittle","breakable"]},{"word":"robust","synonyms":["durable","sturdy","resilient"],"antonyms":["fragile","delicate","brittle","breakable"]},{"word":"generous","synonyms":["charitable","giving","selfless"],"antonyms":["selfish","stingy","greedy","miserly"]},{"word":"charitable","synonyms":["generous","giving","selfless"],"antonyms":["selfish","stingy","greedy","miserly"]},{"word":"giving","synonyms":["generous","charitable","selfless"],"antonyms":["selfish","stingy","greedy","miserly"]},{"word":"selfless","synonyms":["generous","charitable","giving"],"antonyms":["selfish","stingy","greedy","miserly"]},{"word":"selfish","synonyms":["stingy","greedy","miserly"],"antonyms":["generous","charitable","giving","selfless"]},{"word":"stingy","synonyms":["selfish","greedy","miserly"],"antonyms":["generous","charitable","giving","selfless"]},{"word":"greedy","synonyms":["selfish","stingy","miserly"],"antonyms":["generous","charitable","giving","selfless"]},{"word":"miserly","synonyms":["selfish","stingy","greedy"],"antonyms":["generous","charitable","giving","selfless"]},{"word":"exhausted","synonyms":["weary","drained","fatigued"],"antonyms":["energetic","rested","refreshed","lively"]},{"word":"weary","synonyms":["exhausted","drained","fatigued"],"antonyms":["energetic","rested","refreshed","lively"]},{"word":"drained","synonyms":["exhausted","weary","fatigued"],"antonyms":["energetic","rested","refreshed","lively"]},{"word":"fatigued","synonyms":["exhausted","weary","drained"],"antonyms":["energetic","rested","refreshed","lively"]},{"word":"energetic","synonyms":["rested","refreshed","lively"],"antonyms":["exhausted","weary","drained","fatigued"]},{"word":"rested","synonyms":["energetic","refreshed","lively"],"antonyms":["exhausted","weary","drained","fatigued"]},{"word":"refreshed","synonyms":["energetic","rested","lively"],"antonyms":["exhausted","weary","drained","fatigued"]},{"word":"lively","synonyms":["energetic","rested","refreshed"],"antonyms":["exhausted","weary","drained","fatigued"]},{"word":"curious","synonyms":["inquisitive","interested","questioning"],"antonyms":["indifferent","uninterested","apathetic","bored"]},{"word":"inquisitive","synonyms":["curious","interested","questioning"],"antonyms":["indifferent","uninterested","apathetic","bored"]},{"word":"interested","synonyms":["curious","inquisitive","questioning"],"antonyms":["indifferent","uninterested","apathetic","bored"]},{"word":"questioning","synonyms":["curious","inquisitive","interested"],"antonyms":["indifferent","uninterested","apathetic","bored"]},{"word":"indifferent","synonyms":["uninterested","apathetic","bored"],"antonyms":["curious","inquisitive","interested","questioning"]},{"word":"uninterested","synonyms":["indifferent","apathetic","bored"],"antonyms":["curious","inquisitive","interested","questioning"]},{"word":"apathetic","synonyms":["indifferent","uninterested","bored"],"antonyms":["curious","inquisitive","interested","questioning"]},{"word":"bored","synonyms":["indifferent","uninterested","apathetic"],"antonyms":["curious","inquisitive","interested","questioning"]},{"word":"nervous","synonyms":["anxious","uneasy","tense"],"antonyms":["confident","relaxed","assured","secure"]},{"word":"anxious","synonyms":["nervous","uneasy","tense"],"antonyms":["confident","relaxed","assured","secure"]},{"word":"uneasy","synonyms":["nervous","anxious","tense"],"antonyms":["confident","relaxed","assured","secure"]},{"word":"tense","synonyms":["nervous","anxious","uneasy"],"antonyms":["confident","relaxed","assured","secure"]},{"word":"confident","synonyms":["relaxed","assured","secure"],"antonyms":["nervous","anxious","uneasy","tense"]},{"word":"assured","synonyms":["confident","relaxed","secure"],"antonyms":["nervous","anxious","uneasy","tense"]},{"word":"crowded","synonyms":["congested","jammed","teeming"],"antonyms":["deserted","vacant","spacious","uncrowded"]},{"word":"congested","synonyms":["crowded","jammed","teeming"],"antonyms":["deserted","vacant","spacious","uncrowded"]},{"word":"jammed","synonyms":["crowded","congested","teeming"],"antonyms":["deserted","vacant","spacious","uncrowded"]},{"word":"teeming","synonyms":["crowded","congested","jammed"],"antonyms":["deserted","vacant","spacious","uncrowded"]},{"word":"deserted","synonyms":["vacant","spacious","uncrowded"],"antonyms":["crowded","congested","jammed","teeming"]},{"word":"spacious","synonyms":["deserted","vacant","uncrowded"],"antonyms":["crowded","congested","jammed","teeming"]},{"word":"uncrowded","synonyms":["deserted","vacant","spacious"],"antonyms":["crowded","congested","jammed","teeming"]},{"word":"tranquil","synonyms":["peaceful","serene","harmonious"],"antonyms":["chaotic","turbulent","violent","disorderly"]},{"word":"serene","synonyms":["peaceful","tranquil","harmonious"],"antonyms":["chaotic","turbulent","violent","disorderly"]},{"word":"harmonious","synonyms":["peaceful","tranquil","serene"],"antonyms":["chaotic","turbulent","violent","disorderly"]},{"word":"chaotic","synonyms":["turbulent","violent","disorderly"],"antonyms":["peaceful","tranquil","serene","harmonious"]},{"word":"turbulent","synonyms":["chaotic","violent","disorderly"],"antonyms":["peaceful","tranquil","serene","harmonious"]},{"word":"violent","synonyms":["chaotic","turbulent","disorderly"],"antonyms":["peaceful","tranquil","serene","harmonious"]},{"word":"disorderly","synonyms":["chaotic","turbulent","violent"],"antonyms":["peaceful","tranquil","serene","harmonious"]},{"word":"delicious","synonyms":["tasty","flavourful","delectable"],"antonyms":["disgusting","tasteless","bland","unappetising"]},{"word":"tasty","synonyms":["delicious","flavourful","delectable"],"antonyms":["disgusting","tasteless","bland","unappetising"]},{"word":"flavourful","synonyms":["delicious","tasty","delectable"],"antonyms":["disgusting","tasteless","bland","unappetising"]},{"word":"delectable","synonyms":["delicious","tasty","flavourful"],"antonyms":["disgusting","tasteless","bland","unappetising"]},{"word":"disgusting","synonyms":["tasteless","bland","unappetising"],"antonyms":["delicious","tasty","flavourful","delectable"]},{"word":"tasteless","synonyms":["disgusting","bland","unappetising"],"antonyms":["delicious","tasty","flavourful","delectable"]},{"word":"bland","synonyms":["disgusting","tasteless","unappetising"],"antonyms":["delicious","tasty","flavourful","delectable"]},{"word":"unappetising","synonyms":["disgusting","tasteless","bland"],"antonyms":["delicious","tasty","flavourful","delectable"]},{"word":"complex","synonyms":["difficult","complicated","demanding"],"antonyms":["easy","simple","manageable","effortless"]},{"word":"complicated","synonyms":["difficult","complex","demanding"],"antonyms":["easy","simple","manageable","effortless"]},{"word":"demanding","synonyms":["difficult","complex","complicated"],"antonyms":["easy","simple","manageable","effortless"]},{"word":"manageable","synonyms":["easy","simple","effortless"],"antonyms":["difficult","complex","complicated","demanding"]},{"word":"courteous","synonyms":["polite","civil","respectful"],"antonyms":["rude","impolite","insolent","discourteous"]},{"word":"civil","synonyms":["polite","courteous","respectful"],"antonyms":["rude","impolite","insolent","discourteous"]},{"word":"insolent","synonyms":["rude","impolite","discourteous"],"antonyms":["polite","courteous","civil","respectful"]},{"word":"discourteous","synonyms":["rude","impolite","insolent"],"antonyms":["polite","courteous","civil","respectful"]},{"word":"candid","synonyms":["honest","truthful","sincere"],"antonyms":["dishonest","deceitful","fraudulent","misleading"]},{"word":"sincere","synonyms":["honest","truthful","candid"],"antonyms":["dishonest","deceitful","fraudulent","misleading"]},{"word":"deceitful","synonyms":["dishonest","fraudulent","misleading"],"antonyms":["honest","truthful","candid","sincere"]},{"word":"fraudulent","synonyms":["dishonest","deceitful","misleading"],"antonyms":["honest","truthful","candid","sincere"]},{"word":"misleading","synonyms":["dishonest","deceitful","fraudulent"],"antonyms":["honest","truthful","candid","sincere"]},{"word":"cautious","synonyms":["careful","attentive","meticulous"],"antonyms":["careless","reckless","negligent","thoughtless"]},{"word":"attentive","synonyms":["careful","cautious","meticulous"],"antonyms":["careless","reckless","negligent","thoughtless"]},{"word":"meticulous","synonyms":["careful","cautious","attentive"],"antonyms":["careless","reckless","negligent","thoughtless"]},{"word":"reckless","synonyms":["careless","negligent","thoughtless"],"antonyms":["careful","cautious","attentive","meticulous"]},{"word":"negligent","synonyms":["careless","reckless","thoughtless"],"antonyms":["careful","cautious","attentive","meticulous"]},{"word":"thoughtless","synonyms":["careless","reckless","negligent"],"antonyms":["careful","cautious","attentive","meticulous"]},{"word":"ordinary","synonyms":["normal","usual","typical"],"antonyms":["unusual","exceptional","extraordinary","peculiar"]},{"word":"normal","synonyms":["ordinary","usual","typical"],"antonyms":["unusual","exceptional","extraordinary","peculiar"]},{"word":"usual","synonyms":["ordinary","normal","typical"],"antonyms":["unusual","exceptional","extraordinary","peculiar"]},{"word":"typical","synonyms":["ordinary","normal","usual"],"antonyms":["unusual","exceptional","extraordinary","peculiar"]},{"word":"unusual","synonyms":["exceptional","extraordinary","peculiar"],"antonyms":["ordinary","normal","usual","typical"]},{"word":"exceptional","synonyms":["unusual","extraordinary","peculiar"],"antonyms":["ordinary","normal","usual","typical"]},{"word":"extraordinary","synonyms":["unusual","exceptional","peculiar"],"antonyms":["ordinary","normal","usual","typical"]},{"word":"peculiar","synonyms":["unusual","exceptional","extraordinary"],"antonyms":["ordinary","normal","usual","typical"]},{"word":"valuable","synonyms":["precious","worthwhile","beneficial"],"antonyms":["worthless","useless","trivial","harmful"]},{"word":"precious","synonyms":["valuable","worthwhile","beneficial"],"antonyms":["worthless","useless","trivial","harmful"]},{"word":"worthwhile","synonyms":["valuable","precious","beneficial"],"antonyms":["worthless","useless","trivial","harmful"]},{"word":"beneficial","synonyms":["valuable","precious","worthwhile"],"antonyms":["worthless","useless","trivial","harmful"]},{"word":"worthless","synonyms":["useless","trivial","harmful"],"antonyms":["valuable","precious","worthwhile","beneficial"]},{"word":"trivial","synonyms":["worthless","useless","harmful"],"antonyms":["valuable","precious","worthwhile","beneficial"]},{"word":"harmful","synonyms":["worthless","useless","trivial"],"antonyms":["valuable","precious","worthwhile","beneficial"]},{"word":"scarce","synonyms":["rare","limited","insufficient"],"antonyms":["abundant","plentiful","ample","numerous"]},{"word":"rare","synonyms":["scarce","limited","insufficient"],"antonyms":["abundant","plentiful","ample","numerous"]},{"word":"limited","synonyms":["scarce","rare","insufficient"],"antonyms":["abundant","plentiful","ample","numerous"]},{"word":"insufficient","synonyms":["scarce","rare","limited"],"antonyms":["abundant","plentiful","ample","numerous"]},{"word":"abundant","synonyms":["plentiful","ample","numerous"],"antonyms":["scarce","rare","limited","insufficient"]},{"word":"plentiful","synonyms":["abundant","ample","numerous"],"antonyms":["scarce","rare","limited","insufficient"]},{"word":"ample","synonyms":["abundant","plentiful","numerous"],"antonyms":["scarce","rare","limited","insufficient"]},{"word":"numerous","synonyms":["abundant","plentiful","ample"],"antonyms":["scarce","rare","limited","insufficient"]},{"word":"sleek","synonyms":["smooth","polished","silky"],"antonyms":["rough","coarse","jagged","abrasive"]},{"word":"polished","synonyms":["smooth","sleek","silky"],"antonyms":["rough","coarse","jagged","abrasive"]},{"word":"jagged","synonyms":["rough","coarse","abrasive"],"antonyms":["smooth","sleek","polished","silky"]},{"word":"abrasive","synonyms":["rough","coarse","jagged"],"antonyms":["smooth","sleek","polished","silky"]},{"word":"slender","synonyms":["narrow","restricted","confined"],"antonyms":["wide","broad","expansive","extensive"]},{"word":"restricted","synonyms":["narrow","slender","confined"],"antonyms":["wide","broad","expansive","extensive"]},{"word":"confined","synonyms":["narrow","slender","restricted"],"antonyms":["wide","broad","expansive","extensive"]},{"word":"expansive","synonyms":["wide","broad","extensive"],"antonyms":["narrow","slender","restricted","confined"]},{"word":"extensive","synonyms":["wide","broad","expansive"],"antonyms":["narrow","slender","restricted","confined"]},{"word":"eager","synonyms":["keen","enthusiastic","willing"],"antonyms":["reluctant","hesitant","unwilling","resistant"]},{"word":"keen","synonyms":["eager","enthusiastic","willing"],"antonyms":["reluctant","hesitant","unwilling","resistant"]},{"word":"enthusiastic","synonyms":["eager","keen","willing"],"antonyms":["reluctant","hesitant","unwilling","resistant"]},{"word":"willing","synonyms":["eager","keen","enthusiastic"],"antonyms":["reluctant","hesitant","unwilling","resistant"]},{"word":"reluctant","synonyms":["hesitant","unwilling","resistant"],"antonyms":["eager","keen","enthusiastic","willing"]},{"word":"hesitant","synonyms":["reluctant","unwilling","resistant"],"antonyms":["eager","keen","enthusiastic","willing"]},{"word":"unwilling","synonyms":["reluctant","hesitant","resistant"],"antonyms":["eager","keen","enthusiastic","willing"]},{"word":"resistant","synonyms":["reluctant","hesitant","unwilling"],"antonyms":["eager","keen","enthusiastic","willing"]},{"word":"lazy","synonyms":["idle","inactive","slothful"],"antonyms":["diligent","industrious","hardworking","productive"]},{"word":"idle","synonyms":["lazy","inactive","slothful"],"antonyms":["diligent","industrious","hardworking","productive"]},{"word":"inactive","synonyms":["lazy","idle","slothful"],"antonyms":["diligent","industrious","hardworking","productive"]},{"word":"slothful","synonyms":["lazy","idle","inactive"],"antonyms":["diligent","industrious","hardworking","productive"]},{"word":"diligent","synonyms":["industrious","hardworking","productive"],"antonyms":["lazy","idle","inactive","slothful"]},{"word":"industrious","synonyms":["diligent","hardworking","productive"],"antonyms":["lazy","idle","inactive","slothful"]},{"word":"hardworking","synonyms":["diligent","industrious","productive"],"antonyms":["lazy","idle","inactive","slothful"]},{"word":"productive","synonyms":["diligent","industrious","hardworking"],"antonyms":["lazy","idle","inactive","slothful"]},{"word":"dreary","synonyms":["gloomy","bleak","sombre"],"antonyms":["radiant","hopeful","bright","optimistic"]},{"word":"bleak","synonyms":["gloomy","dreary","sombre"],"antonyms":["radiant","hopeful","bright","optimistic"]},{"word":"sombre","synonyms":["gloomy","dreary","bleak"],"antonyms":["radiant","hopeful","bright","optimistic"]},{"word":"radiant","synonyms":["hopeful","bright","optimistic"],"antonyms":["gloomy","dreary","bleak","sombre"]},{"word":"hopeful","synonyms":["radiant","bright","optimistic"],"antonyms":["gloomy","dreary","bleak","sombre"]},{"word":"optimistic","synonyms":["radiant","hopeful","bright"],"antonyms":["gloomy","dreary","bleak","sombre"]},{"word":"grateful","synonyms":["thankful","appreciative","obliged"],"antonyms":["ungrateful","thankless","resentful","unappreciative"]},{"word":"thankful","synonyms":["grateful","appreciative","obliged"],"antonyms":["ungrateful","thankless","resentful","unappreciative"]},{"word":"appreciative","synonyms":["grateful","thankful","obliged"],"antonyms":["ungrateful","thankless","resentful","unappreciative"]},{"word":"obliged","synonyms":["grateful","thankful","appreciative"],"antonyms":["ungrateful","thankless","resentful","unappreciative"]},{"word":"ungrateful","synonyms":["thankless","resentful","unappreciative"],"antonyms":["grateful","thankful","appreciative","obliged"]},{"word":"thankless","synonyms":["ungrateful","resentful","unappreciative"],"antonyms":["grateful","thankful","appreciative","obliged"]},{"word":"resentful","synonyms":["ungrateful","thankless","unappreciative"],"antonyms":["grateful","thankful","appreciative","obliged"]},{"word":"unappreciative","synonyms":["ungrateful","thankless","resentful"],"antonyms":["grateful","thankful","appreciative","obliged"]},{"word":"loyal","synonyms":["faithful","devoted","steadfast"],"antonyms":["disloyal","unfaithful","treacherous","fickle"]},{"word":"faithful","synonyms":["loyal","devoted","steadfast"],"antonyms":["disloyal","unfaithful","treacherous","fickle"]},{"word":"devoted","synonyms":["loyal","faithful","steadfast"],"antonyms":["disloyal","unfaithful","treacherous","fickle"]},{"word":"steadfast","synonyms":["loyal","faithful","devoted"],"antonyms":["disloyal","unfaithful","treacherous","fickle"]},{"word":"disloyal","synonyms":["unfaithful","treacherous","fickle"],"antonyms":["loyal","faithful","devoted","steadfast"]},{"word":"unfaithful","synonyms":["disloyal","treacherous","fickle"],"antonyms":["loyal","faithful","devoted","steadfast"]},{"word":"treacherous","synonyms":["disloyal","unfaithful","fickle"],"antonyms":["loyal","faithful","devoted","steadfast"]},{"word":"fickle","synonyms":["disloyal","unfaithful","treacherous"],"antonyms":["loyal","faithful","devoted","steadfast"]},{"word":"brief","synonyms":["concise","short","succinct"],"antonyms":["lengthy","extended","prolonged","wordy"]},{"word":"concise","synonyms":["brief","short","succinct"],"antonyms":["lengthy","extended","prolonged","wordy"]},{"word":"succinct","synonyms":["brief","concise","short"],"antonyms":["lengthy","extended","prolonged","wordy"]},{"word":"lengthy","synonyms":["extended","prolonged","wordy"],"antonyms":["brief","concise","short","succinct"]},{"word":"extended","synonyms":["lengthy","prolonged","wordy"],"antonyms":["brief","concise","short","succinct"]},{"word":"prolonged","synonyms":["lengthy","extended","wordy"],"antonyms":["brief","concise","short","succinct"]},{"word":"wordy","synonyms":["lengthy","extended","prolonged"],"antonyms":["brief","concise","short","succinct"]},{"word":"visible","synonyms":["noticeable","obvious","apparent"],"antonyms":["hidden","invisible","concealed","unseen"]},{"word":"noticeable","synonyms":["visible","obvious","apparent"],"antonyms":["hidden","invisible","concealed","unseen"]},{"word":"obvious","synonyms":["visible","noticeable","apparent"],"antonyms":["hidden","invisible","concealed","unseen"]},{"word":"apparent","synonyms":["visible","noticeable","obvious"],"antonyms":["hidden","invisible","concealed","unseen"]},{"word":"hidden","synonyms":["invisible","concealed","unseen"],"antonyms":["visible","noticeable","obvious","apparent"]},{"word":"invisible","synonyms":["hidden","concealed","unseen"],"antonyms":["visible","noticeable","obvious","apparent"]},{"word":"concealed","synonyms":["hidden","invisible","unseen"],"antonyms":["visible","noticeable","obvious","apparent"]},{"word":"unseen","synonyms":["hidden","invisible","concealed"],"antonyms":["visible","noticeable","obvious","apparent"]},{"word":"victory","synonyms":["triumph","success","achievement"],"antonyms":["defeat","loss","failure","setback"]},{"word":"success","synonyms":["victory","triumph","achievement"],"antonyms":["defeat","loss","failure","setback"]},{"word":"achievement","synonyms":["victory","triumph","success"],"antonyms":["defeat","loss","failure","setback"]},{"word":"defeat","synonyms":["loss","failure","setback"],"antonyms":["victory","triumph","success","achievement"]},{"word":"loss","synonyms":["defeat","failure","setback"],"antonyms":["victory","triumph","success","achievement"]},{"word":"failure","synonyms":["defeat","loss","setback"],"antonyms":["victory","triumph","success","achievement"]},{"word":"setback","synonyms":["defeat","loss","failure"],"antonyms":["victory","triumph","success","achievement"]},{"word":"flexible","synonyms":["adaptable","versatile","adjustable"],"antonyms":["rigid","inflexible","fixed","stiff"]},{"word":"adaptable","synonyms":["flexible","versatile","adjustable"],"antonyms":["rigid","inflexible","fixed","stiff"]},{"word":"versatile","synonyms":["flexible","adaptable","adjustable"],"antonyms":["rigid","inflexible","fixed","stiff"]},{"word":"adjustable","synonyms":["flexible","adaptable","versatile"],"antonyms":["rigid","inflexible","fixed","stiff"]},{"word":"rigid","synonyms":["inflexible","fixed","stiff"],"antonyms":["flexible","adaptable","versatile","adjustable"]},{"word":"inflexible","synonyms":["rigid","fixed","stiff"],"antonyms":["flexible","adaptable","versatile","adjustable"]},{"word":"fixed","synonyms":["rigid","inflexible","stiff"],"antonyms":["flexible","adaptable","versatile","adjustable"]},{"word":"stiff","synonyms":["rigid","inflexible","fixed"],"antonyms":["flexible","adaptable","versatile","adjustable"]},{"word":"clever","synonyms":["intelligent","sharp","smart"],"antonyms":["foolish","ignorant","unwise","stupid"]},{"word":"intelligent","synonyms":["clever","sharp","smart"],"antonyms":["foolish","ignorant","unwise","stupid"]},{"word":"sharp","synonyms":["clever","intelligent","smart"],"antonyms":["foolish","ignorant","unwise","stupid"]},{"word":"foolish","synonyms":["ignorant","unwise","stupid"],"antonyms":["clever","intelligent","sharp","smart"]},{"word":"ignorant","synonyms":["foolish","unwise","stupid"],"antonyms":["clever","intelligent","sharp","smart"]},{"word":"unwise","synonyms":["foolish","ignorant","stupid"],"antonyms":["clever","intelligent","sharp","smart"]},{"word":"stupid","synonyms":["foolish","ignorant","unwise"],"antonyms":["clever","intelligent","sharp","smart"]},{"word":"humorous","synonyms":["funny","amusing","comical"],"antonyms":["serious","solemn","grave","humourless"]},{"word":"amusing","synonyms":["humorous","funny","comical"],"antonyms":["serious","solemn","grave","humourless"]},{"word":"comical","synonyms":["humorous","funny","amusing"],"antonyms":["serious","solemn","grave","humourless"]},{"word":"serious","synonyms":["solemn","grave","humourless"],"antonyms":["humorous","funny","amusing","comical"]},{"word":"solemn","synonyms":["serious","grave","humourless"],"antonyms":["humorous","funny","amusing","comical"]},{"word":"grave","synonyms":["serious","solemn","humourless"],"antonyms":["humorous","funny","amusing","comical"]},{"word":"humourless","synonyms":["serious","solemn","grave"],"antonyms":["humorous","funny","amusing","comical"]},{"word":"accurate","synonyms":["correct","precise","exact"],"antonyms":["inaccurate","incorrect","imprecise","faulty"]},{"word":"precise","synonyms":["accurate","correct","exact"],"antonyms":["inaccurate","incorrect","imprecise","faulty"]},{"word":"exact","synonyms":["accurate","correct","precise"],"antonyms":["inaccurate","incorrect","imprecise","faulty"]},{"word":"inaccurate","synonyms":["incorrect","imprecise","faulty"],"antonyms":["accurate","correct","precise","exact"]},{"word":"incorrect","synonyms":["inaccurate","imprecise","faulty"],"antonyms":["accurate","correct","precise","exact"]},{"word":"imprecise","synonyms":["inaccurate","incorrect","faulty"],"antonyms":["accurate","correct","precise","exact"]},{"word":"faulty","synonyms":["inaccurate","incorrect","imprecise"],"antonyms":["accurate","correct","precise","exact"]},{"word":"permanent","synonyms":["lasting","enduring","stable"],"antonyms":["short-lived","transient","passing","impermanent"]},{"word":"lasting","synonyms":["permanent","enduring","stable"],"antonyms":["short-lived","transient","passing","impermanent"]},{"word":"enduring","synonyms":["permanent","lasting","stable"],"antonyms":["short-lived","transient","passing","impermanent"]},{"word":"stable","synonyms":["permanent","lasting","enduring"],"antonyms":["short-lived","transient","passing","impermanent"]},{"word":"short-lived","synonyms":["transient","passing","impermanent"],"antonyms":["permanent","lasting","enduring","stable"]},{"word":"transient","synonyms":["short-lived","passing","impermanent"],"antonyms":["permanent","lasting","enduring","stable"]},{"word":"passing","synonyms":["short-lived","transient","impermanent"],"antonyms":["permanent","lasting","enduring","stable"]},{"word":"impermanent","synonyms":["short-lived","transient","passing"],"antonyms":["permanent","lasting","enduring","stable"]},{"word":"positive","synonyms":["favourable","constructive","encouraging"],"antonyms":["negative","unfavourable","destructive","discouraging"]},{"word":"favourable","synonyms":["positive","constructive","encouraging"],"antonyms":["negative","unfavourable","destructive","discouraging"]},{"word":"constructive","synonyms":["positive","favourable","encouraging"],"antonyms":["negative","unfavourable","destructive","discouraging"]},{"word":"encouraging","synonyms":["positive","favourable","constructive"],"antonyms":["negative","unfavourable","destructive","discouraging"]},{"word":"negative","synonyms":["unfavourable","destructive","discouraging"],"antonyms":["positive","favourable","constructive","encouraging"]},{"word":"unfavourable","synonyms":["negative","destructive","discouraging"],"antonyms":["positive","favourable","constructive","encouraging"]},{"word":"destructive","synonyms":["negative","unfavourable","discouraging"],"antonyms":["positive","favourable","constructive","encouraging"]},{"word":"discouraging","synonyms":["negative","unfavourable","destructive"],"antonyms":["positive","favourable","constructive","encouraging"]},{"word":"shared","synonyms":["public","open","communal"],"antonyms":["private","personal","secret","confidential"]},{"word":"communal","synonyms":["public","open","shared"],"antonyms":["private","personal","secret","confidential"]},{"word":"private","synonyms":["personal","secret","confidential"],"antonyms":["public","open","shared","communal"]},{"word":"personal","synonyms":["private","secret","confidential"],"antonyms":["public","open","shared","communal"]},{"word":"secret","synonyms":["private","personal","confidential"],"antonyms":["public","open","shared","communal"]},{"word":"confidential","synonyms":["private","personal","secret"],"antonyms":["public","open","shared","communal"]},{"word":"artificial","synonyms":["synthetic","manufactured","imitation"],"antonyms":["natural","organic","genuine","authentic"]},{"word":"synthetic","synonyms":["artificial","manufactured","imitation"],"antonyms":["natural","organic","genuine","authentic"]},{"word":"manufactured","synonyms":["artificial","synthetic","imitation"],"antonyms":["natural","organic","genuine","authentic"]},{"word":"imitation","synonyms":["artificial","synthetic","manufactured"],"antonyms":["natural","organic","genuine","authentic"]},{"word":"natural","synonyms":["organic","genuine","authentic"],"antonyms":["artificial","synthetic","manufactured","imitation"]},{"word":"organic","synonyms":["natural","genuine","authentic"],"antonyms":["artificial","synthetic","manufactured","imitation"]},{"word":"genuine","synonyms":["natural","organic","authentic"],"antonyms":["artificial","synthetic","manufactured","imitation"]},{"word":"authentic","synonyms":["natural","organic","genuine"],"antonyms":["artificial","synthetic","manufactured","imitation"]},{"word":"maximum","synonyms":["greatest","highest","utmost"],"antonyms":["minimum","least","lowest","smallest"]},{"word":"greatest","synonyms":["maximum","highest","utmost"],"antonyms":["minimum","least","lowest","smallest"]},{"word":"highest","synonyms":["maximum","greatest","utmost"],"antonyms":["minimum","least","lowest","smallest"]},{"word":"utmost","synonyms":["maximum","greatest","highest"],"antonyms":["minimum","least","lowest","smallest"]},{"word":"minimum","synonyms":["least","lowest","smallest"],"antonyms":["maximum","greatest","highest","utmost"]},{"word":"least","synonyms":["minimum","lowest","smallest"],"antonyms":["maximum","greatest","highest","utmost"]},{"word":"lowest","synonyms":["minimum","least","smallest"],"antonyms":["maximum","greatest","highest","utmost"]},{"word":"smallest","synonyms":["minimum","least","lowest"],"antonyms":["maximum","greatest","highest","utmost"]},{"word":"approve","synonyms":["accept","agree","consent"],"antonyms":["refuse","reject","decline","oppose"]},{"word":"consent","synonyms":["accept","approve","agree"],"antonyms":["refuse","reject","decline","oppose"]},{"word":"refuse","synonyms":["reject","decline","oppose"],"antonyms":["accept","approve","agree","consent"]},{"word":"reject","synonyms":["refuse","decline","oppose"],"antonyms":["accept","approve","agree","consent"]},{"word":"decline","synonyms":["refuse","reject","oppose"],"antonyms":["accept","approve","agree","consent"]},{"word":"oppose","synonyms":["refuse","reject","decline"],"antonyms":["accept","approve","agree","consent"]},{"word":"expand","synonyms":["enlarge","extend","increase"],"antonyms":["shrink","reduce","contract","decrease"]},{"word":"enlarge","synonyms":["expand","extend","increase"],"antonyms":["shrink","reduce","contract","decrease"]},{"word":"extend","synonyms":["expand","enlarge","increase"],"antonyms":["shrink","reduce","contract","decrease"]},{"word":"increase","synonyms":["expand","enlarge","extend"],"antonyms":["shrink","reduce","contract","decrease"]},{"word":"shrink","synonyms":["reduce","contract","decrease"],"antonyms":["expand","enlarge","extend","increase"]},{"word":"reduce","synonyms":["shrink","contract","decrease"],"antonyms":["expand","enlarge","extend","increase"]},{"word":"contract","synonyms":["shrink","reduce","decrease"],"antonyms":["expand","enlarge","extend","increase"]},{"word":"decrease","synonyms":["shrink","reduce","contract"],"antonyms":["expand","enlarge","extend","increase"]},{"word":"reveal","synonyms":["expose","uncover","display"],"antonyms":["conceal","hide","mask","disguise"]},{"word":"expose","synonyms":["reveal","uncover","display"],"antonyms":["conceal","hide","mask","disguise"]},{"word":"uncover","synonyms":["reveal","expose","display"],"antonyms":["conceal","hide","mask","disguise"]},{"word":"display","synonyms":["reveal","expose","uncover"],"antonyms":["conceal","hide","mask","disguise"]},{"word":"conceal","synonyms":["hide","mask","disguise"],"antonyms":["reveal","expose","uncover","display"]},{"word":"mask","synonyms":["conceal","hide","disguise"],"antonyms":["reveal","expose","uncover","display"]},{"word":"disguise","synonyms":["conceal","hide","mask"],"antonyms":["reveal","expose","uncover","display"]},{"word":"protect","synonyms":["defend","guard","shelter"],"antonyms":["attack","harm","threaten","endanger"]},{"word":"defend","synonyms":["protect","guard","shelter"],"antonyms":["attack","harm","threaten","endanger"]},{"word":"guard","synonyms":["protect","defend","shelter"],"antonyms":["attack","harm","threaten","endanger"]},{"word":"shelter","synonyms":["protect","defend","guard"],"antonyms":["attack","harm","threaten","endanger"]},{"word":"attack","synonyms":["harm","threaten","endanger"],"antonyms":["protect","defend","guard","shelter"]},{"word":"threaten","synonyms":["attack","harm","endanger"],"antonyms":["protect","defend","guard","shelter"]},{"word":"endanger","synonyms":["attack","harm","threaten"],"antonyms":["protect","defend","guard","shelter"]},{"word":"admire","synonyms":["praise","commend","applaud"],"antonyms":["criticise","blame","condemn","reproach"]},{"word":"commend","synonyms":["praise","admire","applaud"],"antonyms":["criticise","blame","condemn","reproach"]},{"word":"applaud","synonyms":["praise","admire","commend"],"antonyms":["criticise","blame","condemn","reproach"]},{"word":"criticise","synonyms":["blame","condemn","reproach"],"antonyms":["praise","admire","commend","applaud"]},{"word":"condemn","synonyms":["criticise","blame","reproach"],"antonyms":["praise","admire","commend","applaud"]},{"word":"reproach","synonyms":["criticise","blame","condemn"],"antonyms":["praise","admire","commend","applaud"]}],"hard":[{"word":"magnificent","synonyms":["splendid","superb","glorious"],"antonyms":["mediocre","inferior","poor","unimpressive"]},{"word":"splendid","synonyms":["magnificent","superb","glorious"],"antonyms":["mediocre","inferior","poor","unimpressive"]},{"word":"superb","synonyms":["magnificent","splendid","glorious"],"antonyms":["mediocre","inferior","poor","unimpressive"]},{"word":"glorious","synonyms":["magnificent","splendid","superb"],"antonyms":["mediocre","inferior","poor","unimpressive"]},{"word":"mediocre","synonyms":["inferior","poor","unimpressive"],"antonyms":["magnificent","splendid","superb","glorious"]},{"word":"inferior","synonyms":["mediocre","poor","unimpressive"],"antonyms":["magnificent","splendid","superb","glorious"]},{"word":"unimpressive","synonyms":["mediocre","inferior","poor"],"antonyms":["magnificent","splendid","superb","glorious"]},{"word":"vivid","synonyms":["striking","intense","brilliant"],"antonyms":["muted","faint","dull","subdued"]},{"word":"striking","synonyms":["vivid","intense","brilliant"],"antonyms":["muted","faint","dull","subdued"]},{"word":"intense","synonyms":["vivid","striking","brilliant"],"antonyms":["muted","faint","dull","subdued"]},{"word":"brilliant","synonyms":["vivid","striking","intense"],"antonyms":["muted","faint","dull","subdued"]},{"word":"muted","synonyms":["faint","dull","subdued"],"antonyms":["vivid","striking","intense","brilliant"]},{"word":"faint","synonyms":["muted","dull","subdued"],"antonyms":["vivid","striking","intense","brilliant"]},{"word":"subdued","synonyms":["muted","faint","dull"],"antonyms":["vivid","striking","intense","brilliant"]},{"word":"agitated","synonyms":["turbulent","chaotic","disturbed"],"antonyms":["tranquil","serene","placid","peaceful"]},{"word":"disturbed","synonyms":["turbulent","agitated","chaotic"],"antonyms":["tranquil","serene","placid","peaceful"]},{"word":"eccentric","synonyms":["peculiar","unusual","bizarre"],"antonyms":["conventional","ordinary","normal","typical"]},{"word":"bizarre","synonyms":["peculiar","unusual","eccentric"],"antonyms":["conventional","ordinary","normal","typical"]},{"word":"conventional","synonyms":["ordinary","normal","typical"],"antonyms":["peculiar","unusual","eccentric","bizarre"]},{"word":"diminish","synonyms":["lessen","reduce","abate"],"antonyms":["augment","increase","enlarge","intensify"]},{"word":"lessen","synonyms":["diminish","reduce","abate"],"antonyms":["augment","increase","enlarge","intensify"]},{"word":"abate","synonyms":["diminish","lessen","reduce"],"antonyms":["augment","increase","enlarge","intensify"]},{"word":"augment","synonyms":["increase","enlarge","intensify"],"antonyms":["diminish","lessen","reduce","abate"]},{"word":"intensify","synonyms":["augment","increase","enlarge"],"antonyms":["diminish","lessen","reduce","abate"]},{"word":"obscure","synonyms":["conceal","camouflage","disguise"],"antonyms":["reveal","expose","uncover","disclose"]},{"word":"camouflage","synonyms":["conceal","obscure","disguise"],"antonyms":["reveal","expose","uncover","disclose"]},{"word":"disclose","synonyms":["reveal","expose","uncover"],"antonyms":["conceal","obscure","camouflage","disguise"]},{"word":"sanguine","synonyms":["optimistic","hopeful","confident"],"antonyms":["pessimistic","cynical","hopeless","despondent"]},{"word":"pessimistic","synonyms":["cynical","hopeless","despondent"],"antonyms":["optimistic","hopeful","confident","sanguine"]},{"word":"cynical","synonyms":["pessimistic","hopeless","despondent"],"antonyms":["optimistic","hopeful","confident","sanguine"]},{"word":"despondent","synonyms":["pessimistic","cynical","hopeless"],"antonyms":["optimistic","hopeful","confident","sanguine"]},{"word":"tenacious","synonyms":["resilient","durable","robust"],"antonyms":["vulnerable","fragile","delicate","susceptible"]},{"word":"vulnerable","synonyms":["fragile","delicate","susceptible"],"antonyms":["resilient","durable","tenacious","robust"]},{"word":"susceptible","synonyms":["vulnerable","fragile","delicate"],"antonyms":["resilient","durable","tenacious","robust"]},{"word":"intricate","synonyms":["complex","elaborate","convoluted"],"antonyms":["simple","plain","straightforward","uncomplicated"]},{"word":"elaborate","synonyms":["intricate","complex","convoluted"],"antonyms":["simple","plain","straightforward","uncomplicated"]},{"word":"convoluted","synonyms":["intricate","complex","elaborate"],"antonyms":["simple","plain","straightforward","uncomplicated"]},{"word":"uncomplicated","synonyms":["simple","plain","straightforward"],"antonyms":["intricate","complex","elaborate","convoluted"]},{"word":"copious","synonyms":["abundant","plentiful","profuse"],"antonyms":["scarce","meagre","sparse","deficient"]},{"word":"profuse","synonyms":["abundant","plentiful","copious"],"antonyms":["scarce","meagre","sparse","deficient"]},{"word":"meagre","synonyms":["scarce","sparse","deficient"],"antonyms":["abundant","plentiful","copious","profuse"]},{"word":"sparse","synonyms":["scarce","meagre","deficient"],"antonyms":["abundant","plentiful","copious","profuse"]},{"word":"deficient","synonyms":["scarce","meagre","sparse"],"antonyms":["abundant","plentiful","copious","profuse"]},{"word":"arrogant","synonyms":["haughty","conceited","vain"],"antonyms":["humble","modest","unassuming","meek"]},{"word":"haughty","synonyms":["arrogant","conceited","vain"],"antonyms":["humble","modest","unassuming","meek"]},{"word":"conceited","synonyms":["arrogant","haughty","vain"],"antonyms":["humble","modest","unassuming","meek"]},{"word":"vain","synonyms":["arrogant","haughty","conceited"],"antonyms":["humble","modest","unassuming","meek"]},{"word":"humble","synonyms":["modest","unassuming","meek"],"antonyms":["arrogant","haughty","conceited","vain"]},{"word":"modest","synonyms":["humble","unassuming","meek"],"antonyms":["arrogant","haughty","conceited","vain"]},{"word":"unassuming","synonyms":["humble","modest","meek"],"antonyms":["arrogant","haughty","conceited","vain"]},{"word":"meek","synonyms":["humble","modest","unassuming"],"antonyms":["arrogant","haughty","conceited","vain"]},{"word":"inevitable","synonyms":["unavoidable","inescapable","certain"],"antonyms":["avoidable","uncertain","preventable","optional"]},{"word":"unavoidable","synonyms":["inevitable","inescapable","certain"],"antonyms":["avoidable","uncertain","preventable","optional"]},{"word":"inescapable","synonyms":["inevitable","unavoidable","certain"],"antonyms":["avoidable","uncertain","preventable","optional"]},{"word":"certain","synonyms":["inevitable","unavoidable","inescapable"],"antonyms":["avoidable","uncertain","preventable","optional"]},{"word":"avoidable","synonyms":["uncertain","preventable","optional"],"antonyms":["inevitable","unavoidable","inescapable","certain"]},{"word":"uncertain","synonyms":["avoidable","preventable","optional"],"antonyms":["inevitable","unavoidable","inescapable","certain"]},{"word":"preventable","synonyms":["avoidable","uncertain","optional"],"antonyms":["inevitable","unavoidable","inescapable","certain"]},{"word":"optional","synonyms":["avoidable","uncertain","preventable"],"antonyms":["inevitable","unavoidable","inescapable","certain"]},{"word":"initiate","synonyms":["commence","launch","inaugurate"],"antonyms":["terminate","conclude","cease","finalise"]},{"word":"inaugurate","synonyms":["commence","initiate","launch"],"antonyms":["terminate","conclude","cease","finalise"]},{"word":"terminate","synonyms":["conclude","cease","finalise"],"antonyms":["commence","initiate","launch","inaugurate"]},{"word":"cease","synonyms":["terminate","conclude","finalise"],"antonyms":["commence","initiate","launch","inaugurate"]},{"word":"finalise","synonyms":["terminate","conclude","cease"],"antonyms":["commence","initiate","launch","inaugurate"]},{"word":"thorough","synonyms":["meticulous","precise","painstaking"],"antonyms":["careless","sloppy","haphazard","negligent"]},{"word":"painstaking","synonyms":["meticulous","precise","thorough"],"antonyms":["careless","sloppy","haphazard","negligent"]},{"word":"haphazard","synonyms":["careless","sloppy","negligent"],"antonyms":["meticulous","precise","thorough","painstaking"]},{"word":"hostile","synonyms":["aggressive","antagonistic","belligerent"],"antonyms":["friendly","amicable","cordial","welcoming"]},{"word":"aggressive","synonyms":["hostile","antagonistic","belligerent"],"antonyms":["friendly","amicable","cordial","welcoming"]},{"word":"antagonistic","synonyms":["hostile","aggressive","belligerent"],"antonyms":["friendly","amicable","cordial","welcoming"]},{"word":"belligerent","synonyms":["hostile","aggressive","antagonistic"],"antonyms":["friendly","amicable","cordial","welcoming"]},{"word":"friendly","synonyms":["amicable","cordial","welcoming"],"antonyms":["hostile","aggressive","antagonistic","belligerent"]},{"word":"amicable","synonyms":["friendly","cordial","welcoming"],"antonyms":["hostile","aggressive","antagonistic","belligerent"]},{"word":"cordial","synonyms":["friendly","amicable","welcoming"],"antonyms":["hostile","aggressive","antagonistic","belligerent"]},{"word":"welcoming","synonyms":["friendly","amicable","cordial"],"antonyms":["hostile","aggressive","antagonistic","belligerent"]},{"word":"benevolent","synonyms":["charitable","altruistic","compassionate"],"antonyms":["malevolent","malicious","cruel","spiteful"]},{"word":"altruistic","synonyms":["benevolent","charitable","compassionate"],"antonyms":["malevolent","malicious","cruel","spiteful"]},{"word":"compassionate","synonyms":["benevolent","charitable","altruistic"],"antonyms":["malevolent","malicious","cruel","spiteful"]},{"word":"malevolent","synonyms":["malicious","cruel","spiteful"],"antonyms":["benevolent","charitable","altruistic","compassionate"]},{"word":"malicious","synonyms":["malevolent","cruel","spiteful"],"antonyms":["benevolent","charitable","altruistic","compassionate"]},{"word":"spiteful","synonyms":["malevolent","malicious","cruel"],"antonyms":["benevolent","charitable","altruistic","compassionate"]},{"word":"ambiguous","synonyms":["vague","unclear","equivocal"],"antonyms":["explicit","definite","unambiguous","clear"]},{"word":"vague","synonyms":["ambiguous","unclear","equivocal"],"antonyms":["explicit","definite","unambiguous","clear"]},{"word":"unclear","synonyms":["ambiguous","vague","equivocal"],"antonyms":["explicit","definite","unambiguous","clear"]},{"word":"equivocal","synonyms":["ambiguous","vague","unclear"],"antonyms":["explicit","definite","unambiguous","clear"]},{"word":"explicit","synonyms":["definite","unambiguous","clear"],"antonyms":["ambiguous","vague","unclear","equivocal"]},{"word":"definite","synonyms":["explicit","unambiguous","clear"],"antonyms":["ambiguous","vague","unclear","equivocal"]},{"word":"unambiguous","synonyms":["explicit","definite","clear"],"antonyms":["ambiguous","vague","unclear","equivocal"]},{"word":"frivolous","synonyms":["trivial","superficial","flippant"],"antonyms":["serious","substantial","meaningful","solemn"]},{"word":"superficial","synonyms":["frivolous","trivial","flippant"],"antonyms":["serious","substantial","meaningful","solemn"]},{"word":"flippant","synonyms":["frivolous","trivial","superficial"],"antonyms":["serious","substantial","meaningful","solemn"]},{"word":"substantial","synonyms":["serious","meaningful","solemn"],"antonyms":["frivolous","trivial","superficial","flippant"]},{"word":"meaningful","synonyms":["serious","substantial","solemn"],"antonyms":["frivolous","trivial","superficial","flippant"]},{"word":"coherent","synonyms":["logical","consistent","orderly"],"antonyms":["incoherent","illogical","disjointed","confusing"]},{"word":"consistent","synonyms":["coherent","logical","orderly"],"antonyms":["incoherent","illogical","disjointed","confusing"]},{"word":"incoherent","synonyms":["illogical","disjointed","confusing"],"antonyms":["coherent","logical","consistent","orderly"]},{"word":"illogical","synonyms":["incoherent","disjointed","confusing"],"antonyms":["coherent","logical","consistent","orderly"]},{"word":"disjointed","synonyms":["incoherent","illogical","confusing"],"antonyms":["coherent","logical","consistent","orderly"]},{"word":"assiduous","synonyms":["diligent","industrious","conscientious"],"antonyms":["lazy","idle","indolent","lethargic"]},{"word":"conscientious","synonyms":["diligent","industrious","assiduous"],"antonyms":["lazy","idle","indolent","lethargic"]},{"word":"indolent","synonyms":["lazy","idle","lethargic"],"antonyms":["diligent","industrious","assiduous","conscientious"]},{"word":"lethargic","synonyms":["lazy","idle","indolent"],"antonyms":["diligent","industrious","assiduous","conscientious"]},{"word":"elated","synonyms":["ecstatic","jubilant","exuberant"],"antonyms":["dejected","miserable","crestfallen","disheartened"]},{"word":"ecstatic","synonyms":["elated","jubilant","exuberant"],"antonyms":["dejected","miserable","crestfallen","disheartened"]},{"word":"jubilant","synonyms":["elated","ecstatic","exuberant"],"antonyms":["dejected","miserable","crestfallen","disheartened"]},{"word":"exuberant","synonyms":["elated","ecstatic","jubilant"],"antonyms":["dejected","miserable","crestfallen","disheartened"]},{"word":"crestfallen","synonyms":["dejected","miserable","disheartened"],"antonyms":["elated","ecstatic","jubilant","exuberant"]},{"word":"disheartened","synonyms":["dejected","miserable","crestfallen"],"antonyms":["elated","ecstatic","jubilant","exuberant"]},{"word":"formidable","synonyms":["daunting","intimidating","imposing"],"antonyms":["feeble","harmless","manageable","unthreatening"]},{"word":"daunting","synonyms":["formidable","intimidating","imposing"],"antonyms":["feeble","harmless","manageable","unthreatening"]},{"word":"intimidating","synonyms":["formidable","daunting","imposing"],"antonyms":["feeble","harmless","manageable","unthreatening"]},{"word":"imposing","synonyms":["formidable","daunting","intimidating"],"antonyms":["feeble","harmless","manageable","unthreatening"]},{"word":"feeble","synonyms":["harmless","manageable","unthreatening"],"antonyms":["formidable","daunting","intimidating","imposing"]},{"word":"unthreatening","synonyms":["feeble","harmless","manageable"],"antonyms":["formidable","daunting","intimidating","imposing"]},{"word":"gregarious","synonyms":["sociable","outgoing","companionable"],"antonyms":["reserved","introverted","withdrawn","unsociable"]},{"word":"sociable","synonyms":["gregarious","outgoing","companionable"],"antonyms":["reserved","introverted","withdrawn","unsociable"]},{"word":"companionable","synonyms":["gregarious","sociable","outgoing"],"antonyms":["reserved","introverted","withdrawn","unsociable"]},{"word":"reserved","synonyms":["introverted","withdrawn","unsociable"],"antonyms":["gregarious","sociable","outgoing","companionable"]},{"word":"introverted","synonyms":["reserved","withdrawn","unsociable"],"antonyms":["gregarious","sociable","outgoing","companionable"]},{"word":"withdrawn","synonyms":["reserved","introverted","unsociable"],"antonyms":["gregarious","sociable","outgoing","companionable"]},{"word":"unsociable","synonyms":["reserved","introverted","withdrawn"],"antonyms":["gregarious","sociable","outgoing","companionable"]},{"word":"impartial","synonyms":["unbiased","neutral","objective"],"antonyms":["biased","partial","prejudiced","subjective"]},{"word":"unbiased","synonyms":["impartial","neutral","objective"],"antonyms":["biased","partial","prejudiced","subjective"]},{"word":"objective","synonyms":["impartial","unbiased","neutral"],"antonyms":["biased","partial","prejudiced","subjective"]},{"word":"biased","synonyms":["partial","prejudiced","subjective"],"antonyms":["impartial","unbiased","neutral","objective"]},{"word":"partial","synonyms":["biased","prejudiced","subjective"],"antonyms":["impartial","unbiased","neutral","objective"]},{"word":"prejudiced","synonyms":["biased","partial","subjective"],"antonyms":["impartial","unbiased","neutral","objective"]},{"word":"subjective","synonyms":["biased","partial","prejudiced"],"antonyms":["impartial","unbiased","neutral","objective"]},{"word":"lucid","synonyms":["perspicuous","transparent","intelligible"],"antonyms":["obscure","cryptic","muddled","incomprehensible"]},{"word":"perspicuous","synonyms":["lucid","transparent","intelligible"],"antonyms":["obscure","cryptic","muddled","incomprehensible"]},{"word":"transparent","synonyms":["lucid","perspicuous","intelligible"],"antonyms":["obscure","cryptic","muddled","incomprehensible"]},{"word":"intelligible","synonyms":["lucid","perspicuous","transparent"],"antonyms":["obscure","cryptic","muddled","incomprehensible"]},{"word":"cryptic","synonyms":["obscure","muddled","incomprehensible"],"antonyms":["lucid","perspicuous","transparent","intelligible"]},{"word":"muddled","synonyms":["obscure","cryptic","incomprehensible"],"antonyms":["lucid","perspicuous","transparent","intelligible"]},{"word":"incomprehensible","synonyms":["obscure","cryptic","muddled"],"antonyms":["lucid","perspicuous","transparent","intelligible"]},{"word":"mundane","synonyms":["monotonous","routine","unremarkable"],"antonyms":["extraordinary","exceptional","remarkable","fascinating"]},{"word":"monotonous","synonyms":["mundane","routine","unremarkable"],"antonyms":["extraordinary","exceptional","remarkable","fascinating"]},{"word":"unremarkable","synonyms":["mundane","monotonous","routine"],"antonyms":["extraordinary","exceptional","remarkable","fascinating"]},{"word":"remarkable","synonyms":["extraordinary","exceptional","fascinating"],"antonyms":["mundane","monotonous","routine","unremarkable"]},{"word":"fascinating","synonyms":["extraordinary","exceptional","remarkable"],"antonyms":["mundane","monotonous","routine","unremarkable"]},{"word":"obsolete","synonyms":["outdated","antiquated","archaic"],"antonyms":["modern","current","contemporary","up-to-date"]},{"word":"outdated","synonyms":["obsolete","antiquated","archaic"],"antonyms":["modern","current","contemporary","up-to-date"]},{"word":"antiquated","synonyms":["obsolete","outdated","archaic"],"antonyms":["modern","current","contemporary","up-to-date"]},{"word":"up-to-date","synonyms":["modern","current","contemporary"],"antonyms":["obsolete","outdated","antiquated","archaic"]},{"word":"prudent","synonyms":["wise","sensible","judicious"],"antonyms":["reckless","foolish","imprudent","unwise"]},{"word":"sensible","synonyms":["prudent","wise","judicious"],"antonyms":["reckless","foolish","imprudent","unwise"]},{"word":"judicious","synonyms":["prudent","wise","sensible"],"antonyms":["reckless","foolish","imprudent","unwise"]},{"word":"imprudent","synonyms":["reckless","foolish","unwise"],"antonyms":["prudent","wise","sensible","judicious"]},{"word":"rigorous","synonyms":["strict","exacting","demanding"],"antonyms":["lenient","relaxed","permissive","easygoing"]},{"word":"exacting","synonyms":["rigorous","strict","demanding"],"antonyms":["lenient","relaxed","permissive","easygoing"]},{"word":"lenient","synonyms":["relaxed","permissive","easygoing"],"antonyms":["rigorous","strict","exacting","demanding"]},{"word":"permissive","synonyms":["lenient","relaxed","easygoing"],"antonyms":["rigorous","strict","exacting","demanding"]},{"word":"easygoing","synonyms":["lenient","relaxed","permissive"],"antonyms":["rigorous","strict","exacting","demanding"]},{"word":"subtle","synonyms":["slight","understated","nuanced"],"antonyms":["obvious","blatant","conspicuous","pronounced"]},{"word":"slight","synonyms":["subtle","understated","nuanced"],"antonyms":["obvious","blatant","conspicuous","pronounced"]},{"word":"understated","synonyms":["subtle","slight","nuanced"],"antonyms":["obvious","blatant","conspicuous","pronounced"]},{"word":"nuanced","synonyms":["subtle","slight","understated"],"antonyms":["obvious","blatant","conspicuous","pronounced"]},{"word":"blatant","synonyms":["obvious","conspicuous","pronounced"],"antonyms":["subtle","slight","understated","nuanced"]},{"word":"conspicuous","synonyms":["obvious","blatant","pronounced"],"antonyms":["subtle","slight","understated","nuanced"]},{"word":"pronounced","synonyms":["obvious","blatant","conspicuous"],"antonyms":["subtle","slight","understated","nuanced"]},{"word":"multifaceted","synonyms":["versatile","adaptable","flexible"],"antonyms":["inflexible","limited","rigid","restricted"]},{"word":"wary","synonyms":["cautious","vigilant","guarded"],"antonyms":["trusting","carefree","unconcerned","naive"]},{"word":"vigilant","synonyms":["wary","cautious","guarded"],"antonyms":["trusting","carefree","unconcerned","naive"]},{"word":"guarded","synonyms":["wary","cautious","vigilant"],"antonyms":["trusting","carefree","unconcerned","naive"]},{"word":"carefree","synonyms":["trusting","unconcerned","naive"],"antonyms":["wary","cautious","vigilant","guarded"]},{"word":"unconcerned","synonyms":["trusting","carefree","naive"],"antonyms":["wary","cautious","vigilant","guarded"]},{"word":"naive","synonyms":["trusting","carefree","unconcerned"],"antonyms":["wary","cautious","vigilant","guarded"]},{"word":"zealous","synonyms":["passionate","fervent","ardent"],"antonyms":["apathetic","indifferent","unenthusiastic","detached"]},{"word":"passionate","synonyms":["zealous","fervent","ardent"],"antonyms":["apathetic","indifferent","unenthusiastic","detached"]},{"word":"fervent","synonyms":["zealous","passionate","ardent"],"antonyms":["apathetic","indifferent","unenthusiastic","detached"]},{"word":"ardent","synonyms":["zealous","passionate","fervent"],"antonyms":["apathetic","indifferent","unenthusiastic","detached"]},{"word":"unenthusiastic","synonyms":["apathetic","indifferent","detached"],"antonyms":["zealous","passionate","fervent","ardent"]},{"word":"detached","synonyms":["apathetic","indifferent","unenthusiastic"],"antonyms":["zealous","passionate","fervent","ardent"]},{"word":"terse","synonyms":["concise","succinct","compact"],"antonyms":["verbose","wordy","rambling","lengthy"]},{"word":"verbose","synonyms":["wordy","rambling","lengthy"],"antonyms":["concise","succinct","terse","compact"]},{"word":"rambling","synonyms":["verbose","wordy","lengthy"],"antonyms":["concise","succinct","terse","compact"]},{"word":"credible","synonyms":["believable","plausible","convincing"],"antonyms":["implausible","doubtful","unbelievable","questionable"]},{"word":"believable","synonyms":["credible","plausible","convincing"],"antonyms":["implausible","doubtful","unbelievable","questionable"]},{"word":"plausible","synonyms":["credible","believable","convincing"],"antonyms":["implausible","doubtful","unbelievable","questionable"]},{"word":"convincing","synonyms":["credible","believable","plausible"],"antonyms":["implausible","doubtful","unbelievable","questionable"]},{"word":"implausible","synonyms":["doubtful","unbelievable","questionable"],"antonyms":["credible","believable","plausible","convincing"]},{"word":"doubtful","synonyms":["implausible","unbelievable","questionable"],"antonyms":["credible","believable","plausible","convincing"]},{"word":"unbelievable","synonyms":["implausible","doubtful","questionable"],"antonyms":["credible","believable","plausible","convincing"]},{"word":"questionable","synonyms":["implausible","doubtful","unbelievable"],"antonyms":["credible","believable","plausible","convincing"]},{"word":"autonomous","synonyms":["independent","self-governing","self-reliant"],"antonyms":["dependent","subordinate","reliant","controlled"]},{"word":"independent","synonyms":["autonomous","self-governing","self-reliant"],"antonyms":["dependent","subordinate","reliant","controlled"]},{"word":"self-governing","synonyms":["autonomous","independent","self-reliant"],"antonyms":["dependent","subordinate","reliant","controlled"]},{"word":"self-reliant","synonyms":["autonomous","independent","self-governing"],"antonyms":["dependent","subordinate","reliant","controlled"]},{"word":"subordinate","synonyms":["dependent","reliant","controlled"],"antonyms":["autonomous","independent","self-governing","self-reliant"]},{"word":"reliant","synonyms":["dependent","subordinate","controlled"],"antonyms":["autonomous","independent","self-governing","self-reliant"]},{"word":"disorganised","synonyms":["anarchic","lawless","unruly"],"antonyms":["organised","methodical","disciplined","regulated"]},{"word":"anarchic","synonyms":["disorganised","lawless","unruly"],"antonyms":["organised","methodical","disciplined","regulated"]},{"word":"lawless","synonyms":["disorganised","anarchic","unruly"],"antonyms":["organised","methodical","disciplined","regulated"]},{"word":"unruly","synonyms":["disorganised","anarchic","lawless"],"antonyms":["organised","methodical","disciplined","regulated"]},{"word":"methodical","synonyms":["organised","disciplined","regulated"],"antonyms":["disorganised","anarchic","lawless","unruly"]},{"word":"disciplined","synonyms":["organised","methodical","regulated"],"antonyms":["disorganised","anarchic","lawless","unruly"]},{"word":"regulated","synonyms":["organised","methodical","disciplined"],"antonyms":["disorganised","anarchic","lawless","unruly"]},{"word":"humane","synonyms":["empathetic","merciful","sympathetic"],"antonyms":["callous","merciless","insensitive","unsympathetic"]},{"word":"empathetic","synonyms":["humane","merciful","sympathetic"],"antonyms":["callous","merciless","insensitive","unsympathetic"]},{"word":"merciful","synonyms":["humane","empathetic","sympathetic"],"antonyms":["callous","merciless","insensitive","unsympathetic"]},{"word":"sympathetic","synonyms":["humane","empathetic","merciful"],"antonyms":["callous","merciless","insensitive","unsympathetic"]},{"word":"callous","synonyms":["merciless","insensitive","unsympathetic"],"antonyms":["humane","empathetic","merciful","sympathetic"]},{"word":"merciless","synonyms":["callous","insensitive","unsympathetic"],"antonyms":["humane","empathetic","merciful","sympathetic"]},{"word":"insensitive","synonyms":["callous","merciless","unsympathetic"],"antonyms":["humane","empathetic","merciful","sympathetic"]},{"word":"unsympathetic","synonyms":["callous","merciless","insensitive"],"antonyms":["humane","empathetic","merciful","sympathetic"]},{"word":"legitimate","synonyms":["authentic","genuine","veritable"],"antonyms":["counterfeit","fake","fraudulent","spurious"]},{"word":"veritable","synonyms":["authentic","genuine","legitimate"],"antonyms":["counterfeit","fake","fraudulent","spurious"]},{"word":"counterfeit","synonyms":["fake","fraudulent","spurious"],"antonyms":["authentic","genuine","legitimate","veritable"]},{"word":"spurious","synonyms":["counterfeit","fake","fraudulent"],"antonyms":["authentic","genuine","legitimate","veritable"]},{"word":"deliberate","synonyms":["intentional","purposeful","calculated"],"antonyms":["accidental","unintentional","random","inadvertent"]},{"word":"intentional","synonyms":["deliberate","purposeful","calculated"],"antonyms":["accidental","unintentional","random","inadvertent"]},{"word":"purposeful","synonyms":["deliberate","intentional","calculated"],"antonyms":["accidental","unintentional","random","inadvertent"]},{"word":"calculated","synonyms":["deliberate","intentional","purposeful"],"antonyms":["accidental","unintentional","random","inadvertent"]},{"word":"accidental","synonyms":["unintentional","random","inadvertent"],"antonyms":["deliberate","intentional","purposeful","calculated"]},{"word":"unintentional","synonyms":["accidental","random","inadvertent"],"antonyms":["deliberate","intentional","purposeful","calculated"]},{"word":"inadvertent","synonyms":["accidental","unintentional","random"],"antonyms":["deliberate","intentional","purposeful","calculated"]},{"word":"amplify","synonyms":["expand","broaden","extend"],"antonyms":["contract","compress","restrict","narrow"]},{"word":"broaden","synonyms":["expand","amplify","extend"],"antonyms":["contract","compress","restrict","narrow"]},{"word":"compress","synonyms":["contract","restrict","narrow"],"antonyms":["expand","amplify","broaden","extend"]},{"word":"restrict","synonyms":["contract","compress","narrow"],"antonyms":["expand","amplify","broaden","extend"]},{"word":"forthright","synonyms":["candid","open","frank"],"antonyms":["secretive","evasive","deceptive","reticent"]},{"word":"secretive","synonyms":["evasive","deceptive","reticent"],"antonyms":["candid","forthright","open","frank"]},{"word":"evasive","synonyms":["secretive","deceptive","reticent"],"antonyms":["candid","forthright","open","frank"]},{"word":"deceptive","synonyms":["secretive","evasive","reticent"],"antonyms":["candid","forthright","open","frank"]},{"word":"reticent","synonyms":["secretive","evasive","deceptive"],"antonyms":["candid","forthright","open","frank"]},{"word":"persistent","synonyms":["persevering","determined","resolute"],"antonyms":["irresolute","hesitant","faltering","weak-willed"]},{"word":"persevering","synonyms":["persistent","determined","resolute"],"antonyms":["irresolute","hesitant","faltering","weak-willed"]},{"word":"determined","synonyms":["persistent","persevering","resolute"],"antonyms":["irresolute","hesitant","faltering","weak-willed"]},{"word":"resolute","synonyms":["persistent","persevering","determined"],"antonyms":["irresolute","hesitant","faltering","weak-willed"]},{"word":"irresolute","synonyms":["hesitant","faltering","weak-willed"],"antonyms":["persistent","persevering","determined","resolute"]},{"word":"faltering","synonyms":["irresolute","hesitant","weak-willed"],"antonyms":["persistent","persevering","determined","resolute"]},{"word":"weak-willed","synonyms":["irresolute","hesitant","faltering"],"antonyms":["persistent","persevering","determined","resolute"]},{"word":"compatible","synonyms":["harmonious","congruent","accordant"],"antonyms":["conflicting","incompatible","discordant","incongruent"]},{"word":"congruent","synonyms":["harmonious","compatible","accordant"],"antonyms":["conflicting","incompatible","discordant","incongruent"]},{"word":"accordant","synonyms":["harmonious","compatible","congruent"],"antonyms":["conflicting","incompatible","discordant","incongruent"]},{"word":"conflicting","synonyms":["incompatible","discordant","incongruent"],"antonyms":["harmonious","compatible","congruent","accordant"]},{"word":"incompatible","synonyms":["conflicting","discordant","incongruent"],"antonyms":["harmonious","compatible","congruent","accordant"]},{"word":"discordant","synonyms":["conflicting","incompatible","incongruent"],"antonyms":["harmonious","compatible","congruent","accordant"]},{"word":"incongruent","synonyms":["conflicting","incompatible","discordant"],"antonyms":["harmonious","compatible","congruent","accordant"]},{"word":"innovative","synonyms":["inventive","original","pioneering"],"antonyms":["traditional","imitative","derivative","unoriginal"]},{"word":"inventive","synonyms":["innovative","original","pioneering"],"antonyms":["traditional","imitative","derivative","unoriginal"]},{"word":"pioneering","synonyms":["innovative","inventive","original"],"antonyms":["traditional","imitative","derivative","unoriginal"]},{"word":"imitative","synonyms":["traditional","derivative","unoriginal"],"antonyms":["innovative","inventive","original","pioneering"]},{"word":"derivative","synonyms":["traditional","imitative","unoriginal"],"antonyms":["innovative","inventive","original","pioneering"]},{"word":"unoriginal","synonyms":["traditional","imitative","derivative"],"antonyms":["innovative","inventive","original","pioneering"]},{"word":"austere","synonyms":["spartan","ascetic","unadorned"],"antonyms":["lavish","opulent","sumptuous","ornate"]},{"word":"spartan","synonyms":["austere","ascetic","unadorned"],"antonyms":["lavish","opulent","sumptuous","ornate"]},{"word":"ascetic","synonyms":["austere","spartan","unadorned"],"antonyms":["lavish","opulent","sumptuous","ornate"]},{"word":"unadorned","synonyms":["austere","spartan","ascetic"],"antonyms":["lavish","opulent","sumptuous","ornate"]},{"word":"lavish","synonyms":["opulent","sumptuous","ornate"],"antonyms":["austere","spartan","ascetic","unadorned"]},{"word":"opulent","synonyms":["lavish","sumptuous","ornate"],"antonyms":["austere","spartan","ascetic","unadorned"]},{"word":"sumptuous","synonyms":["lavish","opulent","ornate"],"antonyms":["austere","spartan","ascetic","unadorned"]},{"word":"ornate","synonyms":["lavish","opulent","sumptuous"],"antonyms":["austere","spartan","ascetic","unadorned"]},{"word":"eloquent","synonyms":["articulate","expressive","oratorical"],"antonyms":["inarticulate","taciturn","tongue-tied","halting"]},{"word":"articulate","synonyms":["eloquent","expressive","oratorical"],"antonyms":["inarticulate","taciturn","tongue-tied","halting"]},{"word":"expressive","synonyms":["eloquent","articulate","oratorical"],"antonyms":["inarticulate","taciturn","tongue-tied","halting"]},{"word":"oratorical","synonyms":["eloquent","articulate","expressive"],"antonyms":["inarticulate","taciturn","tongue-tied","halting"]},{"word":"inarticulate","synonyms":["taciturn","tongue-tied","halting"],"antonyms":["eloquent","articulate","expressive","oratorical"]},{"word":"taciturn","synonyms":["inarticulate","tongue-tied","halting"],"antonyms":["eloquent","articulate","expressive","oratorical"]},{"word":"tongue-tied","synonyms":["inarticulate","taciturn","halting"],"antonyms":["eloquent","articulate","expressive","oratorical"]},{"word":"halting","synonyms":["inarticulate","taciturn","tongue-tied"],"antonyms":["eloquent","articulate","expressive","oratorical"]},{"word":"erudite","synonyms":["scholarly","learned","knowledgeable"],"antonyms":["benighted","unlettered","unschooled","ill-informed"]},{"word":"scholarly","synonyms":["erudite","learned","knowledgeable"],"antonyms":["benighted","unlettered","unschooled","ill-informed"]},{"word":"learned","synonyms":["erudite","scholarly","knowledgeable"],"antonyms":["benighted","unlettered","unschooled","ill-informed"]},{"word":"knowledgeable","synonyms":["erudite","scholarly","learned"],"antonyms":["benighted","unlettered","unschooled","ill-informed"]},{"word":"benighted","synonyms":["unlettered","unschooled","ill-informed"],"antonyms":["erudite","scholarly","learned","knowledgeable"]},{"word":"unlettered","synonyms":["benighted","unschooled","ill-informed"],"antonyms":["erudite","scholarly","learned","knowledgeable"]},{"word":"unschooled","synonyms":["benighted","unlettered","ill-informed"],"antonyms":["erudite","scholarly","learned","knowledgeable"]},{"word":"ill-informed","synonyms":["benighted","unlettered","unschooled"],"antonyms":["erudite","scholarly","learned","knowledgeable"]},{"word":"ephemeral","synonyms":["transitory","evanescent","fleeting"],"antonyms":["perennial","perpetual","eternal","imperishable"]},{"word":"transitory","synonyms":["ephemeral","evanescent","fleeting"],"antonyms":["perennial","perpetual","eternal","imperishable"]},{"word":"evanescent","synonyms":["ephemeral","transitory","fleeting"],"antonyms":["perennial","perpetual","eternal","imperishable"]},{"word":"fleeting","synonyms":["ephemeral","transitory","evanescent"],"antonyms":["perennial","perpetual","eternal","imperishable"]},{"word":"perennial","synonyms":["perpetual","eternal","imperishable"],"antonyms":["ephemeral","transitory","evanescent","fleeting"]},{"word":"perpetual","synonyms":["perennial","eternal","imperishable"],"antonyms":["ephemeral","transitory","evanescent","fleeting"]},{"word":"eternal","synonyms":["perennial","perpetual","imperishable"],"antonyms":["ephemeral","transitory","evanescent","fleeting"]},{"word":"imperishable","synonyms":["perennial","perpetual","eternal"],"antonyms":["ephemeral","transitory","evanescent","fleeting"]},{"word":"magnanimous","synonyms":["forgiving","gracious","large-hearted"],"antonyms":["vindictive","vengeful","rancorous","unforgiving"]},{"word":"forgiving","synonyms":["magnanimous","gracious","large-hearted"],"antonyms":["vindictive","vengeful","rancorous","unforgiving"]},{"word":"gracious","synonyms":["magnanimous","forgiving","large-hearted"],"antonyms":["vindictive","vengeful","rancorous","unforgiving"]},{"word":"large-hearted","synonyms":["magnanimous","forgiving","gracious"],"antonyms":["vindictive","vengeful","rancorous","unforgiving"]},{"word":"vindictive","synonyms":["vengeful","rancorous","unforgiving"],"antonyms":["magnanimous","forgiving","gracious","large-hearted"]},{"word":"vengeful","synonyms":["vindictive","rancorous","unforgiving"],"antonyms":["magnanimous","forgiving","gracious","large-hearted"]},{"word":"rancorous","synonyms":["vindictive","vengeful","unforgiving"],"antonyms":["magnanimous","forgiving","gracious","large-hearted"]},{"word":"unforgiving","synonyms":["vindictive","vengeful","rancorous"],"antonyms":["magnanimous","forgiving","gracious","large-hearted"]},{"word":"discerning","synonyms":["perceptive","insightful","astute"],"antonyms":["obtuse","undiscerning","imperceptive","myopic"]},{"word":"perceptive","synonyms":["discerning","insightful","astute"],"antonyms":["obtuse","undiscerning","imperceptive","myopic"]},{"word":"insightful","synonyms":["discerning","perceptive","astute"],"antonyms":["obtuse","undiscerning","imperceptive","myopic"]},{"word":"astute","synonyms":["discerning","perceptive","insightful"],"antonyms":["obtuse","undiscerning","imperceptive","myopic"]},{"word":"obtuse","synonyms":["undiscerning","imperceptive","myopic"],"antonyms":["discerning","perceptive","insightful","astute"]},{"word":"undiscerning","synonyms":["obtuse","imperceptive","myopic"],"antonyms":["discerning","perceptive","insightful","astute"]},{"word":"imperceptive","synonyms":["obtuse","undiscerning","myopic"],"antonyms":["discerning","perceptive","insightful","astute"]},{"word":"myopic","synonyms":["obtuse","undiscerning","imperceptive"],"antonyms":["discerning","perceptive","insightful","astute"]},{"word":"docile","synonyms":["compliant","submissive","tractable"],"antonyms":["defiant","rebellious","insubordinate","obstinate"]},{"word":"compliant","synonyms":["docile","submissive","tractable"],"antonyms":["defiant","rebellious","insubordinate","obstinate"]},{"word":"submissive","synonyms":["docile","compliant","tractable"],"antonyms":["defiant","rebellious","insubordinate","obstinate"]},{"word":"tractable","synonyms":["docile","compliant","submissive"],"antonyms":["defiant","rebellious","insubordinate","obstinate"]},{"word":"defiant","synonyms":["rebellious","insubordinate","obstinate"],"antonyms":["docile","compliant","submissive","tractable"]},{"word":"rebellious","synonyms":["defiant","insubordinate","obstinate"],"antonyms":["docile","compliant","submissive","tractable"]},{"word":"insubordinate","synonyms":["defiant","rebellious","obstinate"],"antonyms":["docile","compliant","submissive","tractable"]},{"word":"obstinate","synonyms":["defiant","rebellious","insubordinate"],"antonyms":["docile","compliant","submissive","tractable"]},{"word":"sporadic","synonyms":["intermittent","occasional","irregular"],"antonyms":["continuous","uninterrupted","incessant","constant"]},{"word":"intermittent","synonyms":["sporadic","occasional","irregular"],"antonyms":["continuous","uninterrupted","incessant","constant"]},{"word":"occasional","synonyms":["sporadic","intermittent","irregular"],"antonyms":["continuous","uninterrupted","incessant","constant"]},{"word":"irregular","synonyms":["sporadic","intermittent","occasional"],"antonyms":["continuous","uninterrupted","incessant","constant"]},{"word":"continuous","synonyms":["uninterrupted","incessant","constant"],"antonyms":["sporadic","intermittent","occasional","irregular"]},{"word":"uninterrupted","synonyms":["continuous","incessant","constant"],"antonyms":["sporadic","intermittent","occasional","irregular"]},{"word":"incessant","synonyms":["continuous","uninterrupted","constant"],"antonyms":["sporadic","intermittent","occasional","irregular"]},{"word":"constant","synonyms":["continuous","uninterrupted","incessant"],"antonyms":["sporadic","intermittent","occasional","irregular"]}]};
+// Prompt words: Easy 300, Medium 312, Hard 309.
+
+const settings = {
+  relationship:"synonym",
+  difficulty:"easy",
+  answerType:"multiple",
+  questionCount:"5"
+};
+
+let questions = [];
+let currentIndex = 0;
+let correctCount = 0;
+let questionsPlayed = 0;
+let currentQuestion = null;
+let answered = false;
+
+const menuScreen = document.getElementById("menuScreen");
+const answerModeScreen = document.getElementById("answerModeScreen");
+const gameScreen = document.getElementById("gameScreen");
+const resultScreen = document.getElementById("resultScreen");
+const questionText = document.getElementById("questionText");
+const scoreText = document.getElementById("scoreText");
+const relationshipText = document.getElementById("relationshipText");
+const promptText = document.getElementById("promptText");
+const targetWord = document.getElementById("targetWord");
+const answerGrid = document.getElementById("answerGrid");
+const multipleArea = document.getElementById("multipleArea");
+const typeArea = document.getElementById("typeArea");
+const typedAnswer = document.getElementById("typedAnswer");
+const message = document.getElementById("message");
+const nextBtn = document.getElementById("nextBtn");
+const progressText = document.getElementById("progressText");
+const resultDetails = document.getElementById("resultDetails");
+
+function showScreen(screen){
+  [menuScreen,answerModeScreen,gameScreen,resultScreen].forEach(s=>s.classList.remove("active"));
+  screen.classList.add("active");
+}
+
+function shuffle(arr){
+  const copy = arr.slice();
+  for(let i=copy.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [copy[i],copy[j]]=[copy[j],copy[i]];
+  }
+  return copy;
+}
+
+function normalise(text){
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[.,!?;:'"]/g,"")
+    .replace(/\s+/g," ");
+}
+
+function levenshtein(a,b){
+  a=normalise(a); b=normalise(b);
+  const matrix=Array.from({length:b.length+1},()=>Array(a.length+1).fill(0));
+  for(let i=0;i<=b.length;i++) matrix[i][0]=i;
+  for(let j=0;j<=a.length;j++) matrix[0][j]=j;
+  for(let i=1;i<=b.length;i++){
+    for(let j=1;j<=a.length;j++){
+      matrix[i][j]=b[i-1]===a[j-1]
+        ? matrix[i-1][j-1]
+        : Math.min(matrix[i-1][j-1]+1,matrix[i][j-1]+1,matrix[i-1][j]+1);
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+function isAcceptedTypedAnswer(input, accepted){
+  const value=normalise(input);
+  if(!value) return false;
+  return accepted.some(answer=>{
+    const target=normalise(answer);
+    if(value===target) return true;
+    if(value.length>=5 && levenshtein(value,target)<=1) return true;
+    if(value.length>=8 && levenshtein(value,target)<=2) return true;
+    return false;
+  });
+}
+
+function buildQuestions(){
+  const source=shuffle(wordBank[settings.difficulty]);
+  const total=settings.questionCount==="unlimited"
+    ? source.length
+    : Number(settings.questionCount);
+
+  questions=source.slice(0,total).map(item=>({
+    item,
+    relationship:settings.relationship
+  }));
+}
+
+function startGame(){
+  buildQuestions();
+  currentIndex=0;
+  correctCount=0;
+  questionsPlayed=0;
+  resetPainting();
+  showScreen(gameScreen);
+  loadQuestion();
+}
+
+function loadQuestion(){
+  answered=false;
+  nextBtn.style.display="none";
+  message.textContent=settings.answerType==="multiple" ? "Choose an answer." : "Type a related answer.";
+  typedAnswer.value="";
+  typedAnswer.disabled=false;
+  currentQuestion=questions[currentIndex];
+  const relation=currentQuestion.relationship;
+  const total=settings.questionCount==="unlimited" ? "Unlimited" : settings.questionCount;
+  questionText.textContent=settings.questionCount==="unlimited"
+    ? (questionsPlayed+1)+" / Unlimited"
+    : (currentIndex+1)+" / "+total;
+  scoreText.textContent=correctCount;
+  relationshipText.textContent=relation==="synonym" ? "Synonym" : "Antonym";
+  document.getElementById("easelWord").textContent = relation==="synonym" ? "Synonym" : "Antonym";
+  promptText.textContent=relation==="synonym" ? "Find a synonym for:" : "Find an antonym for:";
+  targetWord.textContent=currentQuestion.item.word;
+
+  if(settings.answerType==="multiple"){
+    multipleArea.style.display="block";
+    typeArea.style.display="none";
+    renderChoices();
+  }else{
+    multipleArea.style.display="none";
+    typeArea.style.display="block";
+    setTimeout(()=>typedAnswer.focus(),50);
+  }
+}
+
+function renderChoices(){
+  answerGrid.innerHTML="";
+  const relation=currentQuestion.relationship;
+  const correctPool=currentQuestion.item[relation==="synonym" ? "synonyms" : "antonyms"];
+  const correct=correctPool[Math.floor(Math.random()*correctPool.length)];
+  const distractors=[];
+
+  Object.values(wordBank).flat().forEach(item=>{
+    ["synonyms","antonyms"].forEach(group=>{
+      item[group].forEach(word=>{
+        if(
+          normalise(word)!==normalise(correct) &&
+          !correctPool.some(a=>normalise(a)===normalise(word)) &&
+          normalise(word)!==normalise(currentQuestion.item.word)
+        ) distractors.push(word);
+      });
+    });
+  });
+
+  const choices=shuffle([correct,...shuffle([...new Set(distractors)]).slice(0,5)]);
+  choices.forEach(word=>{
+    const btn=document.createElement("button");
+    btn.className="answer-btn";
+    btn.textContent=word;
+    btn.addEventListener("click",()=>checkMultiple(btn,word,correctPool));
+    answerGrid.appendChild(btn);
+  });
+}
+
+function checkMultiple(btn,word,accepted){
+  if(answered) return;
+  answered=true;
+  document.querySelectorAll(".answer-btn").forEach(b=>b.disabled=true);
+  if(accepted.some(a=>normalise(a)===normalise(word))){
+    btn.classList.add("correct");
+    correctResponse(word);
+  }else{
+    btn.classList.add("wrong");
+    const correctButton=[...document.querySelectorAll(".answer-btn")]
+      .find(b=>accepted.some(a=>normalise(a)===normalise(b.textContent)));
+    if(correctButton) correctButton.classList.add("correct");
+    incorrectResponse(accepted[0]);
+  }
+}
+
+function checkTyped(){
+  if(answered) return;
+  const accepted=currentQuestion.item[currentQuestion.relationship==="synonym" ? "synonyms" : "antonyms"];
+  if(isAcceptedTypedAnswer(typedAnswer.value,accepted)){
+    answered=true;
+    typedAnswer.disabled=true;
+    correctResponse(typedAnswer.value.trim());
+  }else{
+    message.textContent="That answer is not in this word group. Try another related word.";
+    typedAnswer.select();
+  }
+}
+
+function correctResponse(answer){
+  correctCount++;
+  scoreText.textContent=correctCount;
+  message.textContent="Correct. “"+answer+"” is a valid "+currentQuestion.relationship+".";
+  revealPainting();
+  nextBtn.style.display="inline-block";
+}
+
+function incorrectResponse(example){
+  message.textContent="Not quite. One possible answer is “"+example+"”.";
+  nextBtn.style.display="inline-block";
+}
+
+function nextQuestion(){
+  questionsPlayed++;
+  currentIndex++;
+
+  if(settings.questionCount!=="unlimited" && currentIndex>=questions.length){
+    finishGame();
+    return;
+  }
+
+  if(settings.questionCount==="unlimited" && currentIndex>=questions.length){
+    buildQuestions();
+    currentIndex=0;
+  }
+
+  loadQuestion();
+}
+
+function revealPainting(){
+  const pieces=[...document.querySelectorAll(".paint-piece")];
+  const total=settings.questionCount==="unlimited" ? 20 : Number(settings.questionCount);
+  const target=Math.min(20,Math.ceil((correctCount/total)*20));
+  pieces.forEach((piece,index)=>piece.classList.toggle("revealed",index<target));
+  progressText.textContent=Math.round((target/20)*100)+"% complete";
+}
+
+function resetPainting(){
+  document.querySelectorAll(".paint-piece").forEach(p=>p.classList.remove("revealed"));
+  progressText.textContent="0% complete";
+}
+
+function finishGame(){
+  const total=Number(settings.questionCount);
+  document.querySelectorAll(".paint-piece").forEach(p=>p.classList.add("revealed"));
+  progressText.textContent="100% complete";
+  resultDetails.innerHTML=
+    "You answered <strong>"+correctCount+"</strong> out of <strong>"+total+"</strong> questions correctly and filled your colour palette.";
+  showScreen(resultScreen);
+}
+
+function backToMenu(){showScreen(menuScreen)}
+
+document.querySelectorAll(".choice").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const setting=btn.dataset.setting;
+    document.querySelectorAll('[data-setting="'+setting+'"]').forEach(b=>b.classList.remove("selected"));
+    btn.classList.add("selected");
+    settings[setting]=btn.dataset.value;
+  });
+});
+
+document.getElementById("continueBtn").addEventListener("click",()=>showScreen(answerModeScreen));
+document.getElementById("backToMenuBtn").addEventListener("click",()=>showScreen(menuScreen));
+document.getElementById("beginGameBtn").addEventListener("click",startGame);
+
+document.querySelectorAll(".answer-mode-card").forEach(card=>{
+  card.addEventListener("click",()=>{
+    document.querySelectorAll(".answer-mode-card").forEach(c=>c.classList.remove("selected"));
+    card.classList.add("selected");
+    settings.answerType=card.dataset.mode;
+  });
+});
+document.getElementById("checkTypedBtn").addEventListener("click",checkTyped);
+typedAnswer.addEventListener("keydown",e=>{if(e.key==="Enter") checkTyped()});
+nextBtn.addEventListener("click",nextQuestion);
+document.getElementById("menuBtn").addEventListener("click",backToMenu);
+document.getElementById("settingsBtn").addEventListener("click",backToMenu);
+document.getElementById("playAgainBtn").addEventListener("click",startGame);
+</script>
+</body>
+</html>
