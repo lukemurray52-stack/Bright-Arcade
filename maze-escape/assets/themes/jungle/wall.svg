@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+    <defs>
+      <linearGradient id="front" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8c6d45"/><stop offset="1" stop-color="#5f4b2d"/></linearGradient>
+      <linearGradient id="top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.7)"/><stop offset="1" stop-color="rgba(255,255,255,.15)"/></linearGradient>
+      <linearGradient id="side" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.15)"/><stop offset="1" stop-color="rgba(0,0,0,.18)"/></linearGradient>
+    </defs>
+    <rect width="256" height="256" rx="18" fill="none"/>
+    <rect x="20" y="48" width="216" height="172" rx="20" fill="url(#front)" stroke="rgba(15,23,42,.28)" stroke-width="4"/>
+    <path d="M20 48 L40 24 H216 L236 48 Z" fill="#8c6d45" opacity=".92"/>
+    <path d="M236 48 L236 220 L216 196 V24 Z" fill="url(#side)" opacity=".6"/>
+    <path d="M20 48 L40 24 H216" stroke="rgba(255,255,255,.45)" stroke-width="6"/>
+    <g opacity=".25">
+      <path d="M44 88 H212" stroke="rgba(255,255,255,.5)" stroke-width="4"/>
+      <path d="M44 128 H212" stroke="rgba(255,255,255,.5)" stroke-width="4"/>
+      <path d="M44 168 H212" stroke="rgba(255,255,255,.5)" stroke-width="4"/>
+      <path d="M88 56 V212" stroke="rgba(0,0,0,.28)" stroke-width="3"/>
+      <path d="M152 56 V212" stroke="rgba(0,0,0,.28)" stroke-width="3"/>
+    </g>
+    <ellipse cx="128" cy="232" rx="92" ry="12" fill="rgba(15,23,42,.16)"/>
+    </svg>

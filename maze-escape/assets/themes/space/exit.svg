@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+    <defs>
+      <radialGradient id="portal" cx="0.5" cy="0.45" r="0.55"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#7c3aed"/></radialGradient>
+      <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></linearGradient>
+    </defs>
+    <ellipse cx="128" cy="214" rx="92" ry="18" fill="rgba(15,23,42,.18)"/>
+    <ellipse cx="128" cy="190" rx="78" ry="46" fill="url(#portal)" opacity=".95"/>
+    <ellipse cx="128" cy="190" rx="56" ry="30" fill="rgba(255,255,255,.16)"/>
+    <ellipse cx="128" cy="188" rx="86" ry="54" fill="none" stroke="#6366f1" stroke-width="12"/>
+    <ellipse cx="128" cy="188" rx="86" ry="54" fill="none" stroke="url(#rim)" stroke-width="4"/>
+    <path d="M128 146 V230 M92 188 H164" stroke="rgba(255,255,255,.36)" stroke-width="6" stroke-linecap="round"/>
+    </svg>
