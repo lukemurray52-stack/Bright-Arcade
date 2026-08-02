@@ -1074,6 +1074,117 @@ button{
   }
 }
 
+
+/* THEMED ASSET PACK */
+body{
+  --theme-accent:#2563eb;
+  --theme-accent-2:#7c3aed;
+  --theme-border:#1d4ed8;
+  --theme-soft:#bfdbfe;
+  --theme-panel:#eff6ff;
+  --theme-token-text:#111827;
+  --page-art:url("assets/themes/classic/background.svg");
+  --wall-art:url("assets/themes/classic/wall.svg");
+  --floor-art:url("assets/themes/classic/floor.svg");
+  --token-art:url("assets/themes/classic/token.svg");
+  --exit-art:url("assets/themes/classic/exit.svg");
+  background-color:#eff6ff !important;
+  background-image:var(--page-art) !important;
+  background-position:center !important;
+  background-size:cover !important;
+  background-attachment:fixed !important;
+}
+body[data-theme="jungle"]{
+  --theme-accent:#15803d;--theme-accent-2:#65a30d;--theme-border:#4d6b38;--theme-soft:#bbf7d0;--theme-panel:#f0fdf4;--theme-token-text:#24330f;
+  --page-art:url("assets/themes/jungle/background.svg");--wall-art:url("assets/themes/jungle/wall.svg");--floor-art:url("assets/themes/jungle/floor.svg");--token-art:url("assets/themes/jungle/token.svg");--exit-art:url("assets/themes/jungle/exit.svg");
+}
+body[data-theme="castle"]{
+  --theme-accent:#6d28d9;--theme-accent-2:#312e81;--theme-border:#312e81;--theme-soft:#c4b5fd;--theme-panel:#f5f3ff;--theme-token-text:#211b4b;
+  --page-art:url("assets/themes/castle/background.svg");--wall-art:url("assets/themes/castle/wall.svg");--floor-art:url("assets/themes/castle/floor.svg");--token-art:url("assets/themes/castle/token.svg");--exit-art:url("assets/themes/castle/exit.svg");
+}
+body[data-theme="space"]{
+  --theme-accent:#0891b2;--theme-accent-2:#7e22ce;--theme-border:#22d3ee;--theme-soft:#67e8f9;--theme-panel:#ecfeff;--theme-token-text:#fff;
+  --page-art:url("assets/themes/space/background.svg");--wall-art:url("assets/themes/space/wall.svg");--floor-art:url("assets/themes/space/floor.svg");--token-art:url("assets/themes/space/token.svg");--exit-art:url("assets/themes/space/exit.svg");
+}
+body[data-theme="school"]{
+  --theme-accent:#2563eb;--theme-accent-2:#16a34a;--theme-border:#c95e43;--theme-soft:#bfdbfe;--theme-panel:#eff6ff;--theme-token-text:#172554;
+  --page-art:url("assets/themes/school/background.svg");--wall-art:url("assets/themes/school/wall.svg");--floor-art:url("assets/themes/school/floor.svg");--token-art:url("assets/themes/school/token.svg");--exit-art:url("assets/themes/school/exit.svg");
+}
+
+.start-card{width:min(980px,100%) !important;max-height:95vh;overflow:auto;}
+.theme-start-section{margin:0 0 22px;}
+.theme-start-section h3,.setup-heading{
+  text-align:center;margin:0 0 10px;font-family:"Baloo 2",Arial,sans-serif;font-size:1.55rem;color:#1e3a8a;
+}
+.theme-start-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
+.theme-start-btn{
+  border:4px solid #dbeafe;background:#fff;border-radius:18px;padding:8px;cursor:pointer;color:#1e3a8a;box-shadow:0 6px 0 #bfdbfe;min-width:0;
+}
+.theme-start-btn:hover{transform:translateY(-2px);}
+.theme-start-btn.selected{border-color:#facc15;background:#fffbea;box-shadow:0 6px 0 #facc15;}
+.theme-start-btn img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:11px;border:2px solid rgba(15,23,42,.12);margin-bottom:7px;}
+.theme-start-btn strong{display:block;font-family:"Baloo 2",Arial,sans-serif;font-size:1rem;line-height:1.05;}
+.setup-heading{margin-top:20px;}
+.secondary{background:#e0f2fe;color:#075985;border:3px solid #bfdbfe;box-shadow:0 5px 0 #93c5fd;}
+
+.title-burst{background:linear-gradient(135deg,#facc15,var(--theme-accent-2),var(--theme-accent)) !important;}
+.maze-card,.panel{border-color:var(--theme-soft) !important;}
+.panel-title{background:linear-gradient(135deg,var(--theme-accent),var(--theme-accent-2)) !important;}
+#maze{
+  position:relative;
+  background-image:var(--floor-art) !important;
+  background-size:120px 120px !important;
+  border-color:var(--theme-border) !important;
+  box-shadow:inset 0 0 0 4px rgba(255,255,255,.55),0 10px 0 rgba(15,23,42,.14) !important;
+}
+.wall{
+  background-color:var(--theme-border) !important;
+  background-image:var(--wall-art) !important;
+  background-size:cover !important;
+  background-position:center !important;
+  border-color:rgba(255,255,255,.2) !important;
+}
+.path{
+  background-color:transparent !important;
+  background-image:var(--floor-art) !important;
+  background-size:120px 120px !important;
+}
+.word-token{
+  color:var(--theme-token-text) !important;
+  background-color:transparent !important;
+  background-image:var(--token-art) !important;
+  background-size:100% 100% !important;
+  background-repeat:no-repeat !important;
+  border:0 !important;
+  border-radius:12px !important;
+  box-shadow:0 4px 7px rgba(15,23,42,.28) !important;
+  min-width:max-content !important;
+  min-height:28px !important;
+  padding:6px 10px !important;
+}
+.exit{
+  background-color:transparent !important;
+  background-image:var(--exit-art) !important;
+  background-size:100% 100% !important;
+  background-repeat:no-repeat !important;
+  border:0 !important;
+  border-radius:12px !important;
+  box-shadow:0 4px 7px rgba(15,23,42,.28) !important;
+  padding-left:14% !important;
+}
+.primary{background:var(--theme-accent) !important;box-shadow:0 5px 0 rgba(15,23,42,.34) !important;}
+.message{color:var(--theme-accent) !important;}
+
+@media(max-width:820px){
+  .theme-start-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .theme-start-btn:last-child{grid-column:1/-1;max-width:260px;justify-self:center;width:100%;}
+}
+@media(max-width:520px){
+  .theme-start-grid{grid-template-columns:1fr;}
+  .theme-start-btn:last-child{grid-column:auto;max-width:none;}
+  .start-card{max-height:96vh;}
+}
+
 </style>
 </head>
 
@@ -1081,8 +1192,34 @@ button{
 
 <div class="start-overlay" id="startOverlay">
   <div class="start-card">
-    <h2>Choose Your Explorer</h2>
-    <p>Pick a character, then collect each word and spell it correctly.</p>
+    <h2>Set Up Your Maze</h2>
+    <p>Choose a theme, word level and explorer, then collect and spell every word.</p>
+
+    <div class="theme-start-section">
+      <h3>Choose a Theme</h3>
+      <div class="theme-start-grid">
+        <button type="button" class="theme-start-btn selected" data-theme-choice="classic">
+          <img src="assets/themes/classic/preview.svg" alt="Classic arcade maze preview">
+          <strong>Classic Arcade</strong>
+        </button>
+        <button type="button" class="theme-start-btn" data-theme-choice="jungle">
+          <img src="assets/themes/jungle/preview.svg" alt="Jungle temple maze preview">
+          <strong>Jungle Temple</strong>
+        </button>
+        <button type="button" class="theme-start-btn" data-theme-choice="castle">
+          <img src="assets/themes/castle/preview.svg" alt="Haunted castle maze preview">
+          <strong>Haunted Castle</strong>
+        </button>
+        <button type="button" class="theme-start-btn" data-theme-choice="space">
+          <img src="assets/themes/space/preview.svg" alt="Space station maze preview">
+          <strong>Space Station</strong>
+        </button>
+        <button type="button" class="theme-start-btn" data-theme-choice="school">
+          <img src="assets/themes/school/preview.svg" alt="School adventure maze preview">
+          <strong>School Adventure</strong>
+        </button>
+      </div>
+    </div>
 
     <div class="difficulty-start-section">
   <h3>Select Difficulty</h3>
@@ -1093,7 +1230,8 @@ button{
   </div>
 </div>
 
-<div class="character-choices">
+<h3 class="setup-heading">Choose Your Explorer</h3>
+    <div class="character-choices">
       <button class="character-choice selected" data-character="male">
         <div class="character-preview">
           <div class="player male"><svg viewBox="0 0 100 100" aria-hidden="true" class="avatar-svg">
@@ -1192,6 +1330,7 @@ button{
         <button class="difficulty-btn" data-difficulty="medium">Medium</button>
         <button class="difficulty-btn" data-difficulty="hard">Hard</button>
       </div>
+      <button class="secondary" id="changeSetupBtn">Change setup</button>
       <button class="primary" id="newGameBtn">Restart maze</button>
     </div>
 
@@ -1531,6 +1670,7 @@ let touchStartX = 0;
 let touchStartY = 0;
 let selectedCharacter = "male";
 let currentDifficulty = "easy";
+let currentTheme = "classic";
 let requiredWords = 4;
 let activeWords = [];
 let pendingWord = null;
@@ -1699,6 +1839,14 @@ function movePlayerVisual(){
 
   const current = cellAt(playerR, playerC);
   if(current) current.appendChild(p);
+}
+
+function applyTheme(theme){
+  currentTheme = theme;
+  document.body.dataset.theme = theme;
+  document.querySelectorAll(".theme-start-btn").forEach(function(btn){
+    btn.classList.toggle("selected", btn.dataset.themeChoice === currentTheme);
+  });
 }
 
 function setDifficulty(difficulty){
@@ -1950,6 +2098,12 @@ document.querySelectorAll(".character-choice").forEach(function(btn){
 });
 
 
+document.querySelectorAll(".theme-start-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    applyTheme(btn.dataset.themeChoice);
+  });
+});
+
 document.querySelectorAll(".difficulty-start-btn").forEach(function(btn){
   btn.addEventListener("click", function(){
     document.querySelectorAll(".difficulty-start-btn").forEach(function(b){
@@ -1966,6 +2120,11 @@ document.querySelectorAll(".difficulty-start-btn").forEach(function(btn){
 document.getElementById("startGameBtn").addEventListener("click", function(){
   document.getElementById("startOverlay").classList.add("hide");
   restart();
+});
+
+document.getElementById("changeSetupBtn").addEventListener("click", function(){
+  clearInterval(timer);
+  document.getElementById("startOverlay").classList.remove("hide");
 });
 
 document.getElementById("newGameBtn").addEventListener("click", restart);
@@ -2003,6 +2162,7 @@ mazeBox.addEventListener("touchend", function(e){
 }, {passive:true});
 
 // Prepare the screen before the player presses Start Maze.
+applyTheme(currentTheme);
 requiredWords = difficultySettings[currentDifficulty].total;
 const note = document.getElementById("wordLengthNote");
 if(note) note.textContent = difficultySettings[currentDifficulty].label;
