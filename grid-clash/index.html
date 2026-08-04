@@ -1057,7 +1057,7 @@ function finishGame(player,line){
   soundWin();
   gameOver=true; animating=false; computerThinking=false;
   line.forEach(i=>boardEl.children[i].classList.add("winner"));
-  turnPill.textContent=`${displayName(player)} wins!`;
+  turnPill.textContent=`${displayName(player)} win!`;
   messageText.textContent=gameMode==="computer"&&player===1?"🤖 Computer wins!":`🎉 ${displayName(player)} wins!`;
   message.classList.remove("hidden");
   updateTurnDisplay();
