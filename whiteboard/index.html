@@ -1656,7 +1656,7 @@ function hydratePoll(el){
     </button>`).join('');
   const total=(state.options||[]).reduce((sum,opt)=>sum+(opt.votes||0),0);
   el.innerHTML=buildWidgetFrame('Poll',`
-    <div class="poll-question">${escapeWidgetText(state.question||'Which option do you choose?')}</div>
+    <div class="poll-question">${escapeWidgetText(state.question||'Type your question')}</div>
     <div class="poll-options">${options}</div>
     <div class="poll-footer"><span>Total votes: <strong>${total}</strong></span><div class="traffic-controls"><button class="widget-control soft poll-edit">Edit</button><button class="widget-control soft poll-reset">Reset</button></div></div>
   `);
