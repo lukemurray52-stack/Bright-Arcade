@@ -1067,7 +1067,7 @@ function finishGame(player,line){
   gameOver=true; animating=false; computerThinking=false;
   line.forEach(i=>boardEl.children[i].classList.add("winner"));
   turnPill.textContent=`${displayName(player)} win!`;
-  messageText.textContent=lostToComputer?"🤖 Computer wins — better luck next time!":`🎉 ${displayName(player)} wins!`;
+  messageText.textContent=lostToComputer?"🤖 Computer wins — better luck next time!":`🎉 ${displayName(player)} win!`;
   message.classList.remove("hidden");
   updateTurnDisplay();
   if(!lostToComputer)launchConfetti();
