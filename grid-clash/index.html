@@ -1351,10 +1351,10 @@ function finishGame(player,line){
   else soundWin();
   gameOver=true; animating=false; computerThinking=false;
   line.forEach(i=>boardEl.children[i].classList.add("winner"));
-  turnPill.textContent=`${displayName(player)} wins!`;
+  turnPill.textContent=`${displayName(player)} win!`;
   resultPop.classList.remove("win","loss","draw");
   resultPop.classList.add(lostToComputer?"loss":"win");
-  messageText.textContent=lostToComputer?"Computer Wins!":`${displayName(player)} Wins!`;
+  messageText.textContent=lostToComputer?"Computer Wins!":`${displayName(player)} Win!`;
   resultIcon.textContent=lostToComputer?"🤖":"🏆";
   message.classList.remove("hidden");
   updateTurnDisplay();
