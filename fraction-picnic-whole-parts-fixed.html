@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Fraction Picnic - Bright Arcade</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#061946;--blue:#0875f5;--deep:#1748bd;--sky:#38bdf8;--yellow:#facc15;--green:#22c55e;--red:#ef174d;--purple:#7030d8;--orange:#f97316;--pink:#ec4899}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:'Fredoka',Arial,sans-serif;color:var(--navy)}body{overflow-x:hidden;background:linear-gradient(#38bdf8,#b7efff)}button{font:inherit}.hidden{display:none!important}
+.sky{position:fixed;inset:0;z-index:-5;overflow:hidden;pointer-events:none;background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 47%,#d7f7ff 100%)}
+.cloud{position:absolute;width:220px;height:74px;background:rgba(255,255,255,.92);border-radius:999px;filter:drop-shadow(0 9px 10px rgba(14,116,144,.16));opacity:.9;animation:cloudDrift linear infinite}.cloud:before,.cloud:after{content:"";position:absolute;background:rgba(255,255,255,.96);border-radius:50%}.cloud:before{width:92px;height:92px;left:32px;top:-38px}.cloud:after{width:118px;height:118px;right:24px;top:-58px}.c1{top:8%;left:-280px;animation-duration:55s}.c2{top:29%;left:-300px;transform:scale(1.25);animation-duration:75s;animation-delay:-24s;opacity:.72}.c3{top:66%;left:-280px;transform:scale(.82);animation-duration:68s;animation-delay:-42s;opacity:.6}@keyframes cloudDrift{from{margin-left:-380px}to{margin-left:calc(100vw + 520px)}}
+.app{width:min(1180px,100%);margin:auto;padding:16px 18px 30px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px}.home,.sound{border:0;background:#fff;color:var(--navy);border-radius:14px;padding:10px 14px;font-weight:800;text-decoration:none;box-shadow:0 8px 18px rgba(6,25,70,.14);cursor:pointer}.mini-note{font-size:.78rem;color:#315b87;font-weight:800;background:rgba(255,255,255,.72);padding:7px 11px;border-radius:999px}
+.hero{text-align:center;margin:7px 0 16px}.hero-row{display:flex;justify-content:center;align-items:center;gap:14px}.hero-icon{width:70px;height:70px;object-fit:contain;filter:drop-shadow(0 7px 0 rgba(6,25,70,.17));animation:heroBob 1.8s ease-in-out infinite}.hero-icon.right{animation-delay:.4s}@keyframes heroBob{50%{transform:translateY(-7px) rotate(5deg)}}
+.title{display:flex;flex-wrap:wrap;justify-content:center;gap:0 15px;line-height:.84}.title-word{display:inline-flex;white-space:nowrap}.letter{display:inline-block;font-family:'Baloo 2';font-size:clamp(3.1rem,7vw,6.1rem);font-weight:800;letter-spacing:-2px;color:var(--c);-webkit-text-stroke:5px #000;paint-order:stroke fill;text-shadow:0 4px 0 rgba(0,0,0,.32),0 11px 18px rgba(0,0,0,.22);transform:rotate(var(--r));animation:wiggle 2.25s ease-in-out infinite;animation-delay:var(--d)}@keyframes wiggle{50%{transform:rotate(calc(var(--r)*-1)) translateY(-4px)}}
+.sub{display:inline-block;margin-top:13px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.82);color:#2a5276;font-weight:700;box-shadow:0 7px 16px rgba(6,25,70,.08)}
+.screen{display:none}.screen.active{display:block}.card{background:#fff;border:5px solid #fff;border-radius:34px;box-shadow:0 22px 50px rgba(6,25,70,.23);overflow:hidden}
+.start-card{display:grid;grid-template-columns:1.06fr .94fr;min-height:510px}.start-visual{position:relative;overflow:hidden;background:linear-gradient(180deg,#b8efff 0 48%,#76d66a 48%)}.start-visual:after{content:"";position:absolute;left:-12%;right:-12%;bottom:-90px;height:260px;border-radius:50%;background:#55c459}.picnic-mat{position:absolute;right:36px;bottom:44px;width:355px;height:220px;border:7px solid var(--navy);border-radius:31px;background:repeating-conic-gradient(#fff 0 25%,#ef4f68 0 50%) 0/78px 78px;transform:rotate(-5deg);box-shadow:10px 12px 0 rgba(6,25,70,.2);z-index:2}.asset-pile{position:absolute;inset:0;z-index:3}.asset-pile img{position:absolute;width:102px;height:102px;object-fit:contain;filter:drop-shadow(6px 8px 0 rgba(6,25,70,.18))}.asset-pile .a1{right:247px;bottom:152px;transform:rotate(-8deg)}.asset-pile .a2{right:128px;bottom:168px;transform:rotate(9deg)}.asset-pile .a3{right:57px;bottom:91px;transform:rotate(-5deg)}.asset-pile .a4{right:225px;bottom:65px;transform:rotate(8deg)}.basket-start{position:absolute;right:32px;bottom:22px;width:132px;z-index:4;filter:drop-shadow(8px 9px 0 rgba(6,25,70,.18))}.fraction-sticker{position:absolute;left:27px;bottom:42px;z-index:4;padding:11px 16px;border:5px solid var(--navy);border-radius:17px;background:#fff;color:#7030d8;font-family:'Baloo 2';font-size:1.5rem;font-weight:800;box-shadow:6px 7px 0 rgba(6,25,70,.18);transform:rotate(-6deg)}
+.start-copy{padding:38px;display:flex;flex-direction:column;justify-content:center}.start-copy h2{font-family:'Baloo 2';font-size:2.3rem;line-height:1;margin:0 0 8px}.start-copy p{margin:0 0 22px;color:#536b83;font-weight:600;line-height:1.48}.label{font-weight:800;color:#31506d;margin-bottom:8px}.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:21px}.level{border:2px solid #d7e4f3;background:#f8fbff;border-radius:16px;padding:12px 8px;color:#31516e;font-weight:800;cursor:pointer}.level small{display:block;color:#7890a6;font-size:.69rem;margin-top:3px}.level.active{background:linear-gradient(#2e88ff,#0875f5);color:#fff;border-color:#0875f5;box-shadow:0 7px 16px rgba(8,117,245,.22)}.level.active small{color:#e9f4ff}.big-btn{border:0;border-radius:17px;padding:14px 21px;background:linear-gradient(#33d066,#16a34a);color:#fff;font-size:1.1rem;font-weight:800;box-shadow:inset 0 -6px 0 rgba(0,0,0,.16),0 8px 0 rgba(6,25,70,.13);cursor:pointer}.tip{margin-top:17px;padding:11px 13px;border-radius:14px;background:#fff6ce;color:#795817;font-size:.84rem;font-weight:700;line-height:1.35}
+.game-card{display:grid;grid-template-columns:minmax(0,1fr) 390px;min-height:600px}.left{padding:23px 25px;background:linear-gradient(#fff,#f7fbff);display:flex;flex-direction:column}.hud{display:flex;gap:9px;align-items:center;margin-bottom:14px}.progress-wrap{flex:1}.progress-top{display:flex;justify-content:space-between;color:#657a91;font-size:.76rem;font-weight:800;margin-bottom:5px}.bar{height:12px;border:2px solid #c8d9ec;background:#e2edf7;border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22c55e,#facc15);transition:.35s}.chip{padding:8px 10px;border:2px solid #d7e7f8;background:#eff6ff;border-radius:13px;font-size:.78rem;font-weight:800;color:#315b87}.chip.fire{background:#fff5ce;border-color:#fde68a;color:#a16207}
+.story{border:3px solid #d7e5f4;background:#fff;border-radius:22px;padding:21px 22px 19px;box-shadow:0 10px 22px rgba(6,25,70,.07)}.story small{display:inline-block;padding:5px 9px;background:#eaf3ff;color:#2459ad;border-radius:999px;font-weight:800;font-size:.66rem}.story p{margin:12px 0 0;color:#183552;font-size:clamp(1.25rem,2.15vw,1.85rem);line-height:1.35;font-weight:700}
+.visual-card{margin-top:13px;border:3px solid #d6e5f4;border-radius:22px;background:linear-gradient(180deg,#e8f8ff 0 52%,#8edd79 52%);min-height:240px;position:relative;overflow:hidden;box-shadow:0 8px 18px rgba(6,25,70,.06)}.visual-card:after{content:"";position:absolute;left:-8%;right:-8%;bottom:-70px;height:160px;border-radius:50%;background:#66cc65;z-index:0}.wood-board{position:absolute;left:50%;top:50%;width:min(520px,86%);min-height:165px;transform:translate(-50%,-48%) rotate(-1deg);border:6px solid #70401e;border-radius:25px;background:linear-gradient(90deg,#d8954d,#f0bb72 22%,#d8954d 22% 43%,#efb36a 43% 63%,#ce8440 63%);box-shadow:9px 11px 0 rgba(6,25,70,.2);z-index:2;padding:15px}.wood-board:before{content:"";position:absolute;inset:8px;border:2px solid rgba(105,55,17,.25);border-radius:15px;pointer-events:none}.visual-label{position:absolute;left:12px;top:10px;z-index:5;padding:6px 9px;border:3px solid var(--navy);border-radius:11px;background:#fff;color:#315b87;font-size:.65rem;font-weight:800;box-shadow:3px 4px 0 rgba(6,25,70,.16)}
+.portions{position:relative;z-index:2;display:grid;grid-template-columns:repeat(var(--cols,4),1fr);gap:9px;align-items:center;justify-items:center;min-height:125px}.portion{position:relative;width:68px;height:68px;border-radius:17px;background:rgba(255,255,255,.72);border:3px solid rgba(6,25,70,.14);display:grid;place-items:center;transition:.25s}.portion img{width:60px;height:60px;object-fit:contain;filter:drop-shadow(3px 4px 0 rgba(6,25,70,.15))}.portion.focus{background:#fff5b8;border-color:#f3bd13;box-shadow:0 0 0 4px rgba(250,204,21,.18)}.portion.dim{opacity:.38;filter:grayscale(.2)}.portion .mark{position:absolute;right:-7px;top:-8px;width:27px;height:27px;display:grid;place-items:center;border:3px solid var(--navy);border-radius:50%;background:#22c55e;color:#fff;font-size:.72rem;font-weight:900}.share-scene{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.25fr;gap:18px;align-items:center;min-height:130px}.wholes{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}.whole-food{width:75px;height:75px;object-fit:contain;filter:drop-shadow(4px 5px 0 rgba(6,25,70,.16));animation:floatFood 2s ease-in-out infinite alternate}.whole-food:nth-child(even){animation-delay:-.8s}@keyframes floatFood{to{transform:translateY(-5px)}}.share-arrow{position:absolute;left:43%;top:49%;transform:translate(-50%,-50%);font-size:2rem;color:#fff;text-shadow:3px 4px 0 rgba(6,25,70,.2)}.plates{display:grid;grid-template-columns:repeat(var(--plate-cols,2),1fr);gap:9px}.plate{position:relative;aspect-ratio:1;border:5px solid #c9d9e8;border-radius:50%;background:radial-gradient(circle,#fff 0 54%,#eef5fb 55% 70%,#fff 71%);box-shadow:0 5px 0 rgba(6,25,70,.12);display:grid;place-items:center}.plate b{font-size:.6rem;color:#5c7187}.plate .share-result{display:none;font-family:'Baloo 2';font-size:.78rem;color:#7030d8;font-weight:800}.revealed .plate b{display:none}.revealed .plate .share-result{display:block;animation:sharePop .35s ease}@keyframes sharePop{from{transform:scale(.3)}to{transform:scale(1)}}
+.answers{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.answer{border:3px solid #d6e3f1;background:linear-gradient(#fff,#f5f9ff);border-radius:18px;min-height:75px;color:var(--navy);font-weight:800;cursor:pointer;box-shadow:0 7px 0 #cad9e8;transition:.13s}.answer:hover{transform:translateY(-2px);border-color:#78b3fa}.answer.correct{background:#dff9e9;border-color:#22c55e;box-shadow:0 7px 0 #149146}.answer.wrong{background:#ffe2e7;border-color:#ef174d;box-shadow:0 7px 0 #c91f45;animation:shake .28s}@keyframes shake{25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}.frac{display:inline-grid;grid-template-rows:auto auto;justify-items:center;line-height:.85;font-family:'Baloo 2';font-size:1.45rem;font-weight:800}.frac span:first-child{border-bottom:3px solid currentColor;padding:0 7px 3px;min-width:34px}.frac span:last-child{padding-top:3px}.feedback{display:none;margin-top:12px;border-radius:16px;padding:11px 13px;gap:10px;align-items:flex-start;font-weight:700;line-height:1.34}.feedback.show{display:flex;animation:pop .24s}.feedback.good{background:#eafbf0;border:2px solid #b8ebca;color:#17623b}.feedback.bad{background:#fff0f3;border:2px solid #ffc4cf;color:#9f1239}@keyframes pop{from{opacity:0;transform:scale(.96)}}.next-row{text-align:right;margin-top:11px}.next{display:none}.next.show{display:inline-block;border:0;border-radius:14px;padding:11px 18px;background:linear-gradient(#2e88ff,#0875f5);color:#fff;font-weight:800;cursor:pointer;box-shadow:inset 0 -5px 0 rgba(0,0,0,.15)}
+.right{position:relative;overflow:hidden;border-left:2px solid #e0e9f3;background:linear-gradient(180deg,#b7edff 0 48%,#75d56b 48%)}.right:after{content:"";position:absolute;left:-20%;right:-20%;bottom:-90px;height:250px;border-radius:50%;background:#54c359;z-index:0}.collection-title{position:absolute;left:17px;top:15px;z-index:5;padding:8px 11px;border-radius:12px;background:rgba(255,255,255,.9);box-shadow:0 6px 14px rgba(6,25,70,.1);font-size:.75rem;font-weight:800;color:#315b87}.right-mat{position:absolute;left:25px;right:24px;bottom:46px;height:275px;border:7px solid var(--navy);border-radius:30px;background:repeating-conic-gradient(#fff 0 25%,#ef4f68 0 50%) 0/72px 72px;box-shadow:8px 10px 0 rgba(6,25,70,.18);transform:rotate(-3deg);z-index:1}.basket-big{position:absolute;right:18px;bottom:27px;width:154px;z-index:4;filter:drop-shadow(8px 9px 0 rgba(6,25,70,.18))}.collection{position:absolute;left:42px;right:68px;bottom:104px;height:190px;z-index:3;display:flex;flex-wrap:wrap;align-content:flex-start;gap:5px}.collected{width:61px;height:61px;object-fit:contain;filter:drop-shadow(4px 5px 0 rgba(6,25,70,.16));animation:collectPop .45s cubic-bezier(.2,1.5,.3,1)}@keyframes collectPop{from{opacity:0;transform:scale(.2) translateY(-30px)}to{opacity:1;transform:scale(1)}}.fraction-help{position:absolute;left:20px;right:20px;top:61px;z-index:5;border:4px solid var(--navy);border-radius:18px;background:#fff;padding:12px;box-shadow:6px 7px 0 rgba(6,25,70,.16);transform:rotate(-1deg);opacity:0;transition:.25s}.fraction-help.show{opacity:1}.fraction-help strong{display:block;color:#315b87;font-size:.67rem;text-align:center;margin-bottom:8px}.help-bar{display:grid;gap:4px}.help-piece{height:23px;border:3px solid var(--navy);border-radius:7px;background:#fff}.help-piece.fill{background:#facc15}.help-caption{text-align:center;margin-top:7px;font-weight:800;color:#315b87;font-size:.73rem}
+.results{padding:34px;text-align:center}.results h2{font-family:'Baloo 2';font-size:2.6rem;margin:5px 0}.results p{color:#5b7188;font-weight:600}.trophy{font-size:4rem;animation:heroBob 1.5s ease-in-out infinite}.score-final{display:inline-flex;gap:12px;align-items:center;margin:13px 0 20px;padding:12px 19px;border:3px solid #d6e7fb;border-radius:18px;background:#eff7ff;font-weight:800}.score-final b{font-family:'Baloo 2';font-size:2rem;color:#0875f5}.credit{text-align:center;margin-top:10px;color:rgba(6,25,70,.55);font-size:.62rem}.confetti{position:fixed;top:-25px;width:11px;height:20px;border-radius:3px;z-index:999;animation:fall 2.5s linear forwards}@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media(max-width:920px){.start-card{grid-template-columns:1fr}.start-visual{min-height:370px}.game-card{grid-template-columns:1fr}.right{min-height:395px;border-left:0;border-top:2px solid #e0e9f3}.visual-card{min-height:255px}}
+@media(max-width:600px){.app{padding:9px 8px 22px}.mini-note{display:none}.home,.sound{padding:8px 10px;font-size:.82rem}.hero-row{gap:6px}.hero-icon{width:47px;height:47px}.letter{font-size:clamp(2.45rem,13vw,4rem);-webkit-text-stroke:3.5px #000}.title{gap:0 9px}.sub{font-size:.86rem;border-radius:17px}.card{border-width:3px;border-radius:25px}.start-visual{min-height:300px}.picnic-mat{width:270px;height:170px;right:12px;bottom:35px}.asset-pile img{width:72px;height:72px}.asset-pile .a1{right:188px;bottom:125px}.asset-pile .a2{right:96px;bottom:132px}.asset-pile .a3{right:38px;bottom:74px}.asset-pile .a4{right:169px;bottom:54px}.basket-start{width:104px;right:12px}.fraction-sticker{left:12px;bottom:28px}.start-copy{padding:23px 17px}.levels{grid-template-columns:1fr}.game-card{min-height:0}.left{padding:15px 12px}.story{padding:16px 14px}.story p{font-size:1.17rem}.visual-card{min-height:235px}.wood-board{width:92%;padding:11px}.portion{width:52px;height:52px}.portion img{width:46px;height:46px}.share-scene{grid-template-columns:1fr 1.1fr;gap:8px}.whole-food{width:55px;height:55px}.answers{grid-template-columns:1fr}.answer{min-height:65px}.right{min-height:340px}.right-mat{height:215px;left:16px;right:15px}.collection{left:30px;right:75px;bottom:89px;height:145px}.collected{width:49px;height:49px}.basket-big{width:125px}.fraction-help{top:53px}.credit{font-size:.55rem}}
+
+/* ============================================================
+   BRIGHT ARCADE SHARED GAME CHROME
+   Matches the logo/Home navigation and rainbow card stripe
+   used across the other Bright Arcade games.
+   ============================================================ */
+
+.side-menu{
+  position:fixed;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:170px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:30;
+}
+.side-menu a{
+  background:#fff;
+  color:#1f2937;
+  text-decoration:none;
+  font-weight:800;
+  text-align:center;
+  padding:12px 16px;
+  border-radius:999px;
+  border:3px solid #bfdbfe;
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+.side-menu a:hover{background:#eef6ff}
+.sidebar-logo-link{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+.sidebar-logo{
+  width:170px;
+  padding:16px 12px 18px;
+  background:linear-gradient(180deg,#fff 0%,#fff7d6 100%);
+  border-radius:28px;
+  box-shadow:0 7px 16px rgba(0,0,0,.16),0 7px 0 rgba(31,41,55,.10);
+  transform:rotate(-1deg);
+  overflow:hidden;
+}
+.sidebar-bright,.sidebar-arcade{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  white-space:nowrap;
+}
+.sidebar-bright span{
+  display:inline-block;
+  font-family:"Baloo 2","Fredoka",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.72rem;
+  line-height:.9;
+  color:var(--c);
+  text-shadow:2px 2px 0 rgba(6,25,70,.16);
+}
+.sidebar-arcade{
+  margin-top:7px;
+  font-family:"Baloo 2","Fredoka",Arial,sans-serif;
+  font-weight:800;
+  font-size:2rem;
+  line-height:.82;
+  color:#061946;
+  text-shadow:2px 2px 0 rgba(6,25,70,.16);
+}
+
+/* Replace the one-off top navigation with the normal game layout. */
+.app{
+  width:min(1120px,calc(100% - 220px))!important;
+  margin:0 0 0 220px!important;
+  padding:24px 18px 46px!important;
+}
+.topbar{display:none!important}
+
+.hero{
+  margin:0 0 18px!important;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+}
+.sub{margin-top:0!important}
+.sound{
+  border:2px solid rgba(255,255,255,.96)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.91)!important;
+  color:var(--navy)!important;
+  font-weight:800!important;
+  padding:8px 14px!important;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(6,25,70,.09)!important;
+}
+.sound:hover{background:#eef6ff!important}
+
+/* Shared six-colour stripe along the top of each main game card. */
+.card{position:relative!important}
+.card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:8px;
+  z-index:50;
+  pointer-events:none;
+  background:linear-gradient(
+    90deg,
+    var(--red) 0 16.6%,
+    var(--orange) 16.6% 33.2%,
+    var(--yellow) 33.2% 49.8%,
+    var(--green) 49.8% 66.4%,
+    var(--blue) 66.4% 83%,
+    var(--purple) 83% 100%
+  );
+}
+
+/* Keep content from sitting directly beneath the stripe. */
+.start-card > *,
+.game-card > *{padding-top:8px}
+.results{padding-top:43px!important}
+
+/* Remove the temporary mobile rules for the deleted top bar. */
+@media(max-width:900px){
+  .side-menu{
+    position:static;
+    transform:none;
+    width:auto;
+    flex-direction:row;
+    justify-content:center;
+    margin:12px auto;
+  }
+  .sidebar-logo{display:none}
+  .app{
+    width:100%!important;
+    margin-left:0!important;
+    padding:8px 12px 34px!important;
+  }
+}
+@media(max-width:600px){
+  .app{padding:8px 8px 26px!important}
+  .side-menu{margin:9px auto 6px}
+  .side-menu a{padding:9px 16px;border-width:2px}
+  .sound{padding:7px 12px!important;font-size:.83rem!important}
+  .card::before{height:7px}
+}
+
+
+/* ============================================================
+   FRACTION VISUAL SEMANTICS FIX
+   A "part of one whole" story now shows ONE whole object divided
+   into equal parts. Sharing stories still show multiple wholes.
+   ============================================================ */
+.whole-fraction-scene{
+  position:relative;z-index:2;min-height:135px;display:flex;align-items:center;justify-content:center;gap:18px;padding:2px 8px 0
+}
+.whole-object-wrap{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:235px}
+.whole-svg{width:min(270px,100%);height:138px;overflow:visible;filter:drop-shadow(5px 7px 0 rgba(6,25,70,.15))}
+.whole-caption{margin-top:2px;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.84);color:#315b87;font-size:.58rem;font-weight:900;letter-spacing:.02em;text-align:center}
+.whole-legend{display:flex;flex-direction:column;gap:7px;min-width:105px;max-width:130px}
+.legend-row{display:flex;align-items:center;gap:7px;color:#3f5873;font-size:.56rem;font-weight:900;line-height:1.15}
+.legend-dot{width:16px;height:16px;border:3px solid #061946;border-radius:5px;flex:0 0 16px;background:#fff}
+.legend-dot.focus{background:#facc15}.legend-dot.other{background:rgba(255,255,255,.62)}
+.strawberry-whole{position:relative;width:min(330px,95%);padding:12px 13px 10px;border:6px solid #70401e;border-radius:23px;background:linear-gradient(145deg,#f3c984,#d9974c);box-shadow:7px 8px 0 rgba(6,25,70,.17)}
+.strawberry-grid{display:grid;grid-template-columns:repeat(var(--berry-cols,4),1fr);gap:6px}
+.strawberry-group{position:relative;min-height:72px;display:grid;place-items:center;border:3px solid #8b5a2b;border-radius:12px;background:rgba(255,255,255,.64);overflow:hidden}
+.strawberry-group.focus{background:#fff2a8;box-shadow:inset 0 0 0 3px rgba(250,204,21,.35)}
+.strawberry-group.dim{opacity:.52}
+.strawberry-group img{width:48px;height:48px;object-fit:contain;filter:drop-shadow(2px 3px 0 rgba(6,25,70,.12))}
+.strawberry-group .mark{position:absolute;right:4px;top:4px;width:22px;height:22px;display:grid;place-items:center;border:3px solid #061946;border-radius:50%;background:#22c55e;color:#fff;font-size:.6rem;font-weight:900}
+.mini-whole-pizza{width:74px;height:74px;filter:drop-shadow(4px 5px 0 rgba(6,25,70,.16));animation:floatFood 2s ease-in-out infinite alternate}
+.wholes .mini-whole-pizza:nth-child(even){animation-delay:-.8s}
+@media(max-width:600px){
+  .whole-fraction-scene{gap:8px;padding:0;min-height:125px}.whole-object-wrap{min-width:180px}.whole-svg{height:118px;width:210px}.whole-legend{min-width:82px;max-width:92px}.legend-row{font-size:.48rem}.strawberry-whole{padding:9px}.strawberry-group{min-height:55px}.strawberry-group img{width:38px;height:38px}
+}
+
+</style>
+</head>
+<body>
+<div class="sky"><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div></div>
+<nav class="side-menu">
+  <a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home">
+    <div class="sidebar-logo">
+      <div class="sidebar-bright">
+        <span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span>
+        <span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span>
+      </div>
+      <div class="sidebar-arcade">ARCADE</div>
+    </div>
+  </a>
+  <a href="/">Home</a>
+</nav>
+
+<div class="app">
+  <header class="hero">
+    <div class="hero-row"><img class="hero-icon" id="basketHero" alt="Picnic basket"><div class="title"><span class="title-word" id="t1"></span><span class="title-word" id="t2"></span></div><img class="hero-icon right" id="watermelonHero" alt="Watermelon"></div>
+    <div class="sub">Fraction stories about sharing equally and parts of a whole.</div>
+    <button class="sound" id="soundBtn" type="button">🔊 Sound On</button>
+  </header>
+
+  <section class="screen active" id="startScreen"><div class="card start-card">
+    <div class="start-visual"><div class="picnic-mat"></div><div class="asset-pile"><img class="a1" data-asset="pizza"><img class="a2" data-asset="watermelon"><img class="a3" data-asset="sandwich"><img class="a4" data-asset="strawberry"></div><img class="basket-start" data-asset="basket" alt="Picnic basket"><div class="fraction-sticker">3 / 4</div></div>
+    <div class="start-copy"><h2>Pack the Fraction Picnic!</h2><p>Every story now happens at the picnic. The picture beside it shows the exact food, pieces or sharing situation from the sentence.</p><div class="label">Choose a level</div><div class="levels"><button class="level active" data-level="easy">Easy<small>halves, thirds & quarters</small></button><button class="level" data-level="medium">Medium<small>fifths, sixths & eighths</small></button><button class="level" data-level="hard">Challenge<small>sharing several whole foods</small></button></div><button class="big-btn" id="startBtn">Start Picnic →</button><div class="tip">💡 The picture is there to help you connect the words in the story to equal parts and fair sharing.</div></div>
+  </div></section>
+
+  <section class="screen" id="gameScreen"><div class="card game-card">
+    <main class="left">
+      <div class="hud"><div class="progress-wrap"><div class="progress-top"><span id="progressText"></span><span id="levelText"></span></div><div class="bar"><i id="progressFill"></i></div></div><div class="chip">⭐ <span id="score">0</span></div><div class="chip fire">🔥 <span id="streak">0</span></div></div>
+      <div class="story"><small id="storyNo">PICNIC STORY 1</small><p id="questionText"></p></div>
+      <div class="visual-card" id="visualCard"><span class="visual-label" id="visualLabel"></span><div class="wood-board" id="woodBoard"></div></div>
+      <div class="answers" id="answers"></div>
+      <div class="feedback" id="feedback"><span id="feedbackIcon"></span><div><b id="feedbackTitle"></b><div id="feedbackText"></div></div></div>
+      <div class="next-row"><button class="next" id="nextBtn">Next story →</button></div>
+    </main>
+    <aside class="right"><div class="collection-title">Your picnic basket • <span id="basketCount">0</span>/10</div><div class="fraction-help" id="fractionHelp"><strong>THE FRACTION IN THE STORY</strong><div class="help-bar" id="helpBar"></div><div class="help-caption" id="helpCaption"></div></div><div class="right-mat"></div><div class="collection" id="collection"></div><img class="basket-big" data-asset="basket" alt="Picnic basket"></aside>
+  </div></section>
+
+  <section class="screen" id="resultsScreen"><div class="card results"><div class="trophy">🏆</div><h2 id="resultTitle">Picnic packed!</h2><p id="resultText"></p><div class="score-final"><span>Your score</span><b id="finalScore"></b></div><br><button class="big-btn" id="againBtn">Play Again</button></div></section>
+  <div class="credit">Food artwork: Twemoji graphics (CC BY 4.0).</div>
+</div>
+<script>
+(()=>{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const BASE='https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/';
+const ASSET={pizza:'1f355',watermelon:'1f349',sandwich:'1f96a',cookie:'1f36a',cake:'1f382',chocolate:'1f36b',orange:'1f34a',wrap:'1f959',baguette:'1f956',cupcake:'1f9c1',apple:'1f34e',strawberry:'1f353',juice:'1f9c3',pie:'1f967',basket:'1f9fa'};
+const emojiFallback={pizza:'🍕',watermelon:'🍉',sandwich:'🥪',cookie:'🍪',cake:'🎂',chocolate:'🍫',orange:'🍊',wrap:'🥙',baguette:'🥖',cupcake:'🧁',apple:'🍎',strawberry:'🍓',juice:'🧃',pie:'🥧',basket:'🧺'};
+function assetURL(name){return BASE+ASSET[name]+'.svg'}
+function setAsset(img,name){img.src=assetURL(name);img.alt=emojiFallback[name]||name;img.dataset.assetName=name;img.onerror=()=>{const span=document.createElement('span');span.textContent=emojiFallback[name]||'🍽️';span.style.fontSize=(parseFloat(getComputedStyle(img).width)||60)*.72+'px';span.className=img.className;img.replaceWith(span)}}
+$$('[data-asset]').forEach(img=>setAsset(img,img.dataset.asset));setAsset($('#basketHero'),'basket');setAsset($('#watermelonHero'),'watermelon');
+function title(target,text,cols){const e=$(target);[...text].forEach((ch,i)=>{const s=document.createElement('span');s.className='letter';s.textContent=ch;s.style.setProperty('--c',cols[i%cols.length]);s.style.setProperty('--r',[-4,2,-2,4,-3,2,0][i%7]+'deg');s.style.setProperty('--d',(-i*.12)+'s');e.appendChild(s)})}
+title('#t1','FRACTION',['#facc15','#fff','#ef174d','#22c55e','#fff','#f97316','#ec4899','#fff']);title('#t2','PICNIC',['#fff','#facc15','#22c55e','#fff','#ef174d','#f97316']);
+
+const easy=[
+ {q:'A pizza is cut into 4 equal slices. Mia eats 3 slices. What fraction of the pizza does Mia eat?',a:[3,4],kind:'parts',food:'pizza',total:4,focus:3,label:'3 slices eaten'},
+ {q:'A watermelon is cut into 4 equal pieces. Noah eats 1 piece. What fraction of the watermelon does Noah eat?',a:[1,4],kind:'parts',food:'watermelon',total:4,focus:1,label:'1 piece eaten'},
+ {q:'A sandwich is cut into 2 equal halves. Ava eats 1 half. What fraction of the sandwich does Ava eat?',a:[1,2],kind:'parts',food:'sandwich',total:2,focus:1,label:'1 half eaten'},
+ {q:'A chocolate bar is split into 4 equal pieces. Leo eats 2 pieces. What fraction of the bar does Leo eat?',a:[2,4],kind:'parts',food:'chocolate',total:4,focus:2,label:'2 pieces eaten'},
+ {q:'Three friends share 1 picnic cookie equally. What fraction of the cookie does each friend get?',a:[1,3],kind:'share',food:'cookie',wholes:1,people:3,label:'1 cookie shared equally'},
+ {q:'A picnic pie is cut into 4 equal pieces. One piece is left. What fraction of the pie is left?',a:[1,4],kind:'parts',food:'pie',total:4,focus:1,label:'1 piece left'},
+ {q:'Two children share 1 cupcake equally. What fraction of the cupcake does each child get?',a:[1,2],kind:'share',food:'cupcake',wholes:1,people:2,label:'1 cupcake shared equally'},
+ {q:'One orange is divided into 3 equal groups of segments. Two groups are eaten. What fraction of the whole orange is eaten?',a:[2,3],kind:'parts',food:'orange',total:3,focus:2,label:'2 groups eaten'},
+ {q:'A baguette is cut into 4 equal pieces. Three pieces are packed into lunch bags. What fraction of the baguette is packed?',a:[3,4],kind:'parts',food:'baguette',total:4,focus:3,label:'3 pieces packed'},
+ {q:'Four friends share 2 identical sandwiches equally. What fraction of a sandwich does each friend get?',a:[1,2],kind:'share',food:'sandwich',wholes:2,people:4,label:'2 sandwiches shared equally'},
+ {q:'A picnic cake is cut into 3 equal pieces. One piece is served. What fraction of the cake is served?',a:[1,3],kind:'parts',food:'cake',total:3,focus:1,label:'1 piece served'},
+ {q:'A tray has 4 equal groups of strawberries. Two groups are eaten. What fraction of the strawberries are eaten?',a:[2,4],kind:'parts',food:'strawberry',total:4,focus:2,label:'2 groups eaten'}
+];
+const medium=[
+ {q:'A picnic pizza is cut into 8 equal slices. Five slices are eaten. What fraction of the pizza is eaten?',a:[5,8],kind:'parts',food:'pizza',total:8,focus:5,label:'5 slices eaten'},
+ {q:'A chocolate bar is split into 6 equal pieces. Four pieces are shared. What fraction of the bar is shared?',a:[4,6],kind:'parts',food:'chocolate',total:6,focus:4,label:'4 pieces shared'},
+ {q:'Five friends share 2 identical picnic pies equally. What fraction of a pie does each friend get?',a:[2,5],kind:'share',food:'pie',wholes:2,people:5,label:'2 pies shared equally'},
+ {q:'A watermelon is cut into 8 equal pieces. Three pieces are left on the picnic rug. What fraction is left?',a:[3,8],kind:'parts',food:'watermelon',total:8,focus:3,label:'3 pieces left'},
+ {q:'Six children share 3 identical pizzas equally. What fraction of a pizza does each child get?',a:[1,2],kind:'share',food:'pizza',wholes:3,people:6,label:'3 pizzas shared equally'},
+ {q:'A baguette is cut into 6 equal pieces. Five pieces are eaten. What fraction of the baguette is eaten?',a:[5,6],kind:'parts',food:'baguette',total:6,focus:5,label:'5 pieces eaten'},
+ {q:'Eight friends share 4 identical wraps equally. What fraction of a wrap does each friend get?',a:[1,2],kind:'share',food:'wrap',wholes:4,people:8,label:'4 wraps shared equally'},
+ {q:'A cake is divided into 5 equal pieces. Two pieces remain. What fraction of the cake remains?',a:[2,5],kind:'parts',food:'cake',total:5,focus:2,label:'2 pieces remain'},
+ {q:'A box of strawberries is arranged into 6 equal groups. One group is saved for later. What fraction is saved?',a:[1,6],kind:'parts',food:'strawberry',total:6,focus:1,label:'1 group saved'},
+ {q:'Five friends share 3 identical sandwiches equally. What fraction of a sandwich does each friend get?',a:[3,5],kind:'share',food:'sandwich',wholes:3,people:5,label:'3 sandwiches shared equally'},
+ {q:'One orange is divided into 8 equal groups of segments. Seven groups are eaten. What fraction of the whole orange is eaten?',a:[7,8],kind:'parts',food:'orange',total:8,focus:7,label:'7 groups eaten'},
+ {q:'Six children share 4 identical cupcakes equally. What fraction of a cupcake does each child get?',a:[2,3],kind:'share',food:'cupcake',wholes:4,people:6,label:'4 cupcakes shared equally'}
+];
+const hard=[
+ {q:'Four friends share 3 identical pizzas equally. What fraction of a pizza does each friend get?',a:[3,4],kind:'share',food:'pizza',wholes:3,people:4,label:'3 pizzas shared equally'},
+ {q:'Six children share 5 identical sandwiches equally. What fraction of a sandwich does each child get?',a:[5,6],kind:'share',food:'sandwich',wholes:5,people:6,label:'5 sandwiches shared equally'},
+ {q:'Eight friends share 6 identical wraps equally. What fraction of a wrap does each friend get?',a:[3,4],kind:'share',food:'wrap',wholes:6,people:8,label:'6 wraps shared equally'},
+ {q:'Five friends share 4 identical picnic pies equally. What fraction of a pie does each friend get?',a:[4,5],kind:'share',food:'pie',wholes:4,people:5,label:'4 pies shared equally'},
+ {q:'Six friends share 4 identical baguettes equally. What fraction of a baguette does each friend get?',a:[2,3],kind:'share',food:'baguette',wholes:4,people:6,label:'4 baguettes shared equally'},
+ {q:'Eight students share 3 identical pizzas equally. What fraction of a pizza does each student get?',a:[3,8],kind:'share',food:'pizza',wholes:3,people:8,label:'3 pizzas shared equally'},
+ {q:'Five children share 3 identical cupcakes equally. What fraction of a cupcake does each child get?',a:[3,5],kind:'share',food:'cupcake',wholes:3,people:5,label:'3 cupcakes shared equally'},
+ {q:'A watermelon is cut into 8 equal pieces. Five pieces are eaten. What fraction is still left?',a:[3,8],kind:'parts',food:'watermelon',total:8,focus:3,label:'3 pieces left'},
+ {q:'A chocolate bar has 6 equal pieces. Four pieces are eaten. What fraction is left?',a:[2,6],kind:'parts',food:'chocolate',total:6,focus:2,label:'2 pieces left'},
+ {q:'A picnic cake is cut into 5 equal pieces. Four pieces are served. What fraction is still left?',a:[1,5],kind:'parts',food:'cake',total:5,focus:1,label:'1 piece left'},
+ {q:'Six friends share 5 identical oranges equally. What fraction of an orange does each friend get?',a:[5,6],kind:'share',food:'orange',wholes:5,people:6,label:'5 oranges shared equally'},
+ {q:'Eight children share 6 identical sandwiches equally. What fraction of a sandwich does each child get?',a:[3,4],kind:'share',food:'sandwich',wholes:6,people:8,label:'6 sandwiches shared equally'}
+];
+const BANK={easy,medium,hard};
+let level='easy',round=[],idx=0,score=0,streak=0,answered=false,soundOn=true,audio=null,music=null;
+function ensureAudio(){if(!audio)audio=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume()}
+function tone(f,d=.12,type='sine',gain=.04,delay=0){if(!soundOn)return;ensureAudio();const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.0001,audio.currentTime+delay);g.gain.exponentialRampToValueAtTime(gain,audio.currentTime+delay+.015);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+delay+d);o.connect(g);g.connect(audio.destination);o.start(audio.currentTime+delay);o.stop(audio.currentTime+delay+d+.03)}
+function sGood(){tone(523,.11,'triangle');tone(659,.13,'triangle',.045,.08);tone(784,.19,'triangle',.05,.16)}function sBad(){tone(190,.13,'square',.025);tone(145,.18,'square',.022,.1)}function sClick(){tone(390,.07,'sine',.018)}function sCollect(){tone(784,.08,'triangle',.035);tone(1046,.14,'triangle',.04,.07)}
+function startMusic(){stopMusic();if(!soundOn)return;ensureAudio();let i=0;const notes=[261.6,329.6,392,329.6,293.7,349.2,440,349.2];music=setInterval(()=>tone(notes[i++%notes.length],.23,'sine',.009),500)}function stopMusic(){if(music){clearInterval(music);music=null}}
+$('#soundBtn').onclick=()=>{soundOn=!soundOn;$('#soundBtn').textContent=soundOn?'🔊 Sound On':'🔇 Sound Off';if(soundOn){sClick();startMusic()}else stopMusic()};
+$$('.level').forEach(b=>b.onclick=()=>{level=b.dataset.level;$$('.level').forEach(x=>x.classList.toggle('active',x===b));sClick()});
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}function gcd(a,b){while(b)[a,b]=[b,a%b];return a}function simp([n,d]){const g=gcd(n,d);return[n/g,d/g]}function same(a,b){return a[0]*b[1]===b[0]*a[1]}function fracHTML([n,d]){return `<span class="frac"><span>${n}</span><span>${d}</span></span>`}
+function distract(a){const[n,d]=a,out=[];const cands=[[Math.max(1,d-n),d],[Math.max(1,n-1),d],[Math.min(d,n+1),d],[n,Math.max(2,d-1)],[n,d+1],[d-n,d],[d,n],simp([n*2,d*2])];for(const c of shuffle(cands)){if(c[0]<=0||c[1]<=0||same(c,a)||out.some(x=>same(x,c)))continue;out.push(c);if(out.length===3)break}while(out.length<3){const c=[1+Math.floor(Math.random()*Math.max(1,d-1)),d];if(!same(c,a)&&!out.some(x=>same(x,c)))out.push(c)}return shuffle([a,...out])}
+function img(name,cls=''){const im=document.createElement('img');im.className=cls;setAsset(im,name);return im}
+function polar(cx,cy,r,a){const rad=(a-90)*Math.PI/180;return{x:cx+r*Math.cos(rad),y:cy+r*Math.sin(rad)}}
+function wedgePath(cx,cy,r,a0,a1){const p0=polar(cx,cy,r,a1),p1=polar(cx,cy,r,a0),large=(a1-a0)>180?1:0;return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${r} ${r} 0 ${large} 0 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`}
+function roundFoodBase(food){
+  if(food==='pizza')return `<circle cx="120" cy="70" r="61" fill="#b86a25" stroke="#061946" stroke-width="6"/><circle cx="120" cy="70" r="52" fill="#ffd85a" stroke="#e37e2d" stroke-width="5"/><circle cx="94" cy="47" r="7" fill="#d83c35"/><circle cx="137" cy="43" r="7" fill="#d83c35"/><circle cx="150" cy="79" r="7" fill="#d83c35"/><circle cx="104" cy="91" r="7" fill="#d83c35"/><path d="M80 67c14-10 22-8 34 0M128 96c10-9 20-9 30-2" fill="none" stroke="#43a047" stroke-width="5" stroke-linecap="round"/>`;
+  if(food==='watermelon')return `<circle cx="120" cy="70" r="62" fill="#22964c" stroke="#061946" stroke-width="6"/><circle cx="120" cy="70" r="52" fill="#d7f39a"/><circle cx="120" cy="70" r="46" fill="#ef4f68"/><g fill="#3a2320"><ellipse cx="95" cy="53" rx="3.2" ry="6" transform="rotate(-25 95 53)"/><ellipse cx="131" cy="46" rx="3.2" ry="6" transform="rotate(18 131 46)"/><ellipse cx="151" cy="72" rx="3.2" ry="6" transform="rotate(35 151 72)"/><ellipse cx="111" cy="89" rx="3.2" ry="6" transform="rotate(-5 111 89)"/><ellipse cx="141" cy="98" rx="3.2" ry="6" transform="rotate(24 141 98)"/></g>`;
+  if(food==='pie')return `<circle cx="120" cy="70" r="61" fill="#c97b2f" stroke="#061946" stroke-width="6"/><circle cx="120" cy="70" r="51" fill="#e9a952"/><circle cx="120" cy="70" r="40" fill="#9f3d55"/><g stroke="#e8b96b" stroke-width="8" stroke-linecap="round" opacity=".96"><path d="M84 48l71 43"/><path d="M80 72l58 36"/><path d="M104 32l66 40"/><path d="M157 45l-64 51"/><path d="M142 32l-67 54"/></g>`;
+  return `<circle cx="120" cy="70" r="61" fill="#f7931e" stroke="#061946" stroke-width="6"/><circle cx="120" cy="70" r="52" fill="#ffa928"/><ellipse cx="103" cy="48" rx="17" ry="10" fill="rgba(255,255,255,.23)" transform="rotate(-28 103 48)"/><path d="M118 9c11-12 28-12 40-3-10 11-24 16-40 12z" fill="#57a83f" stroke="#2d6d2d" stroke-width="3"/>`;
+}
+function rectFoodBase(food,total){
+  if(food==='chocolate')return `<rect x="28" y="27" width="184" height="86" rx="15" fill="#6f341e" stroke="#061946" stroke-width="6"/><rect x="36" y="35" width="168" height="70" rx="9" fill="#8b4a2c"/><path d="M44 45h152M44 69h152M44 93h152" stroke="#5a2a1b" stroke-width="4" opacity=".55"/>`;
+  if(food==='baguette')return `<rect x="20" y="40" width="200" height="60" rx="30" fill="#dc8b35" stroke="#061946" stroke-width="6"/><rect x="29" y="48" width="182" height="44" rx="22" fill="#efb95f"/><g stroke="#c97b2f" stroke-width="6" stroke-linecap="round"><path d="M58 50l-12 19"/><path d="M100 48L88 69"/><path d="M142 48l-12 21"/><path d="M184 49l-12 20"/></g>`;
+  if(food==='sandwich')return `<rect x="35" y="25" width="170" height="90" rx="24" fill="#b96d2e" stroke="#061946" stroke-width="6"/><rect x="43" y="33" width="154" height="74" rx="19" fill="#f5c86f"/><path d="M48 75c35-18 105-18 144 0" fill="none" stroke="#5db54d" stroke-width="10"/><path d="M52 82h136" stroke="#facc15" stroke-width="8"/>`;
+  return `<rect x="30" y="23" width="180" height="94" rx="19" fill="#b76c32" stroke="#061946" stroke-width="6"/><rect x="38" y="31" width="164" height="78" rx="14" fill="#f4b8cf"/><rect x="38" y="31" width="164" height="22" rx="14" fill="#fff4e7"/><g fill="#ef174d"><circle cx="71" cy="42" r="4"/><circle cx="111" cy="39" r="4"/><circle cx="151" cy="44" r="4"/><circle cx="181" cy="40" r="4"/></g>`;
+}
+function makeRoundWhole(q){
+  const total=q.total,focus=q.focus,step=360/total;let overlays='',lines='';
+  for(let i=0;i<total;i++){
+    const a0=i*step,a1=(i+1)*step;
+    overlays+=`<path d="${wedgePath(120,70,61,a0,a1)}" fill="${i<focus?'rgba(250,204,21,.28)':'rgba(245,248,252,.58)'}"/>`;
+    const p=polar(120,70,61,a0);lines+=`<line x1="120" y1="70" x2="${p.x.toFixed(2)}" y2="${p.y.toFixed(2)}" stroke="#061946" stroke-width="4" opacity=".78"/>`;
+  }
+  return `<svg class="whole-svg" viewBox="0 0 240 140" aria-label="One ${q.food} divided into ${total} equal parts">${roundFoodBase(q.food)}${overlays}${lines}<circle cx="120" cy="70" r="61" fill="none" stroke="#061946" stroke-width="6"/></svg>`
+}
+function makeRectWhole(q){
+  const total=q.total,focus=q.focus,x=30,y=23,w=180,h=94;let overlays='',lines='';
+  for(let i=0;i<total;i++){
+    const sx=x+w*i/total,sw=w/total;
+    overlays+=`<rect x="${sx.toFixed(2)}" y="${y}" width="${sw.toFixed(2)}" height="${h}" fill="${i<focus?'rgba(250,204,21,.25)':'rgba(245,248,252,.56)'}"/>`;
+    if(i>0){const lx=x+w*i/total;lines+=`<line x1="${lx.toFixed(2)}" y1="${y}" x2="${lx.toFixed(2)}" y2="${y+h}" stroke="#061946" stroke-width="4" opacity=".76"/>`}
+  }
+  return `<svg class="whole-svg" viewBox="0 0 240 140" aria-label="One ${q.food} divided into ${total} equal parts">${rectFoodBase(q.food,total)}${overlays}${lines}</svg>`
+}
+function makeWholePizzaThumb(){const d=document.createElement('div');d.innerHTML=`<svg class="mini-whole-pizza" viewBox="0 0 90 90" aria-label="whole pizza"><circle cx="45" cy="45" r="38" fill="#b86a25" stroke="#061946" stroke-width="5"/><circle cx="45" cy="45" r="31" fill="#ffd85a"/><g fill="#d83c35"><circle cx="31" cy="31" r="5"/><circle cx="57" cy="30" r="5"/><circle cx="59" cy="57" r="5"/><circle cx="34" cy="60" r="5"/></g></svg>`;return d.firstElementChild}
+function makeShareWhole(food){return food==='pizza'?makeWholePizzaThumb():img(food,'whole-food')}
+function renderPartsVisual(q,board){
+  const scene=document.createElement('div');scene.className='whole-fraction-scene';
+  if(q.food==='strawberry'){
+    const wrap=document.createElement('div');wrap.className='strawberry-whole';
+    const grid=document.createElement('div');grid.className='strawberry-grid';grid.style.setProperty('--berry-cols',q.total>4?3:q.total);
+    for(let i=0;i<q.total;i++){
+      const g=document.createElement('div');g.className='strawberry-group '+(i<q.focus?'focus':'dim');g.appendChild(img('strawberry'));
+      if(i<q.focus){const m=document.createElement('span');m.className='mark';m.textContent='✓';g.appendChild(m)}grid.appendChild(g)
+    }
+    wrap.appendChild(grid);scene.appendChild(wrap)
+  }else{
+    const wrap=document.createElement('div');wrap.className='whole-object-wrap';
+    const round=['pizza','watermelon','pie','orange'].includes(q.food);
+    wrap.innerHTML=round?makeRoundWhole(q):makeRectWhole(q);
+    const cap=document.createElement('div');cap.className='whole-caption';cap.textContent=`ONE whole ${q.food} • ${q.total} equal parts`;wrap.appendChild(cap);
+    const legend=document.createElement('div');legend.className='whole-legend';legend.innerHTML=`<div class="legend-row"><span class="legend-dot focus"></span><span>${q.focus} part${q.focus===1?'':'s'} in the story</span></div><div class="legend-row"><span class="legend-dot other"></span><span>${q.total-q.focus} other part${q.total-q.focus===1?'':'s'}</span></div>`;
+    scene.append(wrap,legend)
+  }
+  board.appendChild(scene)
+}
+function renderVisual(q){
+  const board=$('#woodBoard');board.innerHTML='';board.classList.remove('revealed');$('#visualLabel').textContent=q.label;
+  if(q.kind==='parts'){renderPartsVisual(q,board);return}
+  const scene=document.createElement('div');scene.className='share-scene';const wholes=document.createElement('div');wholes.className='wholes';for(let i=0;i<q.wholes;i++)wholes.appendChild(makeShareWhole(q.food));const arrow=document.createElement('div');arrow.className='share-arrow';arrow.textContent='→';const plates=document.createElement('div');plates.className='plates';plates.style.setProperty('--plate-cols',q.people>4?3:2);for(let i=0;i<q.people;i++){const p=document.createElement('div');p.className='plate';p.innerHTML=`<b>plate ${i+1}</b><span class="share-result">${q.a[0]}/${q.a[1]}</span>`;plates.appendChild(p)}scene.append(wholes,arrow,plates);board.appendChild(scene)
+}
+function explain(q){if(q.kind==='share')return `${q.wholes} ${q.food}${q.wholes>1?'s':''} shared equally among ${q.people} people gives each person ${q.a[0]}/${q.a[1]} of one ${q.food}.`;return `${q.focus} of the ${q.total} equal parts are the parts described in the story, so the fraction is ${q.a[0]}/${q.a[1]}.`}
+function showHelp(q){const help=$('#fractionHelp'),bar=$('#helpBar');bar.innerHTML='';const [n,d]=q.a;bar.style.gridTemplateColumns=`repeat(${Math.min(d,8)},1fr)`;for(let i=0;i<d;i++){const x=document.createElement('span');x.className='help-piece'+(i<n?' fill':'');bar.appendChild(x)}$('#helpCaption').textContent=`${n} of ${d} equal parts = ${n}/${d}`;help.classList.add('show');if(q.kind==='share')$('#woodBoard').classList.add('revealed')}
+function render(){answered=false;const q=round[idx];$('#progressText').textContent=`Question ${idx+1} of ${round.length}`;$('#levelText').textContent=level==='easy'?'Easy':level==='medium'?'Medium':'Challenge';$('#progressFill').style.width=(idx/round.length*100)+'%';$('#storyNo').textContent=`PICNIC STORY ${idx+1}`;$('#questionText').textContent=q.q;$('#score').textContent=score;$('#streak').textContent=streak;$('#feedback').className='feedback';$('#nextBtn').classList.remove('show');$('#fractionHelp').classList.remove('show');renderVisual(q);const a=$('#answers');a.innerHTML='';distract(q.a).forEach(fr=>{const b=document.createElement('button');b.className='answer';b.dataset.n=fr[0];b.dataset.d=fr[1];b.innerHTML=fracHTML(fr);b.onclick=()=>answer(b,fr,q);a.appendChild(b)})}
+function answer(btn,fr,q){if(answered)return;answered=true;$$('.answer').forEach(b=>b.disabled=true);const ok=same(fr,q.a);if(ok){btn.classList.add('correct');score++;streak++;sGood();collect(q.food)}else{btn.classList.add('wrong');streak=0;sBad();$$('.answer').forEach(b=>{if(same([+b.dataset.n,+b.dataset.d],q.a))b.classList.add('correct')})}$('#score').textContent=score;$('#streak').textContent=streak;const fb=$('#feedback');fb.className='feedback show '+(ok?'good':'bad');$('#feedbackIcon').textContent=ok?'✅':'💭';$('#feedbackTitle').textContent=ok?'Correct!':`The answer is ${q.a[0]}/${q.a[1]}.`;$('#feedbackText').textContent=explain(q);showHelp(q);$('#nextBtn').classList.add('show')}
+function collect(food){const im=img(food,'collected');$('#collection').appendChild(im);$('#basketCount').textContent=score;sCollect()}
+function start(){ensureAudio();startMusic();round=shuffle(BANK[level]).slice(0,10);idx=0;score=0;streak=0;$('#collection').innerHTML='';$('#basketCount').textContent='0';$('#startScreen').classList.remove('active');$('#resultsScreen').classList.remove('active');$('#gameScreen').classList.add('active');render()}
+$('#startBtn').onclick=start;$('#nextBtn').onclick=()=>{sClick();idx++;if(idx>=round.length)finish();else render()};$('#againBtn').onclick=()=>{$('#resultsScreen').classList.remove('active');$('#startScreen').classList.add('active');startMusic()};
+function finish(){stopMusic();$('#gameScreen').classList.remove('active');$('#resultsScreen').classList.add('active');$('#finalScore').textContent=`${score} / ${round.length}`;const p=score/round.length;$('#resultTitle').textContent=p===1?'Perfect Picnic!':p>=.8?'Picnic packed!':p>=.6?'Great sharing!':'Good fraction practice!';$('#resultText').textContent=p>=.8?'You matched the picnic stories, pictures and fractions really well.':'Try another round and use the picnic pictures to connect the sentence to the equal parts.';if(soundOn)sGood();confetti()}
+function confetti(){const c=['#ef174d','#facc15','#22c55e','#0875f5','#7030d8','#f97316'];for(let i=0;i<45;i++){const x=document.createElement('i');x.className='confetti';x.style.left=Math.random()*100+'vw';x.style.background=c[i%c.length];x.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(x);setTimeout(()=>x.remove(),3300)}}
+})();
+</script>
+</body></html>
