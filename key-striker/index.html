@@ -2332,7 +2332,7 @@ function hideGoalCelebration(){
 function showGoalCelebration(rival=false){
   const el=$('#goalCelebration');
   el.classList.toggle('rival',rival);
-  $('.goal-banner-title').textContent=rival?'COMPUTER SCORES!':'YOU SCORE!';
+  $('.goal-banner-title').textContent=rival?'COMPUTER SCORES!':'GOAL!';
   $('#goalScore').textContent=`${goals} – ${goalsAgainst}`;
   $('#goalCaption').textContent=rival?'COUNTER ATTACK GOAL!':`${getSelectedPlayer().name.toUpperCase()} SCORES!`;
   const portrait=$('#goalPlayerPortrait');
