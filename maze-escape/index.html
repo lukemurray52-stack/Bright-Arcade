@@ -805,6 +805,57 @@ header,.main-card{position:relative;z-index:1;}
 @media(max-width:1100px){.fps-map-toggle{font-size:.78rem;padding:9px}}
 @media(max-width:620px){.fps-map-toggles{gap:6px}.fps-map-toggle{font-size:.72rem;padding:8px 6px;gap:6px}.fps-door-status{font-size:.69rem;padding:8px 5px}}
 
+
+/* THE COMPLETE SPOTLIGHT SKY / REAL 3D UPGRADE */
+.maze3d-viewport{position:relative;width:100%;overflow:hidden;border-radius:16px;background:#14283d;isolation:isolate}
+.maze3d-viewport #gameCanvas{width:100%;height:auto;display:block;transition:opacity .15s ease}
+.maze3d-canvas{display:none;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.maze-webgl-active .maze3d-canvas{display:block}
+.maze-webgl-active #gameCanvas{opacity:0}
+.maze3d-view-badge{display:none;position:absolute;top:13px;left:14px;z-index:4;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.32);border-radius:999px;padding:8px 12px;background:rgba(5,23,42,.46);color:#ecfcff;backdrop-filter:blur(8px);font:700 .68rem Fredoka,Arial,sans-serif;letter-spacing:.15em;pointer-events:none;box-shadow:0 5px 14px #071b2b40}
+.maze-webgl-active .maze3d-view-badge{display:flex}
+.maze3d-dot{display:block;width:8px;height:8px;border-radius:50%;background:#64ffc3;box-shadow:0 0 9px #64ffc3}
+.maze3d-crosshair{display:none;position:absolute;left:50%;top:50%;width:26px;height:26px;transform:translate(-50%,-50%);z-index:4;pointer-events:none;filter:drop-shadow(0 2px 3px #06243cb0)}
+.maze-webgl-active .maze3d-crosshair{display:block}
+.maze3d-crosshair i{position:absolute;background:rgba(255,255,255,.84);border-radius:4px}
+.maze3d-crosshair i:first-child{width:17px;height:2px;left:4.5px;top:12px}
+.maze3d-crosshair i:last-child{width:2px;height:17px;left:12px;top:4.5px}
+.maze3d-viewport::after{content:"";display:none;position:absolute;inset:0;z-index:3;pointer-events:none;box-shadow:inset 0 0 65px rgba(3,19,35,.22);border-radius:16px}
+.maze-webgl-active .maze3d-viewport::after{display:block}
+@media(max-width:600px){.maze3d-view-badge{font-size:.57rem;top:8px;left:8px;padding:6px 9px}.maze3d-crosshair{transform:translate(-50%,-50%) scale(.78)}}
+@media(prefers-reduced-motion:reduce){.maze3d-viewport #gameCanvas{transition:none}}
+
+
+/* Match the typography and spacious option cards of Speed Typer Spotlight Sky. */
+.me-setup .setup-card{font-family:'Fredoka',Arial,sans-serif}
+.me-setup .setup-card .me-setup-heading h2{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400;letter-spacing:.015em}
+.me-setup .me-setup-brand{font-family:'Bebas Neue',Impact,sans-serif;font-weight:400}
+.me-section-heading{font-family:'Fredoka',Arial,sans-serif;font-weight:700;letter-spacing:.085em}
+.me-setup .theme-choice strong,.me-setup .option,.me-setup .explorer{font-family:'Fredoka',Arial,sans-serif;font-weight:700}
+.me-setup .option.selected,.me-setup .explorer.selected{background:linear-gradient(180deg,#6cd7ff,#2b83fb);color:#fff;border-color:#64c4ff;box-shadow:0 6px 0 #8bbde8}
+.me-setup .option.selected small{color:#f2faff}
+.me-setup .theme-choice.selected{border-color:#2485f7;box-shadow:0 6px 0 #a3d0ee,0 0 0 2px #258cf226}
+.me-setup .me-setting-panel{border-radius:23px;background:linear-gradient(180deg,#fafdff,#f0f9ff);padding:17px}
+.me-setup .startbtn{font-family:'Fredoka',Arial,sans-serif;font-weight:700;font-size:1.2rem;box-shadow:0 8px 0 #ce801a,0 15px 30px #12466d2e}
+
+
+/* Settings match the open, airy Speed Typer Spotlight Sky layout. */
+.me-setup .setup-card{width:min(1150px,100%);max-height:none;margin:auto;padding:0 18px 30px;background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible}
+.me-setup .setup-card::before{display:none}
+.me-setup .setup-card .me-setup-heading h2{font-size:clamp(3.2rem,5vw,5.2rem);line-height:.98}
+.me-setup .me-setup-heading{padding:1px 0 20px}
+.me-section-heading{color:#153d72;font-size:.91rem}
+.me-section-heading b{background:linear-gradient(180deg,#2d94f5,#2771d3);box-shadow:0 4px 0 #b4d8f5}
+.me-setup .theme-choice{border-color:#cde6fa;background:linear-gradient(180deg,#ffffff,#f3fbff);box-shadow:0 7px 0 #c3e1f0,0 15px 22px #165b8720}
+.me-setup .theme-choice strong{font-size:.9rem}
+.me-setup .theme-choice.selected{background:#e9f6ff;border-color:#268cfa;box-shadow:0 7px 0 #8ac5e9,0 10px 23px #197cd32b}
+.me-setup .me-setting-panel{background:linear-gradient(180deg,#ffffffeb,#f5fbfff6);border:2px solid #cce8fb;box-shadow:0 14px 34px #0f5b9020;min-height:165px}
+.me-setup .option,.me-setup .explorer{box-shadow:0 6px 0 #ccdeeb;background:linear-gradient(180deg,#fff,#f6fbff);border-radius:17px}
+.me-setup .startbtn{border:2px solid #fff7cd;color:#092d62;background:linear-gradient(180deg,#ffe868,#ffcb30 65%,#ffb61c);border-radius:19px;padding:18px 31px;box-shadow:0 9px 0 #ce801a,0 18px 35px #12466d31}
+.me-setup .me-back,.me-setup .me-home-btn{background:#e7f5ff;color:#153d72;border:2px solid #bfe2fa}
+@media(max-width:780px){.me-setup .setup-card{padding:0 6px 20px}.me-setup .setup-card .me-setup-heading h2{font-size:clamp(2.75rem,7.7vw,4.5rem)}.me-setup .me-setting-panel{min-height:0}}
+@media(max-width:560px){.me-setup .setup-card .me-setup-heading h2{font-size:clamp(2.5rem,10vw,3.8rem)}.me-setup .setup-card{padding:0 2px 16px}}
+
 </style>
 </head>
 <body>
@@ -898,7 +949,12 @@ header,.main-card{position:relative;z-index:1;}
 <span class="emoji-pop right" aria-hidden="true">🗺️</span></h1></div><br><p class="subtitle">Explore the maze, spell the words and find the exit!</p></header>
 <main class="main-card">
 <div class="toolbar"><div class="setup-strip"><div class="chip" id="themeChip">🌿 Jungle Temple</div><div class="chip" id="difficultyChip">📊 Easy</div><div class="chip" id="explorerChip">🧭 Explorer Boy</div></div><div class="toolbar-actions"><button class="pill-btn blue" id="musicBtn" title="Turn theme music on or off">🎵 Music On</button><button class="pill-btn blue" id="soundBtn" title="Turn movement and feedback effects on or off">🔊 Effects On</button><button class="pill-btn blue" id="setupBtn">⚙ Change Setup</button><button class="pill-btn red" id="restartBtn">↻ Restart Maze</button></div></div>
-<div class="play-layout"><section class="canvas-column"><div class="canvas-card"><canvas id="gameCanvas" width="1060" height="650" aria-label="First-person maze view. W and S move; A and D sidestep; turn with arrow left/right or drag."></canvas><canvas id="miniMapCompact" width="260" height="260" aria-label="Compact maze map"></canvas><div class="fps-touch-hud" aria-label="Touch movement controls"><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" data-move="up" type="button" aria-label="Walk forward">▲</button><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" data-move="left" type="button" aria-label="Turn left">↶</button><button class="arrow" data-move="down" type="button" aria-label="Walk backwards">▼</button><button class="arrow" data-move="right" type="button" aria-label="Turn right">↷</button></div></div><div class="messagebar" id="message">Find and spell every word to unlock the exit door. Then escape!</div></section>
+<div class="play-layout"><section class="canvas-column"><div class="canvas-card"><div class="maze3d-viewport" id="maze3dViewport">
+  <canvas id="gameCanvas" width="1060" height="650" aria-label="First-person maze view. W and S move; A and D sidestep; turn with arrow left/right or drag."></canvas>
+  <canvas id="mazeWebglCanvas" class="maze3d-canvas" aria-label="First-person 3D maze scene"></canvas>
+  <div class="maze3d-view-badge" aria-hidden="true"><span class="maze3d-dot"></span>3D EXPLORER</div>
+  <div class="maze3d-crosshair" aria-hidden="true"><i></i><i></i></div>
+</div><canvas id="miniMapCompact" width="260" height="260" aria-label="Compact maze map"></canvas><div class="fps-touch-hud" aria-label="Touch movement controls"><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" data-move="up" type="button" aria-label="Walk forward">▲</button><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" data-move="left" type="button" aria-label="Turn left">↶</button><button class="arrow" data-move="down" type="button" aria-label="Walk backwards">▼</button><button class="arrow" data-move="right" type="button" aria-label="Turn right">↷</button></div></div><div class="messagebar" id="message">Find and spell every word to unlock the exit door. Then escape!</div></section>
 <aside class="game-sidebar"><section class="panel"><h3>Maze Progress</h3><div class="stats-grid"><div class="stat"><span>Words</span><b id="wordsStat">0 / 4</b></div><div class="stat"><span>Time</span><b id="timeStat">0:00</b></div><div class="stat"><span>Score</span><b id="scoreStat">1000</b></div></div><div class="words-list" id="wordsList"></div></section><section class="panel fps-minimap-panel"><h3>Explorer Map</h3><div class="fps-minimap-box"><canvas id="miniMapCanvas" width="260" height="260" aria-label="Maze minimap showing corridors, collected targets and player direction"></canvas><div class="fps-map-toggles" role="group" aria-label="Map location markers">
   <button id="mapWordsToggle" class="fps-map-toggle active" type="button" aria-pressed="true" aria-controls="miniMapCanvas" title="Show or hide uncollected word positions on the map"><span class="fps-marker-icon word-dot" aria-hidden="true"></span><span class="toggle-title">Word locations</span><span class="toggle-state">ON</span></button>
   <button id="mapExitToggle" class="fps-map-toggle active" type="button" aria-pressed="true" aria-controls="miniMapCanvas" title="Show or hide the exit on the map"><span class="fps-marker-icon exit-dot" aria-hidden="true"></span><span class="toggle-title">Exit location</span><span class="toggle-state">ON</span></button>
@@ -906,6 +962,7 @@ header,.main-card{position:relative;z-index:1;}
 <div class="fps-door-status" id="exitStatus" role="status" aria-live="polite"><span class="lock-symbol" aria-hidden="true">🔒</span><span class="door-status-text">Door locked · 4 words remaining</span></div></div></section><section class="panel"><h3>Controls</h3><div class="controls"><div class="arrowgrid"><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" type="button" data-move="up" aria-label="Walk forward">▲</button><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" type="button" data-move="left" aria-label="Turn left">↶</button><button class="arrow" type="button" data-move="down" aria-label="Walk backwards">▼</button><button class="arrow" type="button" data-move="right" aria-label="Turn right">↷</button></div><p class="control-note"><strong>W / S</strong> move • <strong>A / D</strong> sidestep<br><strong>← / →</strong> turn • drag to look</p><p class="key-tip">Hold the buttons to move</p></div></section></aside></div>
 </main></div>
 <audio id="themeMusic" loop preload="auto" aria-hidden="true"></audio>
+<script src="assets/3d/maze3d.js"></script>
 <script>
 const difficultySettings={"easy": {"total": 4, "label": "Easy: 3\u20134 letter words", "banks": ["CAT", "DOG", "SUN", "RUN", "HOP", "MAP", "RED", "BOX", "BUG", "MUD", "JAM", "PEN", "CUP", "HAT", "FOX", "PIG", "HEN", "LOG", "WEB", "ZIP", "BAT", "COW", "OWL", "ANT", "CAR", "BUS", "BED", "BAG", "EGG", "FAN", "GUM", "HUG", "JAR", "KEY", "LEG", "NET", "POT", "RUG", "TOY", "VAN", "FROG", "DUCK", "BEAR", "FISH", "BIRD", "LION", "GOAT", "MILK", "CAKE", "BOOK", "STAR", "MOON", "TREE", "SHIP", "SOCK", "BALL", "JUMP", "PLAY", "READ", "TYPE", "FAST", "SLOW", "BLUE", "PINK", "GOLD", "RAIN", "WIND", "SNOW", "FIRE", "RING", "DRUM", "BELL", "ROAD", "PARK", "DOOR", "DESK", "LAMP", "CLAP", "SPIN", "GRIN", "FLIP", "SKIP", "BUMP", "ZOOM", "YELL", "JOKE", "QUIZ", "MAZE", "WORD", "LINE", "PAGE", "KIND", "WILD"]}, "medium": {"total": 6, "label": "Medium: 5\u20136 letter words", "banks": ["APPLE", "TIGER", "ZEBRA", "SNAKE", "HORSE", "MOUSE", "PANDA", "EAGLE", "SHARK", "WHALE", "CHAIR", "TABLE", "HAPPY", "SILLY", "FUNNY", "QUICK", "BRAVE", "GREEN", "BLACK", "WHITE", "BROWN", "CLOUD", "STORM", "RIVER", "BEACH", "MUSIC", "DRUMS", "PIZZA", "TOAST", "GRAPE", "MELON", "LEMON", "MANGO", "CHIPS", "SAUCE", "DANCE", "JUMPS", "SKATE", "SLIDE", "SMILE", "LAUGH", "MAGIC", "ROBOT", "ALIEN", "CROWN", "TRAIN", "PLANE", "SPACE", "LIGHT", "NIGHT", "WORLD", "DREAM", "STORY", "WORDS", "TIMER", "BANANA", "PICKLE", "ROCKET", "PLANET", "SCHOOL", "LIBRARY", "TYPING", "MONKEY", "DONKEY", "RABBIT", "TURKEY", "DRAGON", "WIZARD", "CASTLE", "PIRATE", "PUPPET", "BUTTON", "WINDOW", "YELLOW", "ORANGE", "PURPLE", "SILVER", "CIRCLE", "PENCIL", "TEACHER", "STUDENT", "READING", "WRITING", "GOBLIN", "MONSTER", "UNICORN"]}, "hard": {"total": 8, "label": "Hard: 7+ letter words", "banks": ["KEYBOARD", "SENTENCE", "COMPUTER", "CUPCAKE", "NOODLES", "DINOSAUR", "KANGAROO", "PLATYPUS", "CROCODILE", "UMBRELLA", "BACKPACK", "TRAMPOLINE", "ANCIENT", "LOLLIPOP", "MYSTERY", "JELLYBEAN", "SANDWICH", "BREAKFAST", "FOOTBALL", "JOURNEY", "CLASSROOM", "ADVENTURE", "CHAMPION", "CHALLENGE", "FANTASTIC", "VOLCANO", "TREASURE", "EXPLORER", "MOUNTAIN", "RAINBOW", "ELEPHANT", "GIRAFFE", "PENGUIN", "BUTTERFLY", "NOTEBOOK", "PAINTBRUSH", "SUNSHINE", "STARLIGHT", "HOMEWORK", "DISCOVERY", "IMAGINE", "CREATIVE", "CURIOUS", "BRILLIANT", "QUESTION", "ANSWERING", "SPELLING", "THUNDER", "OCTOPUS", "CHOCOLATE", "CAMPING", "BALLOON", "HAMBURGER", "PANCAKES", "FRIENDSHIP", "AFTERNOON", "YESTERDAY", "TOMORROW", "IMPORTANT", "BEAUTIFUL", "WONDERFUL", "AMAZINGLY", "DIFFICULT", "CONFIDENT", "PRACTICE", "LEARNING", "PROBLEM", "SOLUTION"]}};
 const themes={"classic": {"name": "Classic Arcade", "accent": "#7c3aed", "accent2": "#2563eb", "bg": "#12183e"}, "jungle": {"name": "Jungle Temple", "accent": "#65a30d", "accent2": "#15803d", "bg": "#0c251b"}, "castle": {"name": "Haunted Castle", "accent": "#7c3aed", "accent2": "#4338ca", "bg": "#18162c"}, "space": {"name": "Space Station", "accent": "#06b6d4", "accent2": "#4f46e5", "bg": "#030712"}, "school": {"name": "School Adventure", "accent": "#f97316", "accent2": "#2563eb", "bg": "#dbeafe"}};
@@ -1060,7 +1117,7 @@ function updateUI(){
  exitStatus.querySelector('.lock-symbol').textContent=unlocked?'🔓':'🔒';
  exitStatus.querySelector('.door-status-text').textContent=unlocked?'Exit unlocked — walk through the outer doorway!':`Exit locked · ${remaining} word${remaining===1?'':'s'} remaining`;
 }
-function resetGame(){clearInterval(timer);finishOpen=false;winOverlay.classList.add('hidden');spellOverlay.classList.add('hidden');pendingToken=null;buildMaze();chooseWords();seconds=0;keys=Object.create(null);buttonActions.clear();updateUI();message.textContent='Find and spell every word to unlock the door in the outer wall. Then walk outside!';if(started)timer=setInterval(()=>{seconds++;updateUI()},1000);drawMinimap();render();}
+function resetGame(){clearInterval(timer);finishOpen=false;winOverlay.classList.add('hidden');spellOverlay.classList.add('hidden');pendingToken=null;buildMaze();chooseWords();seconds=0;keys=Object.create(null);buttonActions.clear();updateUI();message.textContent='Find and spell every word to unlock the door in the outer wall. Then walk outside!';if(started)timer=setInterval(()=>{seconds++;updateUI()},1000);if(window.__mazeRenderer&&window.__mazeRenderer.ready)window.__mazeRenderer.rebuild();drawMinimap();render();}
 function loadTheme(key){let theme=themes[key];document.documentElement.style.setProperty('--accent',theme.accent);document.documentElement.style.setProperty('--accent2',theme.accent2);document.getElementById('themeChip').textContent='🎨 '+theme.name;buildTextures(key);setThemeMusic(key,started);render();}
 
 /* Procedural themed masonry textures. These are drawn locally, so no new PNG files are needed. */
@@ -1229,7 +1286,7 @@ function drawMinimap(){
  const compact=document.getElementById('miniMapCompact');
  if(compact){const c=compact.getContext('2d');c.clearRect(0,0,compact.width,compact.height);c.drawImage(miniMap,0,0,compact.width,compact.height)}
 }
-function render(){if(!ctx)return;draw3D();drawMinimap()}
+function render(){if(!ctx)return;if(window.__mazeRenderer&&window.__mazeRenderer.ready)window.__mazeRenderer.draw(performance.now());else draw3D();drawMinimap()}
 let alertLast=0;
 function checkNearby(){
  const now=performance.now(),r=Math.floor(playerY),c=Math.floor(playerX);visited.add(r+','+c);
@@ -1259,7 +1316,7 @@ function updateMovement(dt){
    checkNearby();
  }else{moveBlend=Math.max(0,moveBlend-dt*6)}
 }
-function animationFrame(now){const dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;updateMovement(dt);if(started&&setupOverlay.classList.contains('hidden')){draw3D(now);if(Math.floor(now/160)!==Math.floor((now-dt*1000)/160))drawMinimap();}requestAnimationFrame(animationFrame)}
+function animationFrame(now){const dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;updateMovement(dt);if(started&&setupOverlay.classList.contains('hidden')){if(window.__mazeRenderer&&window.__mazeRenderer.ready)window.__mazeRenderer.draw(now);else draw3D(now);if(Math.floor(now/160)!==Math.floor((now-dt*1000)/160))drawMinimap();}requestAnimationFrame(animationFrame)}
 function openSpell(token){if(pendingToken)return;pendingToken=token;spellTarget.textContent=token.word;spellInput.value='';spellFeedback.textContent='';spellOverlay.classList.remove('hidden');keys=Object.create(null);buttonActions.clear();setTimeout(()=>spellInput.focus(),40);message.textContent='Spell '+token.word+' to collect it.'}
 function checkSpelling(){if(!pendingToken)return;const typed=spellInput.value.trim().toUpperCase();if(typed===pendingToken.word){const word=pendingToken.word;spellFeedback.style.color='#15803d';spellFeedback.textContent='Correct!';beep(720,.13);pendingToken=null;setTimeout(()=>{collected[word]=true;spellOverlay.classList.add('hidden');updateUI();drawMinimap();message.textContent=allWordsCollected()?'🔓 The exterior exit is open! Walk through the doorway and outside!':'Excellent! Word collected. Keep exploring!';},260)}else{spellFeedback.style.color='#dc2626';spellFeedback.textContent='Try again. Look carefully at the word.';beep(180,.12);spellInput.select()}}
 function checkExit(){if(finishOpen)return;finishOpen=true;clearInterval(timer);started=false;pauseThemeMusic();beep(900,.3);document.getElementById('winText').textContent='Score: '+(score()+100);winOverlay.classList.remove('hidden');keys=Object.create(null);buttonActions.clear()}
@@ -1312,6 +1369,18 @@ updateUI();
 resizeView();
 render();
 drawSpotlightMaze();
+// Enhancement only: keep the original raycast renderer as fallback on older machines.
+try{
+ const threeViewport=document.getElementById('maze3dViewport');
+ const threeCanvas=document.getElementById('mazeWebglCanvas');
+ if(typeof Maze3DRenderer==='function'){
+  window.__mazeRenderer=new Maze3DRenderer(threeViewport,threeCanvas,()=>({
+   maze,theme:selectedTheme,playerX,playerY,playerAngle,headBob,moveBlend,
+   tokens,collected,unlocked:allWordsCollected(),exitR,exitC,exitSide,exitEntryR,exitEntryC
+  }));
+  document.body.classList.add('maze-webgl-active');
+ }
+}catch(error){console.warn('Maze Escape: falling back to classic first-person renderer.',error);window.__mazeRenderer=null;}
 requestAnimationFrame(animationFrame);
 </script>
 </body></html>
