@@ -7,7 +7,7 @@ const THEMES={
  jungle:{wall:8,floor:1,trim:2,ceil:3,sky1:[.22,.63,.94],sky2:[.83,.96,.93],fog:[.44,.65,.52],accent:[.75,.97,.38],base:[.52,.72,.5],roof:false},
  castle:{wall:0,floor:1,trim:2,ceil:3,sky1:[.13,.13,.25],sky2:[.37,.33,.44],fog:[.29,.27,.38],accent:[.83,.57,1],base:[.67,.63,.78],roof:true},
  space:{wall:0,floor:1,trim:2,ceil:3,sky1:[.018,.035,.12],sky2:[.06,.14,.29],fog:[.065,.17,.3],accent:[.2,.96,1],base:[.58,.82,.96],roof:true},
- school:{wall:0,floor:1,trim:2,ceil:3,sky1:[.3,.69,.97],sky2:[.81,.96,1],fog:[.63,.81,.92],accent:[.22,.68,1],base:[.83,.92,1],roof:true}
+ school:{wall:0,floor:1,trim:2,ceil:3,sky1:[.23,.59,.88],sky2:[.88,.97,1],fog:[.73,.88,.97],accent:[.35,.76,1],base:[.94,.98,1],roof:true}
 };
 const VS=`precision highp float;
 attribute vec3 aPosition;attribute vec3 aNormal;attribute vec2 aUV;attribute float aMaterial;attribute vec3 aTint;attribute float aEmit;
@@ -26,7 +26,7 @@ void main(){vec3 pos=aPosition;pos.xz*=uScale;vec3 relative=pos-uEye;
 }`;
 const FS=`precision mediump float;
 varying vec2 vUV;varying float vMaterial;varying vec3 vNormal;varying vec3 vTint;varying float vEmit;varying float vDistance;varying vec3 vWorld;
-uniform sampler2D uAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;
+uniform sampler2D uAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;
 void main(){float m=floor(vMaterial+.5);
  float col=mod(m,4.);float row=3.-floor(m/4.);
  vec2 tileUV=clamp(vUV,.008,.992);
@@ -34,10 +34,23 @@ void main(){float m=floor(vMaterial+.5);
  vec3 tex=texture2D(uAtlas,texUV).rgb;
  vec3 n=normalize(vNormal);
  vec3 dir=normalize(vec3(-.56,.81,.38));
- float face=.68+.27*max(0.,dot(n,dir));
+ float face=mix(.68+.27*max(0.,dot(n,dir)),.64+.36*max(0.,dot(n,dir)),step(.5,uSchool));
  float lower=abs(n.y)<.3?mix(.65,1.,smoothstep(.04,.4,vWorld.y)) : 1.;
  float light=face*lower+.12*max(0.,dot(n,vec3(0.,1.,0.)));
  vec3 rgb=tex*vTint*light;
+ if(uSchool>.5){
+   // Soft ambient occlusion at wall bases and at floor edges.
+   if(abs(n.y)<.75) rgb*=mix(.72,1.,smoothstep(.01,.48,vWorld.y));
+   if(n.y>.85){
+     vec2 inCell=fract(vWorld.xz);
+     float edge=min(min(inCell.x,1.-inCell.x),min(inCell.y,1.-inCell.y));
+     rgb*=mix(.87,1.04,smoothstep(.015,.30,edge));
+     // Recessed overhead diffuse fixtures; mild spatial illumination.
+     float l=cos(vWorld.x*2.1)*cos(vWorld.z*2.1);
+     rgb*=1.+max(0.,l)*.065;
+   }
+   rgb*=vec3(1.025,1.025,1.018);
+ }
  rgb+=tex*vTint*vEmit*(.55+.1*sin(uTime*2.4));
  float fog=smoothstep(uFogStart,uFogEnd,vDistance);
  rgb=mix(rgb,uFog,fog*.90);
@@ -89,7 +102,7 @@ class Renderer{
   if(!gl)throw new Error('WebGL unavailable');this.gl=gl;
   this.program=program(gl,VS,FS);this.skyProgram=program(gl,SKYVS,SKYFS);
   this.a={};for(const name of ['aPosition','aNormal','aUV','aMaterial','aTint','aEmit'])this.a[name]=gl.getAttribLocation(this.program,name);
-  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uFog','uTime','uFogStart','uFogEnd'])this.u[name]=gl.getUniformLocation(this.program,name);
+  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uFog','uTime','uFogStart','uFogEnd','uSchool'])this.u[name]=gl.getUniformLocation(this.program,name);
   this.skyA=gl.getAttribLocation(this.skyProgram,'aPosition');this.skyU={};for(const name of ['uTop','uHorizon','uTime','uSpace','uCastle'])this.skyU[name]=gl.getUniformLocation(this.skyProgram,name);
   this.skyBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,this.skyBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
   this.staticMesh=null;this.dynamicBuffer=gl.createBuffer();this.dynamicCapacity=0;
@@ -120,7 +133,7 @@ class Renderer{
   const s=this.getState();if(!s||!s.maze||!s.maze.length)return;
   const theme=s.theme||'jungle';const t=THEMES[theme]||THEMES.jungle;
   this.loadTexture(theme);
-  const maze=s.maze,H=maze.length,wallH=theme==='castle'?2.32:theme==='jungle'?2.16:2.12;
+  const maze=s.maze,H=maze.length,wallH=theme==='castle'?2.32:theme==='jungle'?2.16:theme==='school'?2.46:2.12;
   this.wallHeight=wallH;this.size=H;this.smoothUnlock=s.unlocked?1:0;
   const m=new Mesh(),rand=seedRand(H*11471+theme.split('').reduce((n,c)=>n+c.charCodeAt(0),0));
   const open=(r,c)=>r>=0&&c>=0&&r<H&&c<H&&maze[r][c]===0;
@@ -141,7 +154,8 @@ class Renderer{
     // Tile variation and edge shading create depth without giant square blocks.
     const v=.91+rand()*.16;
     m.plane(c,r,c+1,r+1,.007,1,[v,v,v]);
-    if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,3,[.89,.92,1]);
+    if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,3,theme==='school'?[1.07,1.09,1.09]:[.89,.92,1]);
+    if(theme==='school'&&(r+c)%5===1)this.schoolCeilingLight(m,c,r,wallH);
     if(nearWall(r,c)){
      const line=[.64,.70,.79];
      if(!open(r-1,c))m.plane(c,r,c+1,r+.07,.009,1,line);
@@ -150,7 +164,7 @@ class Renderer{
      if(!open(r,c+1))m.plane(c+.93,r,c+1,r+1,.009,1,line);
     }
     // Recessed floor motifs and occasional inlaid tiles.
-    if(rand()<.052&&theme!=='jungle')m.plane(c+.14,r+.14,c+.86,r+.86,.012,14,[.35,.54,.7],.10);
+    if(rand()<.024&&theme!=='jungle'&&theme!=='school')m.plane(c+.14,r+.14,c+.86,r+.86,.012,14,[.35,.54,.7],.10);
    }
    if(maze[r][c]!==1||isExit)continue;
    const faces=[];
@@ -162,7 +176,10 @@ class Renderer{
     const shade=(theme==='jungle'?1.02:.9)+rand()*.18;
     m.quad(f.a,f.b,f.c,f.d,wallMat,[shade,shade,shade]);
     this.wallTrim(m,f,theme,wallH);
-    const chance=rand();if(chance<.28)this.wallDecoration(m,f,theme,wallH,rand);
+    const chance=rand();
+    if(theme==='school'){
+      if(chance<(H<=17?.45:H<=25?.36:.26))this.schoolWallDecoration(m,f,wallH,rand);
+    }else if(chance<.28)this.wallDecoration(m,f,theme,wallH,rand);
    }
    if(theme==='jungle'&&rand()<.25)m.box(c-.012,wallH-.06,r-.012,c+1.012,wallH+.16,r+1.012,8,[.83,1,.8]);
   }
@@ -173,10 +190,10 @@ class Renderer{
    else if(theme==='castle')this.floorAccent(m,c,r,theme,rand);
    else if(theme==='space')this.floorAccent(m,c,r,theme,rand);
    else if(theme==='classic')this.floorAccent(m,c,r,theme,rand);
-   else this.floorAccent(m,c,r,theme,rand);
+   else if(theme!=='school')this.floorAccent(m,c,r,theme,rand);
    budget--;
   }
-  this.buildGateArch(m,s,t,wallH);
+  if(theme==='school')this.buildSchoolExit(m,s,wallH);else this.buildGateArch(m,s,t,wallH);
   // Exterior path and scenery deliberately aligned with the perimeter gateway.
   this.buildOutside(m,s,t,theme,rand);
   if(this.staticMesh)this.gl.deleteBuffer(this.staticMesh.buffer);
@@ -194,9 +211,105 @@ class Renderer{
   }else if(theme==='space'||theme==='classic'){
    m.quad(p(.07,height-.12),p(.93,height-.12),p(.93,height-.08),p(.07,height-.08),7,theme==='space'?[.38,.9,1]:[.84,.55,1],.26);
   }else if(theme==='school'){
-   m.quad(p(0,.28),p(1,.28),p(1,.37),p(0,.37),14,[.64,.84,1],.12);
+   m.quad(p(0,.30),p(1,.30),p(1,.47),p(0,.47),2,[.81,.98,1],.1);
   }
  }
+
+ // -------------------------------- SCHOOL ADVENTURE --------------------------------
+ // The decorations below are true 3D geometry, not painted onto an illustration.
+ // Every object is placed on an existing solid wall, so maze topology and movement stay intact.
+ schoolWallBox(m,f,u0,y0,d0,u1,y1,d1,mat,tint=[1,1,1],emit=0){
+   const n=({n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]})[f.side];
+   const at=(u,y,d)=>[f.a[0]+(f.b[0]-f.a[0])*u+n[0]*d,y,f.a[2]+(f.b[2]-f.a[2])*u+n[1]*d];
+   const cube=[at(u0,y0,d0),at(u1,y0,d0),at(u1,y1,d0),at(u0,y1,d0),at(u0,y0,d1),at(u1,y0,d1),at(u1,y1,d1),at(u0,y1,d1)];
+   const face=(a,b,c,d)=>m.quad(cube[a],cube[b],cube[c],cube[d],mat,tint,emit);
+   face(0,1,2,3);face(5,4,7,6);face(4,0,3,7);face(1,5,6,2);face(3,2,6,7);face(4,5,1,0);
+ }
+ schoolWallDecoration(m,f,h,rand){
+   const box=(...a)=>this.schoolWallBox(m,f,...a);
+   const mode=rand();
+   if(mode<.30){ // Classroom: actual wooden door and metal frame with glass
+     box(.13,.025,.010,.87,2.02,.047,5,[.98,.96,.94]);
+     box(.11,.03,.045,.16,2.15,.085,4,[.95,.98,1]);
+     box(.84,.03,.045,.89,2.15,.085,4,[.95,.98,1]);
+     box(.11,2.03,.041,.89,2.12,.087,2,[.89,.99,1]);
+     box(.36,1.26,.055,.72,1.82,.067,11,[.61,.77,.82]);
+     box(.35,1.24,.066,.73,1.83,.075,2,[.80,.93,1]);
+     box(.38,1.29,.076,.69,1.79,.086,11,[.95,1.05,1.05],.04);
+     box(.19,.93,.069,.25,1.045,.098,6,[1.2,1.15,1]);
+     box(.15,2.13,.032,.85,2.34,.057,13,[1,1,1],.06);
+     box(.12,0,.053,.88,.032,.13,2,[.72,.89,1]);
+   }else if(mode<.57){ // Set of three realistic metal lockers with recessed vent grilles
+     box(.035,.0,.012,.965,1.72,.09,6,[.79,1.02,1.14]);
+     for(let i=0;i<3;i++){
+       const u=.048+i*.304;
+       box(u,.035,.091,u+.285,1.67,.118,6,[.82+i*.035,.97+i*.02,1.12]);
+       box(u+.04,1.43,.12,u+.244,1.55,.129,6,[.4,.61,.82]);
+       for(let k=0;k<4;k++)box(u+.070,1.45+k*.026,.130,u+.225,1.456+k*.026,.133,6,[.26,.42,.53]);
+       box(u+.226,.75,.12,u+.248,.87,.145,6,[1.10,1.17,1.2]);
+       box(u+.072,.30,.119,u+.217,.39,.121,2,[.48,.84,1]);
+     }
+     box(.015,1.71,.013,.985,1.78,.11,2,[.58,.89,1]);
+     box(.015,0,.023,.985,.07,.12,6,[.66,.75,.80]);
+   }else if(mode<.81){ // Window / courtyard view under a recessed 3D window frame
+     box(.095,.76,.013,.905,1.94,.044,11,[.95,1,1],.18);
+     box(.065,.73,.046,.12,2.00,.105,4,[1.05,1.08,1.1]);
+     box(.88,.73,.046,.935,2.00,.105,4,[1.05,1.08,1.1]);
+     box(.095,1.95,.047,.905,2.01,.112,4,[1.08,1.09,1.1]);
+     box(.095,.72,.048,.905,.81,.17,4,[1.04,1.06,1.07]);
+     box(.487,.77,.05,.512,1.97,.122,4,[.93,1.05,1.10]);
+     box(.11,1.345,.051,.88,1.375,.120,4,[.93,1.05,1.10]);
+     // angled daylight streak on surrounding wall
+     box(.11,1.87,.120,.85,1.89,.126,7,[.70,.90,1],.11);
+   }else{ // bulletin board and poster display with genuine raised wooden frame
+     box(.095,.73,.018,.905,1.94,.058,5,[.87,.79,.67]);
+     box(.132,.77,.063,.867,1.90,.071,9,[1.02,1.04,1.05]);
+     box(.08,.71,.059,.13,1.97,.107,5,[.95,.87,.71]);
+     box(.87,.71,.059,.92,1.97,.107,5,[.95,.87,.71]);
+     box(.08,1.93,.059,.92,1.99,.107,5,[.95,.87,.71]);
+     box(.08,.71,.059,.92,.78,.107,5,[.95,.87,.71]);
+     box(.33,1.96,.08,.66,2.17,.10,15,[1.09,1,1],.02);
+   }
+ }
+ schoolCeilingLight(m,c,r,h){
+   m.box(c+.25,h+.011,r+.29,c+.75,h+.059,r+.71,6,[.63,.79,.91]);
+   m.box(c+.285,h-.021,r+.33,c+.715,h+.007,r+.67,7,[1.30,1.25,1.13],.8);
+   m.box(c+.302,h-.028,r+.348,c+.698,h-.019,r+.652,7,[1.20,1.20,1.14],.6);
+ }
+ buildSchoolExit(m,s,h){
+   // Exit is integrated into the actual perimeter, not a freestanding prop.
+   this.gateBox(m,s,-.5,.0,-.22,-.365,h,.22,4,[.98,1.02,1.03]);
+   this.gateBox(m,s,.365,.0,-.22,.5,h,.22,4,[.98,1.02,1.03]);
+   this.gateBox(m,s,-.5,2.12,-.21,.5,h,.21,4,[.99,1.03,1.05]);
+   this.gateBox(m,s,-.395,0,-.12,-.345,2.14,.13,6,[.82,1.0,1.16]);
+   this.gateBox(m,s,.345,0,-.12,.395,2.14,.13,6,[.82,1.0,1.16]);
+   this.gateBox(m,s,-.395,2.0,-.12,.395,2.15,.13,6,[.82,1,1.16]);
+   this.gateBox(m,s,-.355,2.20,-.28,.355,2.415,-.249,12,[1.18,1.15,1.1],.52);
+   this.gateBox(m,s,-.5,0,-.17,.5,.046,.28,1,[1,1,1]);
+   // Modern sidelights and the outdoor view beyond the door.
+   this.gateBox(m,s,-.335,.16,.15,.335,1.92,.17,11,[.88,.96,1]);
+   this.gateBox(m,s,-.11,.15,.19,-.08,1.92,.20,2,[1,1,1]);
+ }
+ makeSchoolExitDoor(s,openness){
+   const m=new Mesh(),angle=openness*1.48,u0=-.346;
+   const at=(u,y,d)=>{
+     const x=u-u0;return this.gateCoord(s,u0+Math.cos(angle)*x-Math.sin(angle)*d,y,Math.sin(angle)*x+Math.cos(angle)*d);
+   };
+   const b=(u0,y0,d0,u1,y1,d1,mat,tint,emit=0)=>{
+    const p=[at(u0,y0,d0),at(u1,y0,d0),at(u1,y1,d0),at(u0,y1,d0),at(u0,y0,d1),at(u1,y0,d1),at(u1,y1,d1),at(u0,y1,d1)];
+    for(const [a,bb,c,d] of [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]])m.quad(p[a],p[bb],p[c],p[d],mat,tint,emit);
+   };
+   b(-.342,.045,-.065,.342,1.94,.05,6,[.66,.88,1]);
+   b(-.291,.53,-.073,.291,1.84,-.065,11,[.99,1.04,1.09],.09);
+   b(-.342,.53,-.085,-.285,1.84,-.06,6,[.89,1.01,1.08]);
+   b(.285,.53,-.085,.342,1.84,-.06,6,[.89,1.01,1.08]);
+   b(-.342,1.82,-.09,.342,1.94,-.06,6,[.89,1.01,1.08]);
+   b(-.342,.48,-.087,.342,.56,-.06,6,[.89,1.01,1.08]);
+   b(.19,.90,-.13,.262,1.04,-.08,7,[.9,.9,.82],.35);
+   if(openness<.96)b(-.055,1.05,-.15,.055,1.27,-.11,12,[.98,1.02,1],.35);
+   return m;
+ }
+
  wallDecoration(m,f,theme,height,rand){
   const pp=(u,y,depth)=>{
    const x=f.a[0]+(f.b[0]-f.a[0])*u,z=f.a[2]+(f.b[2]-f.a[2])*u;
@@ -342,6 +455,7 @@ class Renderer{
   m.box(x-.3,.36,z-.46,x+.3,1.13,z-.45,7,t.accent,.32);
  }
  makeGateMesh(s,openness){
+  if(s.theme==='school')return this.makeSchoolExitDoor(s,openness);
   const m=new Mesh(),angle=openness*1.48,u0=-.36;
   const p=(u,y,dep)=>{
    const delta=u-u0,localU=u0+Math.cos(angle)*delta-Math.sin(angle)*dep;
@@ -413,10 +527,10 @@ class Renderer{
   gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.clear(gl.DEPTH_BUFFER_BIT);
   gl.useProgram(this.program);
   const u=this.u,drift=s.moveBlend||0;
-  gl.uniform1f(u.uScale,1.36);gl.uniform3f(u.uEye,s.playerX*1.36,.88,s.playerY*1.36);
-  gl.uniform1f(u.uAngle,s.playerAngle);gl.uniform1f(u.uAspect,w/h);gl.uniform1f(u.uFocus,1.35);
+  gl.uniform1f(u.uScale,1.36);gl.uniform3f(u.uEye,s.playerX*1.36,s.theme==='school'?.92:.88,s.playerY*1.36);
+  gl.uniform1f(u.uAngle,s.playerAngle);gl.uniform1f(u.uAspect,w/h);gl.uniform1f(u.uFocus,s.theme==='school'?1.15:1.35);
   gl.uniform1f(u.uBob,Math.sin(s.headBob||0)*.025*drift);gl.uniform1f(u.uPitch,0.015);
-  gl.uniform1f(u.uTime,now*.001);gl.uniform3fv(u.uFog,t.fog);
+  gl.uniform1f(u.uTime,now*.001);gl.uniform1f(u.uSchool,s.theme==='school'?1:0);gl.uniform3fv(u.uFog,t.fog);
   gl.uniform1f(u.uFogStart,s.theme==='space'?11:13);gl.uniform1f(u.uFogEnd,s.theme==='school'?39:31);
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.atlas);gl.uniform1i(u.uAtlas,0);
   if(this.staticMesh){this.bindMesh(this.staticMesh);gl.drawArrays(gl.TRIANGLES,0,this.staticMesh.count);}
