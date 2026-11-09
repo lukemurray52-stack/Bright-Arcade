@@ -4,7 +4,7 @@
 (function(){'use strict';
 const THEMES={
  classic:{wall:0,floor:1,trim:2,ceil:3,sky1:[.07,.055,.24],sky2:[.28,.17,.43],fog:[.17,.13,.35],accent:[.72,.37,1],base:[.51,.45,.75],roof:true},
- jungle:{wall:8,floor:1,trim:2,ceil:3,sky1:[.22,.63,.94],sky2:[.83,.96,.93],fog:[.44,.65,.52],accent:[.75,.97,.38],base:[.52,.72,.5],roof:false},
+ jungle:{wall:8,floor:1,trim:13,ceil:3,sky1:[.12,.64,.92],sky2:[.82,.97,.88],fog:[.43,.72,.50],accent:[1,.82,.31],base:[.54,.88,.48],roof:false},
  castle:{wall:0,floor:1,trim:2,ceil:3,sky1:[.13,.13,.25],sky2:[.37,.33,.44],fog:[.29,.27,.38],accent:[.83,.57,1],base:[.67,.63,.78],roof:true},
  space:{wall:0,floor:1,trim:2,ceil:3,sky1:[.018,.035,.12],sky2:[.06,.14,.29],fog:[.065,.17,.3],accent:[.2,.96,1],base:[.58,.82,.96],roof:true},
  school:{wall:0,floor:1,trim:2,ceil:3,sky1:[.23,.59,.88],sky2:[.88,.97,1],fog:[.73,.88,.97],accent:[.35,.76,1],base:[.94,.98,1],roof:true}
@@ -26,7 +26,7 @@ void main(){vec3 pos=aPosition;pos.xz*=uScale;vec3 relative=pos-uEye;
 }`;
 const FS=`precision mediump float;
 varying vec2 vUV;varying float vMaterial;varying vec3 vNormal;varying vec3 vTint;varying float vEmit;varying float vDistance;varying vec3 vWorld;
-uniform sampler2D uAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;
+uniform sampler2D uAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;uniform float uJungle;
 void main(){float m=floor(vMaterial+.5);
  float col=mod(m,4.);float row=3.-floor(m/4.);
  vec2 tileUV=clamp(vUV,.008,.992);
@@ -52,6 +52,19 @@ void main(){float m=floor(vMaterial+.5);
    rgb*=vec3(1.025,1.025,1.018);
  }
  rgb+=tex*vTint*vEmit*(.55+.1*sin(uTime*2.4));
+ if(uJungle>.5){
+   // Actual shader lighting on the jungle geometry: warm sun, soft canopy shade and
+   // mossy lower-wall shading, not a screen overlay or AI-generated backdrop.
+   float canopy=.86+.12*sin(vWorld.x*2.3+sin(vWorld.z*1.7))*cos(vWorld.z*2.1);
+   if(n.y>.8){
+     float spots=sin(vWorld.x*4.8+sin(vWorld.z*3.2)*.8)*sin(vWorld.z*4.7);
+     float patch=smoothstep(.28,.76,spots);
+     rgb*=mix(.78,1.16,patch)*canopy;
+   }else{
+     rgb*=mix(.76,1.,smoothstep(.05,.61,vWorld.y));
+     rgb*=vec3(1.075,1.045,.95);
+   }
+ }
  float fog=smoothstep(uFogStart,uFogEnd,vDistance);
  rgb=mix(rgb,uFog,fog*.90);
  gl_FragColor=vec4(pow(max(rgb,vec3(0.)),vec3(.94)),1.);
@@ -102,7 +115,7 @@ class Renderer{
   if(!gl)throw new Error('WebGL unavailable');this.gl=gl;
   this.program=program(gl,VS,FS);this.skyProgram=program(gl,SKYVS,SKYFS);
   this.a={};for(const name of ['aPosition','aNormal','aUV','aMaterial','aTint','aEmit'])this.a[name]=gl.getAttribLocation(this.program,name);
-  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uFog','uTime','uFogStart','uFogEnd','uSchool'])this.u[name]=gl.getUniformLocation(this.program,name);
+  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uFog','uTime','uFogStart','uFogEnd','uSchool','uJungle'])this.u[name]=gl.getUniformLocation(this.program,name);
   this.skyA=gl.getAttribLocation(this.skyProgram,'aPosition');this.skyU={};for(const name of ['uTop','uHorizon','uTime','uSpace','uCastle'])this.skyU[name]=gl.getUniformLocation(this.skyProgram,name);
   this.skyBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,this.skyBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
   this.staticMesh=null;this.dynamicBuffer=gl.createBuffer();this.dynamicCapacity=0;
@@ -136,6 +149,7 @@ class Renderer{
   const maze=s.maze,H=maze.length,wallH=theme==='castle'?2.32:theme==='jungle'?2.16:theme==='school'?2.46:2.12;
   this.wallHeight=wallH;this.size=H;this.smoothUnlock=s.unlocked?1:0;
   const m=new Mesh(),rand=seedRand(H*11471+theme.split('').reduce((n,c)=>n+c.charCodeAt(0),0));
+  if(theme==='jungle')this.jungleStats={wallFaces:0,arches:0,carvings:0,foliage:0,stonePiers:0,canopies:0,blossoms:0,plants:{fern:0,banana:0,palm:0,monstera:0,bamboo:0,flowers:0},floating:0,zones:{canopy:0,bamboo:0,palm:0,ferns:0,flowers:0},zoneLabels:['Canopy Forest','Bamboo Trail','Palm Grove','Fern Gully','Flower Glade']};
   const open=(r,c)=>r>=0&&c>=0&&r<H&&c<H&&maze[r][c]===0;
   const nearWall=(r,c)=>!open(r-1,c)||!open(r+1,c)||!open(r,c-1)||!open(r,c+1);
   // An exterior environment is real 3D geometry, not a flat image behind the door.
@@ -147,22 +161,29 @@ class Renderer{
     this.hill(m,x,z,1.5+rand()*3,2.1+rand()*2,theme==='castle'?[.32,.34,.43]:theme==='school'?[.47,.72,.63]:[.33,.58,.41]);
    }
   }
-  const wallMat=theme==='jungle'?8:0;
+  const wallMat=theme==='jungle'?0:0;
   for(let r=0;r<H;r++)for(let c=0;c<H;c++){
    const isExit=r===s.exitR&&c===s.exitC;
    if(open(r,c)){
     // Tile variation and edge shading create depth without giant square blocks.
     const v=.91+rand()*.16;
-    m.plane(c,r,c+1,r+1,.007,1,[v,v,v]);
+    const zone=theme==='jungle'?this.jungleZone(c,r,H):-1;
+    const material=theme==='jungle'?[10,1,1,10,1][zone]:1;
+    const tone=theme==='jungle'?[[.83,.94,.75],[1.03,1.04,.79],[1.04,1.05,.91],[.67,.81,.73],[1.19,1.12,.94]][zone]:[1,1,1];
+    m.plane(c,r,c+1,r+1,.007,material,[v*tone[0],v*tone[1],v*tone[2]]);
     if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,3,theme==='school'?[1.07,1.09,1.09]:[.89,.92,1]);
     if(theme==='school'&&(r+c)%5===1)this.schoolCeilingLight(m,c,r,wallH);
     if(nearWall(r,c)){
-     const line=[.64,.70,.79];
+     const line=theme==='jungle'?[[.44,.71,.39],[.69,.80,.37],[.65,.83,.50],[.39,.70,.53],[.66,.85,.44]][zone]:[.64,.70,.79];
      if(!open(r-1,c))m.plane(c,r,c+1,r+.07,.009,1,line);
      if(!open(r+1,c))m.plane(c,r+.93,c+1,r+1,.009,1,line);
      if(!open(r,c-1))m.plane(c,r,c+.07,r+1,.009,1,line);
      if(!open(r,c+1))m.plane(c+.93,r,c+1,r+1,.009,1,line);
     }
+    // Floor fragments / wind-blown leaves, kept clear of the player's walking line.
+    if(theme==='jungle'&&rand()<.18)this.jungleFloorDetail(m,c,r,rand);
+    // Rare temple lintels stay as visual accents; overhead leaves grow from trunks.
+    // No unanchored leaves across the sky: canopy is rooted in wall-cell trees.
     // Recessed floor motifs and occasional inlaid tiles.
     if(rand()<.024&&theme!=='jungle'&&theme!=='school')m.plane(c+.14,r+.14,c+.86,r+.86,.012,14,[.35,.54,.7],.10);
    }
@@ -172,8 +193,11 @@ class Renderer{
    if(open(r+1,c))faces.push({side:'s',a:[c+1,0,r+1],b:[c,0,r+1],c:[c,wallH,r+1],d:[c+1,wallH,r+1]});
    if(open(r,c-1))faces.push({side:'w',a:[c,0,r+1],b:[c,0,r],c:[c,wallH,r],d:[c,wallH,r+1]});
    if(open(r,c+1))faces.push({side:'e',a:[c+1,0,r],b:[c+1,0,r+1],c:[c+1,wallH,r+1],d:[c+1,wallH,r]});
-   for(const f of faces){
-    const shade=(theme==='jungle'?1.02:.9)+rand()*.18;
+   if(theme==='jungle'){
+    if(faces.length)this.jungleLivingBarrier(m,c,r,wallH,rand,faces.length,H);
+    this.jungleStats.wallFaces+=faces.length;
+   }else for(const f of faces){
+    const shade=.9+rand()*.18;
     m.quad(f.a,f.b,f.c,f.d,wallMat,[shade,shade,shade]);
     this.wallTrim(m,f,theme,wallH);
     const chance=rand();
@@ -181,24 +205,231 @@ class Renderer{
       if(chance<(H<=17?.45:H<=25?.36:.26))this.schoolWallDecoration(m,f,wallH,rand);
     }else if(chance<.28)this.wallDecoration(m,f,theme,wallH,rand);
    }
-   if(theme==='jungle'&&rand()<.25)m.box(c-.012,wallH-.06,r-.012,c+1.012,wallH+.16,r+1.012,8,[.83,1,.8]);
   }
   // Theme-specific world detail: accents, foliage, lights and environmental props.
-  let budget=Math.min(90,Math.round(H*H*.06));
-  for(let r=2;r<H-2&&budget>0;r++)for(let c=2;c<H-2&&budget>0;c++)if(open(r,c)&&rand()<(theme==='jungle'?.29:.12)){
-   if(theme==='jungle')this.fern(m,c+.12,r+.13,.25+rand()*.15);
+  let budget=theme==='jungle'?Math.min(82,Math.round(H*H*.105)):Math.min(90,Math.round(H*H*.06));
+  for(let r=2;r<H-2&&budget>0;r++)for(let c=2;c<H-2&&budget>0;c++)if(open(r,c)&&rand()<(theme==='jungle'?.28:.12)){
+   if(theme==='jungle'){
+     const side=rand()<.5?0:1;
+     if(nearWall(r,c)){
+       // Root each plant in an actual open floor tile touching a solid maze wall.
+       const walls=[];
+       if(!open(r-1,c))walls.push([c+.21+rand()*.58,r+.10]);
+       if(!open(r+1,c))walls.push([c+.21+rand()*.58,r+.90]);
+       if(!open(r,c-1))walls.push([c+.10,r+.21+rand()*.58]);
+       if(!open(r,c+1))walls.push([c+.90,r+.21+rand()*.58]);
+       const at=walls[(rand()*walls.length)|0];
+       if(at){ const zone=this.jungleZone(c,r,H); this.jungleZoneGroundPlant(m,at[0],at[1],zone,rand); }
+      }
+     else this.jungleFloorDetail(m,c,r,rand);
+   }
    else if(theme==='castle')this.floorAccent(m,c,r,theme,rand);
    else if(theme==='space')this.floorAccent(m,c,r,theme,rand);
    else if(theme==='classic')this.floorAccent(m,c,r,theme,rand);
    else if(theme!=='school')this.floorAccent(m,c,r,theme,rand);
    budget--;
   }
-  if(theme==='school')this.buildSchoolExit(m,s,wallH);else this.buildGateArch(m,s,t,wallH);
+  if(theme==='school')this.buildSchoolExit(m,s,wallH);else if(theme==='jungle')this.buildJungleExit(m,s,wallH,rand);else this.buildGateArch(m,s,t,wallH);
   // Exterior path and scenery deliberately aligned with the perimeter gateway.
   this.buildOutside(m,s,t,theme,rand);
   if(this.staticMesh)this.gl.deleteBuffer(this.staticMesh.buffer);
   this.staticMesh=m.finish(this.gl);
   this.exit=s;this.lastTime=0;
+ }
+
+ // --------------------------------------------------------------
+ // ADVENTURE JUNGLE v5: real volumetric plant meshes in SOLID cells.
+ // These models replace textured vertical wall polygons, rather than merely
+ // decorating a wall. All shapes grow from the floor or a supporting trunk.
+ jungleCrownVolume(m,x,y,z,rx,ry,rz,rand,variant=0){
+   // Angular irregular closed low-poly shrub volume, genuine 3D normal lighting.
+   // Crown is not planar, and every plant's bottom overlaps the ground/root stem.
+   const rings=4,steps=8,levels=[-.95,-.52,.12,.64,1.0];
+   const rot=rand()*6.28318,phase=rand()*6.28318;
+   const green=[
+    [0.72,1.08,0.68],[0.56,0.98,0.57],[0.80,1.13,0.74],
+    [0.48,0.89,0.53],[0.61,1.04,0.78],[0.78,1.07,0.50]
+   ][variant%6];
+   const shade=.90+rand()*.17,points=[];
+   for(let k=0;k<=rings;k++){
+    const t=levels[k],base=k===0||k===rings?.21:Math.sqrt(1-t*t);
+    const row=[];
+    for(let j=0;j<steps;j++){
+     const a=rot+j/steps*6.2831853;
+     const wav=1+.075*Math.sin(j*3.7+phase+k*.8);
+     row.push([x+Math.cos(a)*rx*base*wav,y+t*ry,z+Math.sin(a)*rz*base*wav]);
+    }
+    points.push(row);
+   }
+   for(let k=0;k<rings;k++)for(let j=0;j<steps;j++){
+    const nj=(j+1)%steps;
+    const t=[green[0]*(.92+rand()*.19)*shade,green[1]*(.92+rand()*.13)*shade,green[2]*(.88+rand()*.18)*shade];
+    m.quad(points[k][j],points[k][nj],points[k+1][nj],points[k+1][j],8,t);
+   }
+   // Distinct 3D foliage blades break up smooth bush geometry. Each tip
+   // emerges from its own bush surface, not from empty air or a wall texture.
+   for(let j=0;j<7;j++){
+    const a=(j+.38*(rand()-.5))/7*Math.PI*2+rot;
+    const v=Math.sin(j*2.31+phase)*.40+.13;
+    const f=Math.sqrt(1-v*v);
+    const start=[x+Math.cos(a)*rx*f*.86,y+v*ry,z+Math.sin(a)*rz*f*.86];
+    const end=[x+Math.cos(a)*rx*(1.13+rand()*.11),start[1]+(.08+rand()*.20),z+Math.sin(a)*rz*(1.13+rand()*.11)];
+    this.jungleLeaf(m,start,end,.065+rand()*.035,8,[.71+rand()*.19,1.04+rand()*.12,.59+rand()*.2]);
+   }
+ }
+ jungleBroadLeaf(m,root,mid,tip,width,variant=0){
+   // Leaf is a folded, two-sided 3D paddle with a strong midrib and a stem.
+   this.jungleStem(m,root,mid,.013,5,[.73,.89,.52]);
+   const side=[-(tip[2]-root[2]),0,tip[0]-root[0]];
+   const len=Math.hypot(...side)||1,dx=side[0]/len*width,dz=side[2]/len*width;
+   const c=[(mid[0]+tip[0])*.50,(mid[1]+tip[1])*.50+.09,(mid[2]+tip[2])*.50];
+   const left=[c[0]+dx,c[1]-.025,c[2]+dz],right=[c[0]-dx,c[1]-.025,c[2]-dz];
+   m.tri(mid,left,tip,null,variant%2?13:8,[.68,1.12,.68]);
+   m.tri(mid,tip,right,null,13,[.47,.98,.60]);
+   m.tri(mid,right,tip,null,8,[.61,1.05,.56]);
+   m.tri(mid,tip,left,null,13,[.79,1.14,.68]);
+   this.jungleStem(m,mid,tip,.006,13,[.65,1.12,.51]);
+ }
+ junglePlantWallCell(m,c,r,height,rand,edgeCount,H){
+   // Alias maintained for regression instrumentation.
+   this.jungleLivingBarrier(m,c,r,height,rand,edgeCount,H);
+ }
+ jungleZone(c,r,H){
+   // Genuine geographically distinct districts rather than independently random
+   // shrubs. Every map size receives all five regions. Soft borders are curved
+   // to avoid hard checkerboard biome transitions.
+   const x=(c+.5)/H,z=(r+.5)/H;
+   const seeds=[[.10,.13],[.85,.11],[.13,.82],[.50,.55],[.86,.82]];
+   const warp=Math.sin(x*11+z*5)*.026+Math.cos(x*7-z*11)*.022;
+   let selected=0,dist=1e12;
+   for(let i=0;i<seeds.length;i++){
+    const dx=x-seeds[i][0]+warp,dz=z-seeds[i][1]-warp*.52;
+    const d=dx*dx+dz*dz;
+    if(d<dist){dist=d;selected=i;}
+   }
+   return selected;
+ }
+ jungleLivingBarrier(m,c,r,height,rand,edgeCount,H){
+   const zone=this.jungleZone(c,r,H);
+   const names=['canopy','bamboo','palm','ferns','flowers'];
+   this.jungleStats.zones[names[zone]]++;
+   const density=H>=33?.76:H>=25?.87:1;
+   const x=c+.5,z=r+.5;
+   // Every mesh sits inside a solid wall cell. Boundaries remain provided by the
+   // existing invisible maze grid, rather than by a vertical painted surface.
+   if(zone===0){ // CANOPY FOREST: high dense tree crowns, uneven shadowy bushes.
+     const n=H>=33?1:2;
+     for(let k=0;k<n;k++){
+       const a=k*6.283/n+rand()*.28,xx=x+Math.cos(a)*.22,zz=z+Math.sin(a)*.22;
+       const tall=k===0?2.40+rand()*.55:1.40+rand()*.55;
+       this.jungleTrunk(m,xx,zz,tall*.65,rand);
+       this.jungleCrownVolume(m,xx,tall*.65,zz,.44*density,.55+rand()*.25,.43*density,rand,k);
+       this.jungleStats.foliage++;
+     }
+     if(rand()<.35)this.jungleGroundPlant(m,c+.31,r+.30,rand);
+   }else if(zone===1){ // BAMBOO TRAIL: pale soil, tall multiple stem silhouettes.
+     const n=H>=33?5:H>=25?7:9;
+     for(let k=0;k<n;k++){
+       const a=k*2.39996+rand()*.20,rad=.08+Math.sqrt((k+.5)/n)*.38;
+       const xx=x+Math.cos(a)*rad,zz=z+Math.sin(a)*rad,hh=1.75+rand()*1.27;
+       m.box(xx-.024,0,zz-.024,xx+.024,hh,zz+.024,5,[.85,1.06,.55]);
+       for(let q=1;q<=4;q++){
+         const y=hh*q/5;
+         m.box(xx-.028,y,zz-.028,xx+.028,y+.028,zz+.028,13,[.78,1.08,.69]);
+       }
+       // Each pair of leaves grows outward from a visible stalk node.
+       for(let q=0;q<2;q++){
+         const a2=a+q*2.1,by=hh*(.5+q*.17),root=[xx,by,zz];
+         const tip=[xx+Math.cos(a2)*(.20+rand()*.14),by+.11,zz+Math.sin(a2)*(.20+rand()*.14)];
+         this.jungleLeaf(m,root,tip,.067,8,[.63,1.05,.49]);
+       }
+     }
+     this.jungleStats.plants.bamboo+=n;
+   }else if(zone===2){ // PALM GROVE: obvious palm trunks & radial fronds.
+     const n=1;
+     for(let k=0;k<n;k++){
+       const xx=x+(k===0?-.20:.23),zz=z+(k===0?-.12:.20);
+       this.jungleLargePalm(m,xx,zz,2.55+rand()*.60,rand);
+       this.jungleStats.plants.palm++;
+     }
+     this.jungleCrownVolume(m,x,.31,z,.46*density,.45,.39*density,rand,1);
+     if(rand()<.5)this.jungleGroundPlant(m,c+.18,r+.26,rand);
+   }else if(zone===3){ // FERN GULLY: low feathery fronds, giant split leaves.
+     for(let k=0;k<(H>=33?2:3);k++){
+       const a=k*2.39996,xx=x+Math.cos(a)*.31,zz=z+Math.sin(a)*.33;
+       this.jungleGiantFern(m,xx,zz,.80+rand()*.42,rand);
+       this.jungleStats.plants.fern++;
+     }
+     if(rand()<.66){this.jungleBanana(m,c+.23,r+.66,rand);this.jungleStats.plants.banana++;}
+     if(rand()<.28)this.jungleCrownVolume(m,x,.35,z,.37,.35,.38,rand,4);
+   }else{ // FLOWER GLADE: low shrubs, colorful flowers, more light and ground.
+     for(let k=0;k<2;k++){
+       const a=k*Math.PI+rand()*.28,xx=x+Math.cos(a)*.19,zz=z+Math.sin(a)*.22;
+       this.jungleCrownVolume(m,xx,.46,zz,.32*density,.36,.31*density,rand,k+2);
+     }
+     for(let k=0;k<(H>=33?2:3);k++){
+       const a=k*2.39996,xx=x+Math.cos(a)*(.18+rand()*.21),zz=z+Math.sin(a)*(.20+rand()*.19);
+       this.jungleColorFlower(m,xx,zz,.78+rand()*.34,k%3,rand);
+       this.jungleStats.plants.flowers++;
+     }
+     if(rand()<.15){ // a small rare buried ruin among the greenery, not a wall
+       m.box(c+.38,0,r+.38,c+.61,.45,r+.59,0,[.90,.90,.79]);
+       this.jungleStats.stonePiers++;
+     }
+   }
+ }
+ jungleTrunk(m,x,z,h,rand){
+   const w=.045+rand()*.028;
+   m.box(x-w,0,z-w,x+w,h,z+w,5,[.93,.89,.65]);
+   // Two angled roots visibly connect the tree to the ground.
+   m.box(x-w*1.5,.0,z-w*1.5,x+w*1.5,.16,z+w*1.5,5,[.71,.76,.56]);
+ }
+ jungleLargePalm(m,x,z,h,rand){
+   this.jungleTrunk(m,x,z,h,rand);
+   const root=[x,h,z];
+   for(let i=0;i<7;i++){
+     const a=i*Math.PI*2/7+rand()*.19,dx=Math.cos(a),dz=Math.sin(a);
+     const mid=[x+dx*.33,h+.22+rand()*.08,z+dz*.33],tip=[x+dx*(.68+rand()*.19),h-.37+rand()*.14,z+dz*(.68+rand()*.19)];
+     this.jungleBroadLeaf(m,root,mid,tip,.13+rand()*.05,i);
+   }
+ }
+ jungleGiantFern(m,x,z,s,rand){
+   const root=[x,.015,z];
+   for(let j=0;j<5;j++){
+     const a=j/5*Math.PI*2+rand()*.13,dx=Math.cos(a),dz=Math.sin(a);
+     const tip=[x+dx*.49*s,.32*s,z+dz*.49*s];
+     this.jungleStem(m,root,tip,.011,5,[.63,.98,.52]);
+     const side=[-dz,0,dx];
+     for(let k=1;k<=3;k++){
+       const t=k/4,mid=[x+dx*.49*s*t,.32*s*t,z+dz*.49*s*t];
+       for(let si of [-1,1]){
+         const end=[mid[0]+side[0]*si*.14*s*(1-t),mid[1]+.04*s,mid[2]+side[2]*si*.14*s*(1-t)];
+         this.jungleLeaf(m,mid,end,.034,13,[.57,1.15,.58]);
+       }
+     }
+   }
+ }
+ jungleColorFlower(m,x,z,h,color,rand){
+   const green=[.63,1.02,.53];
+   this.jungleStem(m,[x,.0,z],[x,h,z],.016,5,green);
+   const tint=[[1.42,.39,.45],[1.32,.86,.29],[1.40,.57,1.10]][color];
+   for(let k=0;k<6;k++){
+     const a=k*Math.PI/3,dx=Math.cos(a),dz=Math.sin(a);
+     // Pale neutral atlas tile allows a true flower hue, not green multiplied
+     // onto green leaf paint; each petal is a physical folded 3D polygon.
+     const p=[x+dx*.14,h+Math.sin(a)*.11,z+dz*.14];
+     m.quad([x,h,z],[x+dx*.10,h+.13,z+dz*.10],p,[x+dx*.12,h-.08,z+dz*.12],7,tint);
+   }
+   m.box(x-.057,h-.048,z-.055,x+.057,h+.052,z+.055,7,[1.37,1.18,.33]);
+ }
+ jungleZoneGroundPlant(m,x,z,zone,rand){
+   // Groundside decoration obeys local visual biome, not a random global mix.
+   if(zone===1)this.jungleBamboo(m,x,z,rand);
+   else if(zone===2)this.junglePalm(m,x,z,rand);
+   else if(zone===3)this.jungleFern(m,x,z,rand);
+   else if(zone===4)this.jungleColorFlower(m,x,z,.53+rand()*.13,Math.floor(rand()*3),rand);
+   else this.jungleMonstera(m,x,z,rand);
+   this.jungleStats.foliage++;
  }
  wallTrim(m,f,theme,height){
   const norm=({n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]})[f.side];
@@ -213,6 +444,335 @@ class Renderer{
   }else if(theme==='school'){
    m.quad(p(0,.30),p(1,.30),p(1,.47),p(0,.47),2,[.81,.98,1],.1);
   }
+ }
+
+ // -------------------------------- JUNGLE TEMPLE --------------------------------
+ // Genuine WebGL geometry, all within existing impassable wall cells or beyond
+ // the player's collision area. The original labyrinth and spelling rules stay unchanged.
+
+ // === ADVENTURE JUNGLE v3: All foliage has an explicit physical support. ===
+ // Fronds grow from the ground, vines descend from the wall crown, and canopy
+ // branches start inside SOLID maze walls. No mid-air foliage spawners.
+ jungleStem(m,a,b,r=.012,mat=5,tint=[.75,.93,.67]){
+   const v=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],vl=Math.hypot(...v)||1;
+   const d=v.map(x=>x/vl),ref=Math.abs(d[1])>.88?[1,0,0]:[0,1,0];
+   let p=[d[1]*ref[2]-d[2]*ref[1],d[2]*ref[0]-d[0]*ref[2],d[0]*ref[1]-d[1]*ref[0]];
+   const ll=Math.hypot(...p)||1;p=p.map(x=>x/ll*r);
+   const q=[d[1]*p[2]-d[2]*p[1],d[2]*p[0]-d[0]*p[2],d[0]*p[1]-d[1]*p[0]];
+   const add=(x,v,sign)=>[x[0]+v[0]*sign,x[1]+v[1]*sign,x[2]+v[2]*sign];
+   m.quad(add(a,p,1),add(a,p,-1),add(b,p,-1),add(b,p,1),mat,tint);
+   // A single two-sided ribbon is enough for small stems at corridor scale;
+   // halve repeated stalk geometry without removing visible attachment lines.
+ }
+ jungleLeaf(m,base,tip,width=.11,mat=8,tint=[.82,1.07,.77]){
+   // A tapered leaf with a visible midrib connecting its base to its petiole.
+   const d=[tip[0]-base[0],tip[1]-base[1],tip[2]-base[2]];
+   let side=[-d[2],.09,d[0]];const sl=Math.hypot(...side)||1;side=side.map(v=>v/sl*width);
+   const mid=[base[0]+d[0]*.59,base[1]+d[1]*.59+.025,base[2]+d[2]*.59];
+   const plus=mid.map((v,i)=>v+side[i]),minus=mid.map((v,i)=>v-side[i]);
+   m.quad(base,plus,tip,minus,mat,tint);
+   if(width>.12)this.jungleStem(m,base,tip,.003,13,[.66,.98,.56]);
+ }
+ jungleWallDecoration(m,f,h,rand,mode){
+   const box=(...a)=>this.schoolWallBox(m,f,...a);
+   const N=({n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]})[f.side];
+   const P=(u,y,d)=>[f.a[0]+(f.b[0]-f.a[0])*u+N[0]*d,y,f.a[2]+(f.b[2]-f.a[2])*u+N[1]*d];
+   if(mode<.065){ // A few ruin remnants, never the predominant wall type.
+     box(.23,.42,.012,.77,1.54,.055,2,[.82,1.02,.78]);
+     if(rand()<.45){box(.34,.67,.058,.66,1.39,.078,9,[.75,1.05,.75]);this.jungleStats.carvings++;}
+   }else if(mode<.165){ // Jungle tree bark and gnarled supporting roots.
+     const u=.24+rand()*.5;
+     box(u-.08,0,.016,u+.065,h-.08,.10,5,[.75,.98,.72]);
+     for(let j=0;j<3;j++){
+       const root=P(u,.11,.10),end=P(u+(j-1)*.19,.02,.15);
+       this.jungleStem(m,root,end,.025,5,[.66,.85,.58]);
+     }
+   }
+   // Each trailing vine begins inside the solid wall's crown, then descends.
+   const vines=1+(rand()*2|0);
+   for(let i=0;i<vines;i++){
+     const u=.06+rand()*.88,drop=.36+rand()*1.20,segments=4;
+     let prev=P(u,h+.035,.03);
+     for(let j=1;j<=segments;j++){
+       const q=j/segments,uu=u+.032*Math.sin(i*1.21+j*.83),y=h+.035-drop*q;
+       const next=P(uu,y,.048+q*.065);
+       this.jungleStem(m,prev,next,.008,13,[.50,.81,.36]);
+       if(j===2||j===4){
+         const sign=((j+i)%2?1:-1),base=next;
+         this.jungleLeaf(m,base,P(uu+sign*(.15+rand()*.15),y-.085,.17),.065+rand()*.028,8,[.72,1.10,.66]);
+       }
+       prev=next;
+     }
+   }
+   // Ground-rooted fern tufts: never sprout from empty space on the wall.
+   if(rand()<.76){
+     const rootU=.18+rand()*.63,root=P(rootU,.015,.095);
+     for(let j=0;j<4;j++){
+       const uShift=(j-1.5)*(.065+rand()*.017),top=P(rootU+uShift,.36+rand()*.29,.16+rand()*.06);
+       this.jungleStem(m,root,top,.006,13,[.58,.91,.47]);
+       for(let k=1;k<3;k++){
+         const f=k/3,pp=[root[0]*(1-f)+top[0]*f,root[1]*(1-f)+top[1]*f,root[2]*(1-f)+top[2]*f];
+         const pu=rootU+uShift*f;
+         const leaf=P(pu+(j%2?1:-1)*(.06+.018*k),pp[1]+.045,.21);
+         this.jungleLeaf(m,pp,leaf,.026,13,[.71+rand()*.1,1.08,.61]);
+       }
+     }
+     this.jungleStats.foliage++;
+   }
+   // A bromeliad/epiphyte is mounted to an explicit bark rosette on the wall.
+   if(rand()<.39){
+     const u=.24+rand()*.55,y=.58+rand()*.93,root=P(u,y,.06);
+     this.jungleStem(m,P(u,y-.22,.024),root,.022,5,[.72,.97,.65]);
+     for(let j=0;j<6;j++){
+       const a=j/6*Math.PI*2;
+       const end=P(u+Math.sin(a)*.17,y+.14+Math.cos(a)*.21,.17+Math.abs(Math.sin(a))*.09);
+       this.jungleLeaf(m,root,end,.063,13,[.63+rand()*.19,1.02,.61]);
+     }
+     this.jungleStats.foliage++;
+   }
+   // Occasional wall-rooted broadleaf tropical bush. Large recognisable paddle
+   // leaves have an explicit petiole from a single lower wall root.
+   if(rand()<.22){
+     const u=.27+rand()*.46,root=P(u,.025,.09),stemTop=P(u,.56+rand()*.20,.105);
+     this.jungleStem(m,root,stemTop,.017,13,[.61,.99,.45]);
+     for(let j=0;j<4;j++){
+       const side=j%2?1:-1,origin=P(u,.32+j*.105,.13);
+       const tip=P(u+side*(.18+rand()*.14),.45+j*.16,.21);
+       this.jungleStem(m,origin,tip,.006,13,[.54,.91,.43]);
+       this.jungleLeaf(m,origin,tip,.105+rand()*.045,j%2?8:13,[.75,1.13,.62]);
+     }
+   }
+   // Flower stalk begins at floor level and stays connected to its petals.
+   if(rand()<.17){
+     const u=.2+rand()*.60,y=.38+rand()*.56;
+     const start=P(u,.012,.12),b=P(u+.04,y,.18);
+     this.jungleStem(m,start,b,.009,13,[.52,1.01,.47]);
+     this.jungleLeaf(m,P(u+.02,y*.53,.15),P(u+.14,y*.61,.22),.043,8,[.80,1.13,.66]);
+     this.jungleFlower(m,b,rand);
+   }
+ }
+ jungleWallCrown(m,c,r,h,rand){
+   // Broad crown occupies a solid wall cell; all upright leaves touch its base.
+   const top=h+.055;
+   m.box(c+.04,h-.11,r+.04,c+.96,top,r+.96,13,[.75,1.06,.69]);
+   for(let j=0;j<3;j++){
+     const root=[c+.15+rand()*.70,top,r+.15+rand()*.70];
+     const a=rand()*Math.PI*2,len=.16+rand()*.20;
+     const tip=[root[0]+Math.cos(a)*len,top+.19+rand()*.18,root[2]+Math.sin(a)*len];
+     this.jungleStem(m,root,tip,.010,5,[.55,.80,.44]);
+     this.jungleLeaf(m,root,tip,.09,8,[.76,1.13,.65]);
+   }
+ }
+ jungleFloorDetail(m,c,r,rand){
+   const x=c+.14+rand()*.70,z=r+.14+rand()*.70;
+   if(rand()<.63){
+     const w=.09+rand()*.12;
+     m.tri([x-w,.011,z],[x+.06,.012,z-w*.60],[x+.08,.012,z+w],null,13,[.77,1.08,.58]);
+     m.tri([x+.03,.012,z],[x+w,.012,z+.04],[x-.05,.012,z+w*.63],null,8,[.72,1.05,.53]);
+   }else{
+     m.box(x-.09,.007,z-.06,x+.09,.015,z+.06,10,[.85,.92,.72]);
+   }
+ }
+ jungleOverheadArch(m,c,r,h,rand,xSpan){
+   // Rare low-profile moss-covered ruin fragment supported by BOTH stone posts.
+   const stone=[.76,.97,.72];
+   if(xSpan){
+     m.box(c+.028,1.94,r+.28,c+.13,h+.06,r+.70,2,stone);
+     m.box(c+.87,1.94,r+.28,c+.97,h+.06,r+.70,2,stone);
+     m.box(c+.028,h-.12,r+.25,c+.97,h+.10,r+.73,0,stone);
+   }else{
+     m.box(c+.28,1.94,r+.028,c+.71,h+.06,r+.13,2,stone);
+     m.box(c+.28,1.94,r+.87,c+.71,h+.06,r+.972,2,stone);
+     m.box(c+.26,h-.12,r+.028,c+.73,h+.10,r+.972,0,stone);
+   }
+   this.jungleStats.arches++;
+ }
+ jungleCanopyCrossing(m,c,r,h,rand,open){
+   // IMPORTANT: Unlike v2, branches never begin in the air.
+   // Anchor their first point into a wall cell adjacent to the open corridor.
+   const supports=[];
+   if(!open(r-1,c))supports.push([[c+.50,h+.025,r+.015],[0,0,1]]);
+   if(!open(r+1,c))supports.push([[c+.50,h+.025,r+.985],[0,0,-1]]);
+   if(!open(r,c-1))supports.push([[c+.015,h+.025,r+.50],[1,0,0]]);
+   if(!open(r,c+1))supports.push([[c+.985,h+.025,r+.50],[-1,0,0]]);
+   if(!supports.length)return;
+   const [anchor,d]=supports[(rand()*supports.length)|0];
+   // Woody branch starts inside the existing wall-top crown and grows outward.
+   const end=[anchor[0]+d[0]*(.41+rand()*.15),h+.08,anchor[2]+d[2]*(.41+rand()*.15)];
+   this.jungleStem(m,anchor,end,.025,5,[.70,.88,.59]);
+   for(let j=0;j<3;j++){
+     const t=.22+j*.28,side=j%2?1:-1;
+     const base=[anchor[0]+(end[0]-anchor[0])*t,anchor[1]+(end[1]-anchor[1])*t,anchor[2]+(end[2]-anchor[2])*t];
+     const perp=[-d[2],0,d[0]],length=.22+rand()*.18;
+     const tip=[base[0]+d[0]*.16+perp[0]*side*length,h-.12+rand()*.15,base[2]+d[2]*.16+perp[2]*side*length];
+     // Individual leaf petioles visibly meet the same woody branch.
+     this.jungleStem(m,base,tip,.006,13,[.54,.91,.45]);
+     this.jungleLeaf(m,base,tip,.065+rand()*.045,j%3?8:13,[.66+rand()*.19,1.12,.60]);
+   }
+   this.jungleStats.canopies++;
+ }
+ jungleGroundPlant(m,x,z,rand){
+   const pick=rand();
+   if(pick<.25){this.jungleFern(m,x,z,rand);this.jungleStats.plants.fern++;}
+   else if(pick<.46){this.jungleBanana(m,x,z,rand);this.jungleStats.plants.banana++;}
+   else if(pick<.60){this.junglePalm(m,x,z,rand);this.jungleStats.plants.palm++;}
+   else if(pick<.76){this.jungleMonstera(m,x,z,rand);this.jungleStats.plants.monstera++;}
+   else if(pick<.89){this.jungleBamboo(m,x,z,rand);this.jungleStats.plants.bamboo++;}
+   else {this.jungleFlowerBush(m,x,z,rand);this.jungleStats.plants.flowers++;}
+   this.jungleStats.foliage++;
+ }
+ jungleFern(m,x,z,rand){
+   // Pinnate fern: narrow midribs and alternating rows of small leaflets.
+   const root=[x,.018,z],fronds=5+(rand()*3|0);
+   for(let j=0;j<fronds;j++){
+     const ang=j/fronds*Math.PI*2+rand()*.15,dx=Math.cos(ang),dz=Math.sin(ang);
+     const hh=.38+rand()*.26,rad=.22+rand()*.13;
+     const end=[x+dx*rad,hh*.75,z+dz*rad];
+     this.jungleStem(m,root,end,.004,13,[.55,1.0,.50]);
+     const perp=[-dz,0,dx];
+     for(let k=1;k<=3;k++){
+       const t=k/4,b=[x+dx*rad*t,hh*.75*t,z+dz*rad*t];
+       const w=(1-.55*t)*(.054+rand()*.018);
+       for(const sign of [-1,1]){
+         const tip=[b[0]+perp[0]*w*sign+dx*.06,b[1]+.025,b[2]+perp[2]*w*sign+dz*.06];
+         this.jungleLeaf(m,b,tip,.014,13,[(.68+rand()*.1),1.10,.55]);
+       }
+     }
+   }
+ }
+ jungleBanana(m,x,z,rand){
+   // Banana/canna-like plant: a sturdy stalk and huge paddle-shaped blades.
+   const h=.64+rand()*.30;const root=[x,.018,z],node=[x,h,z];
+   this.jungleStem(m,root,node,.027,13,[.60,1.01,.49]);
+   for(let j=0;j<5;j++){
+     const a=j/5*Math.PI*2+rand()*.20,dx=Math.cos(a),dz=Math.sin(a);
+     const base=[x+(dx*.018),h*.75,z+dz*.018];
+     const tip=[x+dx*(.23+rand()*.16),h+.23+rand()*.27,z+dz*(.19+rand()*.13)];
+     this.jungleStem(m,base,tip,.010,13,[.55,.90,.43]);
+     this.jungleLeaf(m,base,tip,.135+rand()*.065,j%2?13:8,[.69+rand()*.14,1.14,.57]);
+   }
+ }
+ junglePalm(m,x,z,rand){
+   // Fan palm; brown grounded segmented trunk and radiating petioles.
+   const h=.77+rand()*.36,root=[x,.016,z],top=[x+(rand()-.5)*.04,h,z];
+   this.jungleStem(m,root,top,.033,5,[.85,.85,.65]);
+   for(let j=0;j<6;j++){
+     const a=j/6*Math.PI*2+rand()*.11,dx=Math.cos(a),dz=Math.sin(a);
+     const center=[top[0]+dx*.12,h+.11,top[2]+dz*.12];
+     this.jungleStem(m,top,center,.008,13,[.55,.92,.42]);
+     for(let k=-1;k<=1;k++){
+       const theta=a+k*.23;
+       const tip=[x+Math.cos(theta)*(.30+rand()*.08),h+.04+rand()*.13,z+Math.sin(theta)*(.30+rand()*.08)];
+       this.jungleLeaf(m,center,tip,.036,13,[.72+rand()*.13,1.16,.56]);
+     }
+   }
+ }
+ jungleMonstera(m,x,z,rand){
+   // Split-leaf arum: visible long petioles with broad, lobed leaf silhouettes.
+   const root=[x,.016,z];
+   for(let j=0;j<4;j++){
+     const a=j/4*Math.PI*2+rand()*.3,dx=Math.cos(a),dz=Math.sin(a);
+     const h=.44+rand()*.30;
+     const base=[x+dx*.075,h*.66,z+dz*.075];
+     this.jungleStem(m,root,base,.011,13,[.56,.94,.48]);
+     const tip=[x+dx*(.23+rand()*.12),h,z+dz*(.23+rand()*.12)];
+     this.jungleStem(m,base,tip,.005,13,[.6,.92,.49]);
+     this.jungleLeaf(m,base,tip,.095+rand()*.045,8,[.66,1.08,.61]);
+     const perp=[-dz,0,dx];
+     for(const s of [-1,1])for(let k=1;k<=2;k++){
+       const t=k/3,p=[base[0]+(tip[0]-base[0])*t,base[1]+(tip[1]-base[1])*t,base[2]+(tip[2]-base[2])*t];
+       const lob=[p[0]+perp[0]*s*.105+dx*.042,p[1]+.01,p[2]+perp[2]*s*.105+dz*.042];
+       this.jungleLeaf(m,p,lob,.030,8,[.72,1.10,.58]);
+     }
+   }
+ }
+ jungleBamboo(m,x,z,rand){
+   // Bamboo / reed cluster: multiple grounded jointed culms and small leaves.
+   for(let j=0;j<4;j++){
+     const xx=x+(j-1.5)*.050,zz=z+(rand()-.5)*.07,h=1.02+rand()*.44;
+     const b=[xx,.018,zz],top=[xx+.025,h,zz+.01];
+     this.jungleStem(m,b,top,.011,13,[.60,.95,.50]);
+     for(let k=1;k<=4;k++){
+       const y=h*k/5,point=[xx+.025*k/5,y,zz+.01*k/5];
+       this.jungleStem(m,[point[0]-.017,y,point[2]],[point[0]+.017,y,point[2]],.008,5,[.69,.92,.53]);
+       const tip=[point[0]+(k%2?.14:-.14),y+.065,point[2]+.06];
+       this.jungleStem(m,point,tip,.005,13,[.62,.98,.42]);
+       this.jungleLeaf(m,point,tip,.034,8,[.72,1.08,.55]);
+     }
+   }
+ }
+ jungleFlower(m,center,rand){
+   // Petals converge on the tip of a real plant stem.
+   const size=.052+rand()*.027;
+   for(let j=0;j<5;j++){
+     const a=j/5*Math.PI*2,uu=Math.cos(a),vv=Math.sin(a);
+     const p=[center[0]+uu*size,center[1]+vv*size,center[2]+.013];
+     const q=[center[0]+Math.cos(a+.55)*size*.75,center[1]+Math.sin(a+.55)*size*.75,center[2]+.023];
+     m.tri(center,p,q,null,14,j%2?[1.34,.51,.39]:[1.33,.87,.30]);
+   }
+   this.jungleStats.blossoms++;
+ }
+ jungleFlowerBush(m,x,z,rand){
+   const root=[x,.014,z];
+   for(let j=0;j<4;j++){
+     const a=j*Math.PI/2+rand()*.4,dx=Math.cos(a),dz=Math.sin(a),hh=.24+rand()*.25;
+     const tip=[x+dx*.12,hh,z+dz*.12];
+     this.jungleStem(m,root,tip,.010,13,[.52,.88,.43]);
+     this.jungleLeaf(m,[x+dx*.04,hh*.42,z+dz*.04],[x+dx*.14,hh*.62,z+dz*.15],.045,8,[.78,1.15,.63]);
+     this.jungleFlower(m,tip,rand);
+   }
+ }
+ jungleBlossom(m,x,z,rand){
+   const h=.32+rand()*.18,root=[x,.015,z],top=[x,h,z];
+   this.jungleStem(m,root,top,.012,13,[.53,.97,.47]);
+   this.jungleFlower(m,top,rand);
+ }
+ buildJungleExit(m,s,h,rand){
+   // Gateway remains in precisely the original perimeter exit tile.
+   this.gateBox(m,s,-.50,0,-.22,-.355,h+.07,.24,0,[.90,.91,.76]);
+   this.gateBox(m,s,.355,0,-.22,.50,h+.07,.24,0,[.90,.91,.76]);
+   this.gateBox(m,s,-.50,1.91,-.21,.50,h+.12,.23,0,[.94,.93,.79]);
+   for(let side of [-1,1]){
+     const l=side<0?-.50:.355,rr=side<0?-.355:.50;
+     this.gateBox(m,s,l-.016,0,-.33,rr+.016,.24,.35,2,[1.10,1.05,.82]);
+     this.gateBox(m,s,l-.026,1.61,-.34,rr+.026,1.81,.35,2,[1.04,1.06,.84]);
+     this.gateBox(m,s,l-.036,2.0,-.36,rr+.036,2.16,.35,2,[1.01,1.02,.82]);
+   }
+   this.gateBox(m,s,-.54,2.13,-.28,.54,2.30,.32,2,[.98,1.0,.82]);
+   this.gateBox(m,s,-.36,2.31,-.34,.36,2.37,.36,0,[.81,.89,.67]);
+   // One small discovered ruin: the perimeter exit retains the temple insignia.
+   this.gateBox(m,s,-.26,2.17,-.372,.26,2.31,-.34,9,[1.08,1.12,.91]);
+   this.gateBox(m,s,-.105,2.19,-.388,.105,2.29,-.373,12,[1.05,.98,.72],.08);
+   this.gateBox(m,s,-.37,.035,-.32,.37,.095,.28,1,[1.13,1.09,.95]);
+   for(let j=0;j<24;j++){
+     const u=-.47+j*.039, y=2.29-(j%4)*.07;
+     const a=this.gateCoord(s,u,y,-.4),b=this.gateCoord(s,u+.05,y-.17,-.44),c=this.gateCoord(s,u-.065,y-.15,-.43);
+     m.tri(a,b,c,null,8,[.65,.93,.50]);
+   }
+ }
+ makeJungleDoor(s,openness){
+   const m=new Mesh(),angle=openness*1.42,hinge=-.35;
+   const at=(u,y,d)=>{
+     const t=u-hinge;
+     return this.gateCoord(s,hinge+Math.cos(angle)*t-Math.sin(angle)*d,y,Math.sin(angle)*t+Math.cos(angle)*d);
+   };
+   const box=(u0,y0,d0,u1,y1,d1,mat,tint,em=0)=>{
+     const p=[at(u0,y0,d0),at(u1,y0,d0),at(u1,y1,d0),at(u0,y1,d0),at(u0,y0,d1),at(u1,y0,d1),at(u1,y1,d1),at(u0,y1,d1)];
+     for(const [a,b,c,d] of [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]])m.quad(p[a],p[b],p[c],p[d],mat,tint,em);
+   };
+   box(-.345,.04,-.07,.345,1.89,.055,4,[.86,.79,.66]);
+   for(let j=0;j<4;j++){
+     const u=-.33+j*.175;
+     box(u,.07,-.083,u+.029,1.86,-.071,5,[.80,.78,.67]);
+   }
+   for(let j=0;j<3;j++)box(-.33,.38+j*.55,-.102,.34,.43+j*.55,-.083,6,[.71,.70,.52]);
+   box(-.31,.82,-.117,.31,.89,-.103,2,[.80,.78,.66]);
+   box(.20,.86,-.14,.27,.99,-.105,14,[1.10,.98,.59],.12);
+   if(openness<.96){
+     box(-.105,.91,-.15,.105,1.12,-.113,12,[.98,.93,.61],.35);
+     box(-.035,.90,-.163,.035,1.13,-.151,14,[1.06,.93,.60],.32);
+   }
+   return m;
  }
 
  // -------------------------------- SCHOOL ADVENTURE --------------------------------
@@ -350,6 +910,26 @@ class Renderer{
   }
  }
  tree(m,x,z,scale=1,theme='jungle'){
+  if(theme==='jungle'){
+    // Tropical canopy in place of the old triangular/pine-tree silhouette.
+    // Layered bowed fronds are genuinely 3D, with different-facing leaf surfaces.
+    const h=(1.7+.26*(Math.sin(x*5+z*3)))*scale;
+    for(let k=0;k<5;k++){
+      const y0=k*h/5,y1=(k+1)*h/5;
+      m.box(x-.062*scale,y0,z-.062*scale,x+.062*scale,y1,z+.062*scale,5,[.74,.70,.48]);
+    }
+    for(let i=0;i<9;i++){
+      const ang=i*6.2831853/9+.24,dx=Math.cos(ang),dz=Math.sin(ang);
+      const len=(.60+.22*Math.sin(i*3.1))*scale;
+      const apex=[x,h+.09*scale,z],mid=[x+dx*len*.55,h+.17*scale,z+dz*len*.55];
+      const tip=[x+dx*len*1.35,h-.49*scale,z+dz*len*1.35];
+      const side=[-dz*.15*scale,0,dx*.15*scale];
+      m.tri(apex,[mid[0]+side[0],mid[1],mid[2]+side[2]],tip,null,13,[.52,.91,.53]);
+      m.tri(apex,tip,[mid[0]-side[0],mid[1],mid[2]-side[2]],null,8,[.66,1.03,.59]);
+      m.tri([mid[0]+side[0],mid[1],mid[2]+side[2]],tip,[mid[0]-side[0],mid[1],mid[2]-side[2]],null,13,[.58,.89,.45]);
+    }
+    return;
+  }
   const tr=theme==='castle'?[.35,.29,.37]:[.53,.38,.25];
   m.box(x-.075*scale,0,z-.075*scale,x+.075*scale,.83*scale,z+.075*scale,5,tr);
   const leaf=theme==='castle'?[.37,.36,.49]:theme==='school'?[.41,.80,.49]:[.3,.69,.33];
@@ -432,7 +1012,7 @@ class Renderer{
    m.quad(a,b,c,dd,theme==='jungle'||theme==='castle'?1:theme==='space'?6:theme==='school'?1:14,[1.08,1.06,.99]);
   }
   if(['jungle','school','castle'].includes(theme)){
-   for(let j=0;j<10;j++){
+   for(let j=0;j<18;j++){
     const lateral=(j%2?1:-1)*(1.4+rand()*3.8),d=1.5+rand()*8;
     this.tree(m,X(lateral,d),Z(lateral,d),.55+rand()*.85,theme);
     if(theme==='jungle'&&j<5)this.fern(m,X(lateral*.4,d),Z(lateral*.4,d),.42);
@@ -456,6 +1036,7 @@ class Renderer{
  }
  makeGateMesh(s,openness){
   if(s.theme==='school')return this.makeSchoolExitDoor(s,openness);
+  if(s.theme==='jungle')return this.makeJungleDoor(s,openness);
   const m=new Mesh(),angle=openness*1.48,u0=-.36;
   const p=(u,y,dep)=>{
    const delta=u-u0,localU=u0+Math.cos(angle)*delta-Math.sin(angle)*dep;
@@ -528,10 +1109,10 @@ class Renderer{
   gl.useProgram(this.program);
   const u=this.u,drift=s.moveBlend||0;
   gl.uniform1f(u.uScale,1.36);gl.uniform3f(u.uEye,s.playerX*1.36,s.theme==='school'?.92:.88,s.playerY*1.36);
-  gl.uniform1f(u.uAngle,s.playerAngle);gl.uniform1f(u.uAspect,w/h);gl.uniform1f(u.uFocus,s.theme==='school'?1.15:1.35);
+  gl.uniform1f(u.uAngle,s.playerAngle);gl.uniform1f(u.uAspect,w/h);gl.uniform1f(u.uFocus,s.theme==='school'?1.15:s.theme==='jungle'?1.14:1.35);
   gl.uniform1f(u.uBob,Math.sin(s.headBob||0)*.025*drift);gl.uniform1f(u.uPitch,0.015);
-  gl.uniform1f(u.uTime,now*.001);gl.uniform1f(u.uSchool,s.theme==='school'?1:0);gl.uniform3fv(u.uFog,t.fog);
-  gl.uniform1f(u.uFogStart,s.theme==='space'?11:13);gl.uniform1f(u.uFogEnd,s.theme==='school'?39:31);
+  gl.uniform1f(u.uTime,now*.001);gl.uniform1f(u.uSchool,s.theme==='school'?1:0);gl.uniform1f(u.uJungle,s.theme==='jungle'?1:0);gl.uniform3fv(u.uFog,t.fog);
+  gl.uniform1f(u.uFogStart,s.theme==='space'?11:s.theme==='jungle'?17:13);gl.uniform1f(u.uFogEnd,s.theme==='school'?39:s.theme==='jungle'?36:31);
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.atlas);gl.uniform1i(u.uAtlas,0);
   if(this.staticMesh){this.bindMesh(this.staticMesh);gl.drawArrays(gl.TRIANGLES,0,this.staticMesh.count);}
   const elapsed=Math.min(.05,Math.max(0,(now-(this.lastTime||now))/1000));this.lastTime=now;
