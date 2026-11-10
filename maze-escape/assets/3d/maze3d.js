@@ -2,10 +2,25 @@
    Self-contained; no CDN, engine download, data collection or remote dependency.
    The original accessible first-person canvas remains the automatic fallback. */
 (function(){'use strict';
+ // Display name update applies to the existing five-world game without requiring
+ // an index.html replacement (which may contain the user's independent changes).
+ document.addEventListener('DOMContentLoaded',()=>{
+   try{
+     if(typeof themes!=='undefined'&&themes.castle){
+       themes.castle.name='Royal Castle';
+       themes.castle.accent='#c58b37';
+       themes.castle.accent2='#42688b';
+       themes.castle.bg='#efe2ce';
+     }
+     const label=document.querySelector('[data-theme="castle"] strong');
+     if(label)label.textContent='Royal Castle';
+   }catch(e){console.warn('Castle label fallback:',e)}
+ });
+
 const THEMES={
  classic:{wall:0,floor:1,trim:2,ceil:3,sky1:[.07,.055,.24],sky2:[.28,.17,.43],fog:[.17,.13,.35],accent:[.72,.37,1],base:[.51,.45,.75],roof:true},
  jungle:{wall:8,floor:1,trim:13,ceil:3,sky1:[.12,.64,.92],sky2:[.82,.97,.88],fog:[.43,.72,.50],accent:[1,.82,.31],base:[.54,.88,.48],roof:false},
- castle:{wall:0,floor:1,trim:2,ceil:3,sky1:[.13,.13,.25],sky2:[.37,.33,.44],fog:[.29,.27,.38],accent:[.83,.57,1],base:[.67,.63,.78],roof:true},
+ castle:{wall:0,floor:1,trim:2,ceil:3,sky1:[.28,.52,.80],sky2:[.95,.89,.75],fog:[.69,.65,.57],accent:[1,.67,.23],base:[.97,.94,.82],roof:true},
  space:{wall:0,floor:1,trim:2,ceil:3,sky1:[.018,.035,.12],sky2:[.06,.14,.29],fog:[.065,.17,.3],accent:[.2,.96,1],base:[.58,.82,.96],roof:true},
  school:{wall:0,floor:1,trim:2,ceil:3,sky1:[.23,.59,.88],sky2:[.88,.97,1],fog:[.73,.88,.97],accent:[.35,.76,1],base:[.94,.98,1],roof:true}
 };
@@ -26,7 +41,7 @@ void main(){vec3 pos=aPosition;pos.xz*=uScale;vec3 relative=pos-uEye;
 }`;
 const FS=`precision mediump float;
 varying vec2 vUV;varying float vMaterial;varying vec3 vNormal;varying vec3 vTint;varying float vEmit;varying float vDistance;varying vec3 vWorld;
-uniform sampler2D uAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;uniform float uJungle;
+uniform sampler2D uAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;uniform float uJungle;uniform float uCastle;
 void main(){float m=floor(vMaterial+.5);
  float col=mod(m,4.);float row=3.-floor(m/4.);
  vec2 tileUV=clamp(vUV,.008,.992);
@@ -51,7 +66,13 @@ void main(){float m=floor(vMaterial+.5);
    }
    rgb*=vec3(1.025,1.025,1.018);
  }
- rgb+=tex*vTint*vEmit*(.55+.1*sin(uTime*2.4));
+ rgb+=tex*vTint*vEmit*(.58+.22*sin(uTime*7.3+vWorld.x*2.1+vWorld.z*3.7));
+ if(uCastle>.5){
+   // Pale limestone stays visible under warm, lively torch illumination.
+   float warmth=.95+.12*sin(vWorld.x*2.9+vWorld.z*1.8+uTime*.70);
+   rgb*=vec3(1.10*warmth,1.055*warmth,.97);
+   if(n.y>.65)rgb*=vec3(1.07,1.045,.98);
+ }
  if(uJungle>.5){
    // Actual shader lighting on the jungle geometry: warm sun, soft canopy shade and
    // mossy lower-wall shading, not a screen overlay or AI-generated backdrop.
@@ -120,7 +141,7 @@ class Renderer{
   if(!gl)throw new Error('WebGL unavailable');this.gl=gl;
   this.program=program(gl,VS,FS);this.skyProgram=program(gl,SKYVS,SKYFS);
   this.a={};for(const name of ['aPosition','aNormal','aUV','aMaterial','aTint','aEmit'])this.a[name]=gl.getAttribLocation(this.program,name);
-  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uFog','uTime','uFogStart','uFogEnd','uSchool','uJungle'])this.u[name]=gl.getUniformLocation(this.program,name);
+  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uFog','uTime','uFogStart','uFogEnd','uSchool','uJungle','uCastle'])this.u[name]=gl.getUniformLocation(this.program,name);
   this.skyA=gl.getAttribLocation(this.skyProgram,'aPosition');this.skyU={};for(const name of ['uTop','uHorizon','uTime','uSpace','uCastle'])this.skyU[name]=gl.getUniformLocation(this.skyProgram,name);
   this.skyBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,this.skyBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
   this.staticMesh=null;this.dynamicBuffer=gl.createBuffer();this.dynamicCapacity=0;
@@ -151,9 +172,10 @@ class Renderer{
   const s=this.getState();if(!s||!s.maze||!s.maze.length)return;
   const theme=s.theme||'jungle';const t=THEMES[theme]||THEMES.jungle;
   this.loadTexture(theme);
-  const maze=s.maze,H=maze.length,wallH=theme==='castle'?2.32:theme==='jungle'?2.16:theme==='school'?2.46:2.12;
+  const maze=s.maze,H=maze.length,wallH=theme==='castle'?3.65:theme==='jungle'?2.16:theme==='school'?2.46:2.12;
   this.wallHeight=wallH;this.size=H;this.smoothUnlock=s.unlocked?1:0;
   const m=new Mesh(),rand=seedRand(H*11471+theme.split('').reduce((n,c)=>n+c.charCodeAt(0),0));
+  if(theme==='castle')this.castleStats={walls:0,torches:0,paintings:0,statues:0,shields:0,swords:0,arches:0,banners:0,vaults:0};
   if(theme==='jungle')this.jungleStats={wallFaces:0,arches:0,carvings:0,foliage:0,stonePiers:0,canopies:0,blossoms:0,plants:{fern:0,banana:0,palm:0,monstera:0,bamboo:0,flowers:0},floating:0,zones:{canopy:0,bamboo:0,palm:0,ferns:0,flowers:0},zoneLabels:['Canopy Forest','Bamboo Trail','Palm Grove','Fern Gully','Flower Glade']};
   const open=(r,c)=>r>=0&&c>=0&&r<H&&c<H&&maze[r][c]===0;
   const nearWall=(r,c)=>!open(r-1,c)||!open(r+1,c)||!open(r,c-1)||!open(r,c+1);
@@ -166,7 +188,7 @@ class Renderer{
     this.hill(m,x,z,1.5+rand()*3,2.1+rand()*2,theme==='castle'?[.32,.34,.43]:theme==='school'?[.47,.72,.63]:[.33,.58,.41]);
    }
   }
-  const wallMat=theme==='jungle'?0:0;
+  const wallMat=0;
   for(let r=0;r<H;r++)for(let c=0;c<H;c++){
    const isExit=r===s.exitR&&c===s.exitC;
    if(open(r,c)){
@@ -176,8 +198,14 @@ class Renderer{
     const material=1;
     const tone=theme==='jungle'?[[1.03,1.01,.97],[1.10,1.055,.95],[1.08,1.065,1.01],[.99,1.00,.96],[1.13,1.08,1.00]][zone]:[1,1,1];
     m.plane(c,r,c+1,r+1,.007,material,[v*tone[0],v*tone[1],v*tone[2]]);
-    if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,3,theme==='school'?[1.07,1.09,1.09]:[.89,.92,1]);
+    if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,3,theme==='school'?[1.07,1.09,1.09]:theme==='castle'?[1.10,1.07,1.00]:[.89,.92,1]);
     if(theme==='school'&&(r+c)%5===1)this.schoolCeilingLight(m,c,r,wallH);
+    if(theme==='castle'&&r>0&&c>0&&r<H-1&&c<H-1){
+      const ns=open(r-1,c)&&open(r+1,c)&&!open(r,c-1)&&!open(r,c+1);
+      const ew=open(r,c-1)&&open(r,c+1)&&!open(r-1,c)&&!open(r+1,c);
+      if((ns||ew)&&((r*7+c*13)%5===0)){this.castleCrossArch(m,c,r,wallH,ns);this.castleStats.arches++;}
+      else if((r*3+c*7)%7===1){this.castleCeiling(m,c,r,wallH);this.castleStats.vaults++;}
+    }
     if(nearWall(r,c)){
      const line=theme==='jungle'?[[.44,.71,.39],[.69,.80,.37],[.65,.83,.50],[.39,.70,.53],[.66,.85,.44]][zone]:[.64,.70,.79];
      if(!open(r-1,c))m.plane(c,r,c+1,r+.12,.019,6,line);
@@ -208,6 +236,12 @@ class Renderer{
     const chance=rand();
     if(theme==='school'){
       if(chance<(H<=17?.45:H<=25?.36:.26))this.schoolWallDecoration(m,f,wallH,rand);
+    }else if(theme==='castle'){
+      // Keep the largest mazes comfortable on school computers.
+      // The marble architecture remains on all walls; ornate props use a
+      // size-aware density so Hard does not draw hundreds of extra busts.
+      if(rand()<(H>=33?.45:H>=25?.76:1.0))this.castleWallFace(m,f,wallH,rand,chance);
+      this.castleStats.walls++;
     }else if(chance<.28)this.wallDecoration(m,f,theme,wallH,rand);
    }
   }
@@ -228,13 +262,13 @@ class Renderer{
       }
      else this.jungleFloorDetail(m,c,r,rand);
    }
-   else if(theme==='castle')this.floorAccent(m,c,r,theme,rand);
+   else if(theme==='castle'){if(rand()<.37)this.castleFloorAccent(m,c,r,rand);}
    else if(theme==='space')this.floorAccent(m,c,r,theme,rand);
    else if(theme==='classic')this.floorAccent(m,c,r,theme,rand);
    else if(theme!=='school')this.floorAccent(m,c,r,theme,rand);
    budget--;
   }
-  if(theme==='school')this.buildSchoolExit(m,s,wallH);else if(theme==='jungle')this.buildJungleExit(m,s,wallH,rand);else this.buildGateArch(m,s,t,wallH);
+  if(theme==='school')this.buildSchoolExit(m,s,wallH);else if(theme==='jungle')this.buildJungleExit(m,s,wallH,rand);else if(theme==='castle')this.buildCastleExit(m,s,wallH);else this.buildGateArch(m,s,t,wallH);
   // Exterior path and scenery deliberately aligned with the perimeter gateway.
   this.buildOutside(m,s,t,theme,rand);
   if(this.staticMesh)this.gl.deleteBuffer(this.staticMesh.buffer);
@@ -440,8 +474,8 @@ class Renderer{
   const norm=({n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]})[f.side];
   const p=(x,t)=>[f.a[0]+(f.b[0]-f.a[0])*x+norm[0]*.015,t,f.a[2]+(f.b[2]-f.a[2])*x+norm[1]*.015];
   // Continuous wainscot and upper band unify adjacent tiles as one corridor.
-  m.quad(p(0,.04),p(1,.04),p(1,.18),p(0,.18),theme==='jungle'?0:2,[.82,.85,.89]);
-  m.quad(p(0,height-.16),p(1,height-.16),p(1,height-.04),p(0,height-.04),theme==='jungle'?8:2,[.97,1,1]);
+  m.quad(p(0,.04),p(1,.04),p(1,theme==='castle'?.32:.18),p(0,theme==='castle'?.32:.18),theme==='jungle'?0:2,theme==='castle'?[1.03,1.00,.91]:[.82,.85,.89]);
+  m.quad(p(0,height-.24),p(1,height-.24),p(1,height-.04),p(0,height-.04),theme==='jungle'?8:2,theme==='castle'?[1.15,1.09,.92]:[.97,1,1]);
   if(theme==='jungle'){
    m.quad(p(0,.18),p(1,.18),p(1,.31),p(0,.31),0,[.77,.84,.7]);
   }else if(theme==='space'||theme==='classic'){
@@ -875,6 +909,207 @@ class Renderer{
    return m;
  }
 
+
+// ROYAL CASTLE — warm, high-stone Renaissance castle architecture.
+// Decorative meshes sit against blocked cells and cannot change maze collision.
+castleWallBox(m,f,u0,y0,d0,u1,y1,d1,mat=2,tint=[1,1,1],emit=0){
+ this.schoolWallBox(m,f,u0,y0,d0,u1,y1,d1,mat,tint,emit);
+}
+castlePoint(f,u,y,d=0){
+ const n=({n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]})[f.side];
+ return [f.a[0]+(f.b[0]-f.a[0])*u+n[0]*d,y,f.a[2]+(f.b[2]-f.a[2])*u+n[1]*d];
+}
+castleWallFace(m,f,h,rand,chance){
+ const box=(...args)=>this.castleWallBox(m,f,...args);
+ const P=(u,y,d)=>this.castlePoint(f,u,y,d);
+ const lower=.26,upper=h-.20;
+ // Stone plinth, high pilasters and capitals create a sense of height.
+ if(chance<.38){
+  box(.035,0,.016,.12,h-.05,.075,2,[1.10,1.06,.99]);
+  box(.88,0,.016,.965,h-.05,.075,2,[1.09,1.06,.99]);
+  box(.016,2.52,.025,.135,2.68,.095,4,[1.10,1.08,1.02]);
+  box(.865,2.52,.025,.982,2.68,.095,4,[1.10,1.08,1.02]);
+ }
+ // Different display types repeat in a controlled pattern, not on every wall.
+ const d=rand();
+ if(chance<.25){
+  this.castleTorch(m,f,.50,2.14,rand);this.castleStats.torches++;
+ }else if(chance<.46){
+  this.castleFramedArt(m,f,1+Math.floor(rand()*3),rand);this.castleStats.paintings++;
+ }else if(chance<.64){
+  this.castleArmourDisplay(m,f,rand);this.castleStats.shields++;this.castleStats.swords+=2;
+ }else if(chance<.78){
+  this.castleStatueNiche(m,f,rand);this.castleStats.statues++;
+ }else if(chance<.86){
+  this.castleBanner(m,f,rand);this.castleStats.banners++;
+ }else if(chance<.98&&rand()<.40){
+  // Repeating lit torches still illuminate the quieter sections.
+  this.castleTorch(m,f,.52,2.18,rand);this.castleStats.torches++;
+ }
+}
+castleTorch(m,f,u,y,rand){
+ const b=(...a)=>this.castleWallBox(m,f,...a);
+ const P=(U,Y,D)=>this.castlePoint(f,U,Y,D);
+ // Wall bracket, handle, bowl and protective iron band.
+ b(u-.085,y-.20,.045,u+.085,y-.13,.18,6,[.83,.78,.68]);
+ b(u-.040,y-.14,.13,u+.04,y+.19,.17,6,[.80,.71,.55]);
+ b(u-.118,y+.09,.14,u+.118,y+.165,.25,12,[.93,.90,.72]);
+ b(u-.145,y+.155,.14,u+.145,y+.20,.27,6,[.57,.48,.39]);
+ // Multiple yellow-orange tongues make a proper visible flame, supported by the bowl.
+ for(let k=0;k<5;k++){
+  const j=(k-2)*.036,y0=y+.20;
+  const bottom=P(u+j,y0,.22), left=P(u+j-.042,y0+.052,.22),right=P(u+j+.047,y0+.035,.23);
+  const apex=P(u+j*.42,y0+.30+(k%3)*.045,.21);
+  const orange=k%2? [1.31,.70,.20]:[1.42,.95,.46];
+  m.tri(bottom,left,apex,null,7,orange,.95);
+  m.tri(bottom,apex,right,null,7,[1.47,1.11,.55],.80);
+ }
+ // A warm little wall halo is a real geometry quad rather than a glow image.
+ m.quad(P(u-.23,y-.20,.015),P(u+.23,y-.20,.015),P(u+.23,y+.40,.015),P(u-.23,y+.40,.015),7,[.22,.12,.045],.16);
+}
+castleFramedArt(m,f,kind,rand){
+ const b=(...a)=>this.castleWallBox(m,f,...a);
+ const P=(u,y,d)=>this.castlePoint(f,u,y,d);
+ const mat=kind===1?9:kind===2?11:15;
+ const y0=.91,y1=2.53,x0=.19,x1=.81;
+ // Deep carved gilt frame with a real inset painting surface.
+ b(x0-.038,y0-.05,.034,x1+.038,y1+.05,.118,5,[.80,.69,.43]);
+ b(x0-.024,y0-.034,.121,x1+.024,y1+.034,.150,12,[1.30,1.12,.67]);
+ b(x0,y0,.153,x1,y1,.163,mat,[1.20,1.17,1.13]);
+ for(const [u,y] of [[x0-.028,y0-.037],[x0-.028,y1],[x1,y0-.037],[x1,y1]])
+  b(u,y,.15,u+.035,y+.046,.19,12,[1.24,1.08,.58]);
+ b(.42,y1+.07,.06,.58,y1+.11,.095,12,[1.15,1.03,.73]);
+}
+castleArmourDisplay(m,f,rand){
+ const b=(...a)=>this.castleWallBox(m,f,...a);
+ const P=(u,y,d)=>this.castlePoint(f,u,y,d);
+ const steel=[1.07,1.10,1.16],gold=[1.28,1.11,.66];
+ // Crossed swords: shaped blades and true projecting pommels.
+ for(let i=0;i<2;i++){
+  const side=i===0?1:-1;
+  const a=P(.50-side*.24,1.05,.065),tip=P(.50+side*.19,2.18,.092);
+  const s=P(.50-side*.18,1.25,.105),e=P(.50+side*.15,2.08,.092);
+  m.quad(P(.50-side*.21,1.30,.12),P(.50-side*.165,1.26,.12),P(.50+side*.15,2.04,.10),P(.50+side*.12,2.12,.10),6,steel);
+  m.tri(P(.50+side*.15,2.04,.10),P(.50+side*.12,2.12,.10),tip,null,7,steel);
+  m.quad(P(.50-side*.28,1.30,.15),P(.50-side*.08,1.23,.15),P(.50-side*.08,1.27,.15),P(.50-side*.28,1.34,.15),12,gold);
+  b(.50-side*.225-.026,1.02,.12,.50-side*.225+.026,1.26,.17,5,[.98,.88,.70]);
+ }
+ // Shield: a curved kite silhouette suspended in front of the sword blades.
+ const shield=[P(.50,2.00,.24),P(.73,1.86,.25),P(.72,1.35,.25),P(.50,1.16,.29),P(.28,1.35,.25),P(.27,1.86,.25)];
+ for(let i=0;i<6;i++)m.tri(P(.50,1.61,.29),shield[i],shield[(i+1)%6],null,14,i%2?[.92,.99,1.11]:[.72,.87,1.08]);
+ m.quad(P(.465,1.36,.305),P(.535,1.36,.305),P(.535,1.90,.305),P(.465,1.90,.305),12,gold);
+ m.quad(P(.325,1.61,.310),P(.675,1.61,.310),P(.675,1.69,.310),P(.325,1.69,.310),12,gold);
+ b(.467,1.61,.31,.535,1.70,.352,12,[1.24,1.11,.76]);
+}
+castleStatueNiche(m,f,rand){
+ const b=(...a)=>this.castleWallBox(m,f,...a);
+ const P=(u,y,d)=>this.castlePoint(f,u,y,d);
+ // Deep recessed stone niche with arch, pedestal and sculpted marble bust.
+ b(.18,.44,.020,.82,2.42,.034,8,[.75,.75,.72]);
+ b(.13,.44,.033,.20,2.32,.145,2,[1.11,1.08,1.04]);
+ b(.80,.44,.033,.87,2.32,.145,2,[1.11,1.08,1.04]);
+ b(.13,2.30,.033,.87,2.40,.140,2,[1.10,1.08,1.02]);
+ b(.24,.40,.06,.76,.52,.20,12,[1.11,1.05,.82]);
+ b(.31,.52,.09,.69,.90,.22,2,[1.06,1.08,1.06]);
+ b(.28,.90,.08,.72,.99,.22,4,[1.23,1.17,1.06]);
+ // Bust body with shoulders, slender neck and polygonal face.
+ b(.33,1.01,.08,.67,1.35,.20,4,[1.19,1.17,1.10]);
+ b(.44,1.28,.14,.56,1.52,.22,4,[1.18,1.16,1.08]);
+ const faceCenter=P(.50,1.72,.18),top=P(.50,1.98,.20),bottom=P(.50,1.52,.18);
+ for(let k=0;k<8;k++){
+  const a=k*Math.PI/4,q=(k+1)*Math.PI/4;
+  const rx=.135,ry=.19;
+  const v=P(.50+Math.cos(a)*rx,1.74+Math.sin(a)*ry,.23+Math.cos(a)*.045);
+  const w=P(.50+Math.cos(q)*rx,1.74+Math.sin(q)*ry,.23+Math.cos(q)*.045);
+  m.tri(faceCenter,v,w,null,4,[1.23,1.17,1.08]);
+ }
+ // forehead crown and pedestal plaque
+ b(.38,1.93,.165,.62,2.005,.24,12,[1.06,.99,.77]);
+ b(.405,.64,.222,.595,.71,.247,12,[1.20,1.13,.85]);
+}
+castleBanner(m,f,rand){
+ const P=(u,y,d)=>this.castlePoint(f,u,y,d);
+ const b=(...a)=>this.castleWallBox(m,f,...a);
+ b(.27,2.75,.13,.73,2.80,.18,5,[.98,.78,.55]);
+ const base=rand()<.5?[.63,.79,1.18]:[1.22,.58,.41];
+ m.quad(P(.30,2.73,.132),P(.70,2.73,.132),P(.70,.80,.15),P(.30,.80,.15),13,base);
+ m.tri(P(.30,.80,.151),P(.50,.52,.155),P(.70,.80,.151),null,13,base);
+ m.quad(P(.47,1.43,.16),P(.53,1.43,.16),P(.53,2.29,.16),P(.47,2.29,.16),12,[1.36,1.15,.60]);
+ m.quad(P(.38,1.84,.17),P(.62,1.84,.17),P(.62,1.92,.17),P(.38,1.92,.17),12,[1.36,1.15,.60]);
+}
+castleCrossArch(m,c,r,h,alongZ){
+ // A real arched rib crosses a traversable passage; supports never narrow it
+ // significantly, and all arch stones remain comfortably above player height.
+ const p=(u,y,d)=>alongZ?[c+.50+u,y,r+.51+d]:[c+.51+d,y,r+.50+u];
+ const rib=(u0,u1,y0,y1)=>{
+  m.quad(p(u0,y0,-.060),p(u1,y1,-.060),p(u1,y1+.135,-.060),p(u0,y0+.135,-.060),2,[1.17,1.09,.91]);
+  m.quad(p(u0,y0,.060),p(u1,y1,.060),p(u1,y1+.135,.060),p(u0,y0+.135,.060),2,[1.05,1.02,.91]);
+ };
+ for(const sign of [-1,1]){
+  let x=sign*.44;
+  const a=p(x,0,-.10),b=p(x,2.58,.10);
+  m.box(Math.min(a[0],b[0])-.046,0,Math.min(a[2],b[2])-.047,Math.max(a[0],b[0])+.046,2.58,Math.max(a[2],b[2])+.047,2,[1.08,1.06,1.00]);
+ }
+ for(let k=0;k<10;k++){
+  const a=-.48+k*.096,b=a+.096;
+  const yA=2.58+.56*Math.sqrt(Math.max(0,1-(a/.49)**2));
+  const yB=2.58+.56*Math.sqrt(Math.max(0,1-(b/.49)**2));
+  rib(a,b,yA,yB);
+ }
+ m.box(c+.33,h-.12,r+.32,c+.67,h+.035,r+.68,4,[1.05,1.04,.98]);
+}
+castleCeiling(m,c,r,h){
+ // Carved crossing vault strips accentuate the high ceiling.
+ m.box(c+.08,h-.09,r+.44,c+.92,h+.03,r+.56,2,[1.09,1.06,.95]);
+ m.box(c+.44,h-.09,r+.08,c+.56,h+.03,r+.92,2,[1.09,1.06,.95]);
+ m.box(c+.37,h-.15,r+.37,c+.63,h+.04,r+.63,12,[1.10,1.04,.75]);
+}
+castleFloorAccent(m,c,r,rand){
+ if(rand()<.27)m.plane(c+.16,r+.16,c+.84,r+.84,.013,3,[1.04,1.03,.96]);
+ else{
+  m.plane(c+.13,r+.36,c+.87,r+.64,.015,2,[1.05,1.07,1.03]);
+  m.plane(c+.36,r+.13,c+.64,r+.87,.016,2,[1.05,1.07,1.03]);
+ }
+}
+buildCastleExit(m,s,h){
+ // Raised stone portico and gold royal crest in the existing exterior wall.
+ this.gateBox(m,s,-.50,0,-.20,-.356,h,.21,0,[1.05,1.06,.98]);
+ this.gateBox(m,s,.356,0,-.20,.50,h,.21,0,[1.05,1.06,.98]);
+ this.gateBox(m,s,-.50,2.32,-.20,.50,h,.21,0,[1.05,1.05,1.00]);
+ this.gateBox(m,s,-.51,0,-.22,-.37,2.32,.30,2,[1.13,1.12,1.02]);
+ this.gateBox(m,s,.37,0,-.22,.51,2.32,.30,2,[1.13,1.12,1.02]);
+ for(let k=0;k<10;k++){
+  const a=Math.PI*k/10,b=Math.PI*(k+1)/10,inner=.376,outer=.503,cy=2.14;
+  const p=(R,A,D)=>this.gateCoord(s,Math.cos(A)*R,cy+Math.sin(A)*R,D);
+  m.quad(p(outer,a,-.29),p(outer,b,-.29),p(inner,b,-.30),p(inner,a,-.30),2,[1.12,1.09,.99]);
+ }
+ this.gateBox(m,s,-.48,h-.29,-.25,.48,h-.10,.26,4,[1.15,1.10,.96]);
+ this.gateBox(m,s,-.32,3.03,-.35,.32,3.31,-.28,12,[1.20,1.04,.68]);
+ this.gateBox(m,s,-.22,3.09,-.375,.22,3.25,-.347,14,[.78,.95,1.20]);
+ this.gateBox(m,s,-.045,3.09,-.40,.045,3.25,-.37,12,[1.29,1.19,.67]);
+ this.gateBox(m,s,-.22,3.15,-.40,.22,3.20,-.37,12,[1.29,1.19,.67]);
+ this.gateBox(m,s,-.39,0,-.30,.39,.05,.42,1,[1.15,1.11,.96]);
+}
+makeCastleDoor(s,openness){
+ const m=new Mesh(),angle=openness*1.48,hinge=-.35;
+ const at=(u,y,d)=>{
+  const x=u-hinge;return this.gateCoord(s,hinge+Math.cos(angle)*x-Math.sin(angle)*d,y,Math.sin(angle)*x+Math.cos(angle)*d);
+ };
+ const box=(u0,y0,d0,u1,y1,d1,mat,tint,em=0)=>{
+   const p=[at(u0,y0,d0),at(u1,y0,d0),at(u1,y1,d0),at(u0,y1,d0),at(u0,y0,d1),at(u1,y0,d1),at(u1,y1,d1),at(u0,y1,d1)];
+   for(const [a,b,c,d] of [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]])m.quad(p[a],p[b],p[c],p[d],mat,tint,em);
+ };
+ box(-.352,.04,-.065,.352,2.20,.068,5,[1.10,1.06,1.0]);
+ for(let i=0;i<6;i++){
+   const x=-.33+i*.11;
+   box(x,.06,-.073,x+.027,2.17,-.064,9,[1.06,.98,.86]);
+ }
+ for(let i=0;i<4;i++)box(-.34,.30+i*.52,-.09,.34,.35+i*.52,-.072,6,[.90,.83,.67]);
+ box(.20,.94,-.14,.27,1.06,-.092,12,[1.25,1.05,.57]);
+ if(openness<.97)box(-.075,1.09,-.16,.075,1.29,-.095,14,[1.24,1.05,.60],.15);
+ return m;
+}
+
  wallDecoration(m,f,theme,height,rand){
   const pp=(u,y,depth)=>{
    const x=f.a[0]+(f.b[0]-f.a[0])*u,z=f.a[2]+(f.b[2]-f.a[2])*u;
@@ -1016,12 +1251,21 @@ class Renderer{
    const a=[X(-ww,d),.005,Z(-ww,d)],b=[X(ww,d),.005,Z(ww,d)],c=[X(ww,d+.87),.005,Z(ww,d+.87)],dd=[X(-ww,d+.87),.005,Z(-ww,d+.87)];
    m.quad(a,b,c,dd,theme==='jungle'||theme==='castle'?1:theme==='space'?6:theme==='school'?1:14,[1.08,1.06,.99]);
   }
-  if(['jungle','school','castle'].includes(theme)){
+  if(['jungle','school'].includes(theme)){
    for(let j=0;j<18;j++){
     const lateral=(j%2?1:-1)*(1.4+rand()*3.8),d=1.5+rand()*8;
     this.tree(m,X(lateral,d),Z(lateral,d),.55+rand()*.85,theme);
     if(theme==='jungle'&&j<5)this.fern(m,X(lateral*.4,d),Z(lateral*.4,d),.42);
    }
+  }else if(theme==='castle'){
+    // Peaceful formal gardens beyond the royal arch, not haunted trees.
+    for(let j=0;j<14;j++){
+      const lateral=(j%2?1:-1)*(1.30+rand()*1.8),d=1.3+rand()*7.5;
+      const xx=X(lateral,d),zz=Z(lateral,d),h=.82+rand()*.85;
+      m.box(xx-.30,0,zz-.30,xx+.30,.22,zz+.30,2,[1.12,1.07,.96]);
+      m.box(xx-.23,.22,zz-.23,xx+.23,.26,zz+.23,12,[1.11,1.02,.77]);
+      this.cone(m,xx,.25,zz,.23,h,7,8,[.55,.83,.53]);
+    }
   }else if(theme==='space'){
    for(let j=0;j<9;j++){
     const u=(j%2?1:-1)*(1.6+rand()*2.2),d=1+rand()*10;
@@ -1041,6 +1285,7 @@ class Renderer{
  }
  makeGateMesh(s,openness){
   if(s.theme==='school')return this.makeSchoolExitDoor(s,openness);
+  if(s.theme==='castle')return this.makeCastleDoor(s,openness);
   if(s.theme==='jungle')return this.makeJungleDoor(s,openness);
   const m=new Mesh(),angle=openness*1.48,u0=-.36;
   const p=(u,y,dep)=>{
@@ -1107,7 +1352,7 @@ class Renderer{
   // Pass one: dynamic horizon, atmosphere, stars (inside the GPU, not a billboard).
   gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.useProgram(this.skyProgram);
   const t=THEMES[s.theme]||THEMES.jungle,sk=this.skyU;
-  gl.uniform3fv(sk.uTop,t.sky1);gl.uniform3fv(sk.uHorizon,t.sky2);gl.uniform1f(sk.uTime,now*.001);gl.uniform1f(sk.uSpace,s.theme==='space'?1:0);gl.uniform1f(sk.uCastle,s.theme==='castle'?.85:0);
+  gl.uniform3fv(sk.uTop,t.sky1);gl.uniform3fv(sk.uHorizon,t.sky2);gl.uniform1f(sk.uTime,now*.001);gl.uniform1f(sk.uSpace,s.theme==='space'?1:0);gl.uniform1f(sk.uCastle,0);
   gl.bindBuffer(gl.ARRAY_BUFFER,this.skyBuffer);gl.enableVertexAttribArray(this.skyA);gl.vertexAttribPointer(this.skyA,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLES,0,6);
   // Pass two: true 3D depth-tested world geometry, lighting, texture atlas, mist.
   gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.clear(gl.DEPTH_BUFFER_BIT);
@@ -1116,8 +1361,8 @@ class Renderer{
   gl.uniform1f(u.uScale,1.36);gl.uniform3f(u.uEye,s.playerX*1.36,s.theme==='school'?.92:.88,s.playerY*1.36);
   gl.uniform1f(u.uAngle,s.playerAngle);gl.uniform1f(u.uAspect,w/h);gl.uniform1f(u.uFocus,s.theme==='school'?1.15:s.theme==='jungle'?1.14:1.35);
   gl.uniform1f(u.uBob,Math.sin(s.headBob||0)*.025*drift);gl.uniform1f(u.uPitch,0.015);
-  gl.uniform1f(u.uTime,now*.001);gl.uniform1f(u.uSchool,s.theme==='school'?1:0);gl.uniform1f(u.uJungle,s.theme==='jungle'?1:0);gl.uniform3fv(u.uFog,t.fog);
-  gl.uniform1f(u.uFogStart,s.theme==='space'?11:s.theme==='jungle'?17:13);gl.uniform1f(u.uFogEnd,s.theme==='school'?39:s.theme==='jungle'?36:31);
+  gl.uniform1f(u.uTime,now*.001);gl.uniform1f(u.uSchool,s.theme==='school'?1:0);gl.uniform1f(u.uJungle,s.theme==='jungle'?1:0);gl.uniform1f(u.uCastle,s.theme==='castle'?1:0);gl.uniform3fv(u.uFog,t.fog);
+  gl.uniform1f(u.uFogStart,s.theme==='castle'?20:s.theme==='space'?11:s.theme==='jungle'?17:13);gl.uniform1f(u.uFogEnd,s.theme==='castle'?48:s.theme==='school'?39:s.theme==='jungle'?36:31);
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.atlas);gl.uniform1i(u.uAtlas,0);
   if(this.staticMesh){this.bindMesh(this.staticMesh);gl.drawArrays(gl.TRIANGLES,0,this.staticMesh.count);}
   const elapsed=Math.min(.05,Math.max(0,(now-(this.lastTime||now))/1000));this.lastTime=now;
