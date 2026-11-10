@@ -14,11 +14,13 @@
      }
      const label=document.querySelector('[data-theme="castle"] strong');
      if(label)label.textContent='Royal Castle';
+     const arcadeLabel=document.querySelector('[data-theme="classic"] strong');
+     if(arcadeLabel)arcadeLabel.textContent='Arcade Adventure';
    }catch(e){console.warn('Castle label fallback:',e)}
  });
 
 const THEMES={
- classic:{wall:0,floor:1,trim:2,ceil:3,sky1:[.07,.055,.24],sky2:[.28,.17,.43],fog:[.17,.13,.35],accent:[.72,.37,1],base:[.51,.45,.75],roof:true},
+ classic:{wall:0,floor:1,trim:2,ceil:3,sky1:[.06,.025,.23],sky2:[.32,.10,.40],fog:[.24,.12,.39],accent:[1,.62,.31],base:[.84,.49,1],roof:true},
  jungle:{wall:8,floor:1,trim:13,ceil:3,sky1:[.12,.64,.92],sky2:[.82,.97,.88],fog:[.43,.72,.50],accent:[1,.82,.31],base:[.54,.88,.48],roof:false},
  castle:{wall:0,floor:1,trim:2,ceil:3,sky1:[.28,.52,.80],sky2:[.95,.89,.75],fog:[.69,.65,.57],accent:[1,.67,.23],base:[.97,.94,.82],roof:true},
  space:{wall:0,floor:1,trim:2,ceil:3,sky1:[.018,.035,.12],sky2:[.06,.14,.29],fog:[.065,.17,.3],accent:[.2,.96,1],base:[.58,.82,.96],roof:true},
@@ -41,7 +43,7 @@ void main(){vec3 pos=aPosition;pos.xz*=uScale;vec3 relative=pos-uEye;
 }`;
 const FS=`precision mediump float;
 varying vec2 vUV;varying float vMaterial;varying vec3 vNormal;varying vec3 vTint;varying float vEmit;varying float vDistance;varying vec3 vWorld;
-uniform sampler2D uAtlas;uniform sampler2D uPaintAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;uniform float uJungle;uniform float uCastle;
+uniform sampler2D uAtlas;uniform sampler2D uPaintAtlas;uniform sampler2D uArcadeFloors;uniform sampler2D uArcadeSigns;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;uniform float uJungle;uniform float uCastle;uniform float uArcade;
 void main(){float m=floor(vMaterial+.5);
  float col=mod(m,4.);float row=3.-floor(m/4.);
  vec2 tileUV=clamp(vUV,.008,.992);
@@ -49,12 +51,22 @@ void main(){float m=floor(vMaterial+.5);
  // Painting IDs are unique 0-24 and mapped to a dedicated 8x4 Renaissance artwork atlas.
  // They are not recycled from the three shared castle material tiles.
  vec3 tex=texture2D(uAtlas,texUV).rgb;
- if(m>=16.0){
+ if(m>=16.0 && m<41.0){
     float picture=m-16.0;
     float pictureCol=mod(picture,8.0);
     float pictureRow=3.0-floor(picture/8.0);
     vec2 pictureUV=(vec2(pictureCol,pictureRow)+tileUV)/vec2(8.0,4.0);
     tex=texture2D(uPaintAtlas,pictureUV).rgb;
+ }
+ if(uArcade>.5 && m>=60.0 && m<76.0){
+    float si=m-60.0;
+    vec2 su=(vec2(mod(si,4.0),3.0-floor(si/4.0))+tileUV)/4.0;
+    tex=texture2D(uArcadeSigns,su).rgb;
+ }
+ if(uArcade>.5 && m>=50.0 && m<55.0){
+    float fi=m-50.0;
+    vec2 floorUV=(vec2(mod(fi,4.0),1.0-floor(fi/4.0))+tileUV)/vec2(4.0,2.0);
+    tex=texture2D(uArcadeFloors,floorUV).rgb;
  }
  vec3 n=normalize(vNormal);
  vec3 dir=normalize(vec3(-.56,.81,.38));
@@ -62,6 +74,47 @@ void main(){float m=floor(vMaterial+.5);
  float lower=abs(n.y)<.3?mix(.65,1.,smoothstep(.04,.4,vWorld.y)) : 1.;
  float light=face*lower+.12*max(0.,dot(n,vec3(0.,1.,0.)));
  vec3 rgb=tex*vTint*light;
+ if(uArcade>.5){
+   // Stronger material depth and architectural shade; emissive neon stays bright.
+   float floorMat=step(49.5,m)*step(m,54.5);
+   float signageMat=step(59.5,m)*step(m,75.5);
+   float baseAO=1.0;
+   if(floorMat<.5){
+      baseAO=mix(.62,1.0,smoothstep(.0,.62,vWorld.y));
+      baseAO*=.90+.10*max(0.,dot(n,dir));
+   } else {
+      vec2 nearTile=fract(vWorld.xz);
+      float edge=min(min(nearTile.x,1.-nearTile.x),min(nearTile.y,1.-nearTile.y));
+      baseAO*=mix(.69,1.12,smoothstep(.01,.44,edge));
+   }
+   rgb*=baseAO*vec3(1.09,1.05,1.12);
+   if(signageMat>.5){
+      // Backlit marquee screens remain brilliantly visible against the dark cabinet shell.
+      rgb=tex*vTint*(1.45+.09*sin(uTime*1.8+vWorld.x*3.1));
+   }
+   // The Neon Galaxy walls are visibly darker than the play and prize areas.
+   if(abs(m-6.0)<.3 || abs(m-53.0)<.3)rgb*=vec3(.68,.77,.95);
+   if(floorMat>.5){
+      float sparkle=max(0.,sin(vWorld.x*4.5+vWorld.z*1.2))*max(0.,sin(vWorld.z*5.4-vWorld.x));
+      rgb*=1.03+.05*sparkle;
+   }
+   // Physical RGB LEDs cycle through cyan/pink/purple/amber in real time.
+   // Neighbouring strips flash on different beats to avoid one uniform blink.
+   float ledPhase=uTime*2.15+floor(vWorld.x*1.8)*1.51+floor(vWorld.z*1.8)*.93;
+   vec3 rgbLED=.56+.44*cos(ledPhase+vec3(0.,2.0943951,4.1887902));
+   float chase=.72+.28*sin(uTime*4.1+floor(vWorld.x*2.4)*1.3+floor(vWorld.z*2.4)*1.51);
+   float blink=step(.12,sin(uTime*5.6+floor(vWorld.x*3.0)*.67+floor(vWorld.z*3.0)*.83));
+   float flashRate=mix(1.0,.22+.90*blink,step(.70,vEmit)*step(.10,abs(sin(vWorld.x*1.71+vWorld.z*2.08))));
+   if(abs(m-7.0)<.49 && vEmit>.25){
+      // Animate only genuine illuminated fixtures; non-emissive wall textures,
+      // cabinet art and carpet do not change hue.
+      vec3 ledColor=mix(max(tex*vTint,vec3(.15)),rgbLED, .48+.19*sin(uTime*1.2));
+      rgb+=ledColor*vEmit*(1.34*chase*flashRate);
+   }else{
+      // Playable game screens and text on marquee signs remain legible.
+      rgb+=tex*vTint*vEmit*(1.18+.17*sin(uTime*2.0+vWorld.x*.9));
+   }
+ }
  if(uSchool>.5){
    // Soft ambient occlusion at wall bases and at floor edges.
    if(abs(n.y)<.75) rgb*=mix(.72,1.,smoothstep(.01,.48,vWorld.y));
@@ -75,7 +128,7 @@ void main(){float m=floor(vMaterial+.5);
    }
    rgb*=vec3(1.025,1.025,1.018);
  }
- rgb+=tex*vTint*vEmit*(.58+.22*sin(uTime*7.3+vWorld.x*2.1+vWorld.z*3.7));
+ if(uArcade<.5)rgb+=tex*vTint*vEmit*(.58+.22*sin(uTime*7.3+vWorld.x*2.1+vWorld.z*3.7));
  if(uCastle>.5){
    // Pale limestone stays visible under warm, lively torch illumination.
    float warmth=.95+.12*sin(vWorld.x*2.9+vWorld.z*1.8+uTime*.70);
@@ -150,11 +203,28 @@ class Renderer{
   if(!gl)throw new Error('WebGL unavailable');this.gl=gl;
   this.program=program(gl,VS,FS);this.skyProgram=program(gl,SKYVS,SKYFS);
   this.a={};for(const name of ['aPosition','aNormal','aUV','aMaterial','aTint','aEmit'])this.a[name]=gl.getAttribLocation(this.program,name);
-  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uPaintAtlas','uFog','uTime','uFogStart','uFogEnd','uSchool','uJungle','uCastle'])this.u[name]=gl.getUniformLocation(this.program,name);
+  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uPaintAtlas','uArcadeFloors','uArcadeSigns','uFog','uTime','uFogStart','uFogEnd','uSchool','uJungle','uCastle','uArcade'])this.u[name]=gl.getUniformLocation(this.program,name);
   this.skyA=gl.getAttribLocation(this.skyProgram,'aPosition');this.skyU={};for(const name of ['uTop','uHorizon','uTime','uSpace','uCastle'])this.skyU[name]=gl.getUniformLocation(this.skyProgram,name);
   this.skyBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,this.skyBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
   this.staticMesh=null;this.dynamicBuffer=gl.createBuffer();this.dynamicCapacity=0;
-  this.atlas=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,this.atlas);
+  this.arcadeFloors=gl.createTexture();
+   gl.bindTexture(gl.TEXTURE_2D,this.arcadeFloors);
+   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([55,35,102,255]));
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+   this.arcadeFloorLoaded=false;
+   this.arcadeSigns=gl.createTexture();
+   gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,this.arcadeSigns);
+   gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([50,61,130,255]));
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+   this.arcadeSignsLoaded=false;
+   gl.activeTexture(gl.TEXTURE0);
+   this.atlas=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,this.atlas);
   const fallback=new Uint8Array([160,185,194,255]);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,fallback);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
   // Second POT atlas stores 25 distinct detailed paintings (256px each).
@@ -169,7 +239,8 @@ class Renderer{
   gl.activeTexture(gl.TEXTURE0);
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
   this.ready=true;
-  this.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.ready=false;document.body.classList.remove('maze-webgl-active')});
+   this.loadArcadeFloors();this.loadArcadeSigns();
+   this.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.ready=false;document.body.classList.remove('maze-webgl-active')});
   this.rebuild();
  }
  loadPaintingAtlas(){
@@ -193,7 +264,42 @@ class Renderer{
   image.onerror=()=>console.warn('Castle artwork atlas could not load');
   image.src=(window.__mazePaintingAtlas||'assets/3d/castle_paintings.png');
  }
- loadTexture(theme){
+  loadArcadeFloors(){
+    const img=new Image();
+    img.onload=()=>{
+      if(!this.ready)return;
+      const gl=this.gl;
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D,this.arcadeFloors);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.activeTexture(gl.TEXTURE0);
+      this.arcadeFloorLoaded=true;
+    };
+    img.onerror=()=>console.warn('Arcade floor atlas not found; using fallback material');
+    img.src='assets/3d/classic_floor_atlas.png';
+  }
+  loadArcadeSigns(){
+    const image=new Image();
+    image.onload=()=>{
+      if(!this.ready)return;
+      try{const gl=this.gl;
+       gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,this.arcadeSigns);
+       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+       gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,image);
+       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+       gl.generateMipmap(gl.TEXTURE_2D);gl.activeTexture(gl.TEXTURE0);
+       this.arcadeSignsLoaded=true;
+      }catch(err){console.warn('Arcade neon signage could not upload:',err);}
+    };
+    image.onerror=()=>console.warn('Arcade signage atlas missing');
+    image.src='assets/3d/classic_signs.png';
+  }
+  loadTexture(theme){
   if(this.themeName===theme)return;this.themeName=theme;
   const image=new Image();const target=theme;
   image.onload=()=>{
@@ -213,11 +319,18 @@ class Renderer{
   const theme=s.theme||'jungle';const t=THEMES[theme]||THEMES.jungle;
   this.loadTexture(theme);
   if(theme==='castle')this.loadPaintingAtlas();
-  const maze=s.maze,H=maze.length,wallH=theme==='castle'?3.65:theme==='jungle'?2.16:theme==='school'?2.46:2.12;
+  const maze=s.maze,H=maze.length,wallH=theme==='castle'?3.65:theme==='classic'?3.43:theme==='jungle'?2.16:theme==='school'?2.46:theme==='classic'?3.35:2.12;
+  // The grid is the same reference used by movement, collision and the minimap.
+  // Carve only Arcade and only REMOVE walls: no previously reachable cell becomes blocked.
+  // Idempotent on door-unlock redraws and deterministic per difficulty.
+  if(theme==='classic')this.arcadeCarvePlazas(maze,s);
   this.wallHeight=wallH;this.size=H;this.smoothUnlock=s.unlocked?1:0;
   const m=new Mesh(),rand=seedRand(H*11471+theme.split('').reduce((n,c)=>n+c.charCodeAt(0),0));
   if(theme==='castle')this.castleStats={walls:0,torches:0,paintings:0,statues:0,shields:0,swords:0,arches:0,banners:0,vaults:0,paintingIds:[],paintingLocations:[]};
-  if(theme==='jungle')this.jungleStats={wallFaces:0,arches:0,carvings:0,foliage:0,stonePiers:0,canopies:0,blossoms:0,plants:{fern:0,banana:0,palm:0,monstera:0,bamboo:0,flowers:0},floating:0,zones:{canopy:0,bamboo:0,palm:0,ferns:0,flowers:0},zoneLabels:['Canopy Forest','Bamboo Trail','Palm Grove','Fern Gully','Flower Glade']};
+  if(theme==='classic')this.arcadeCabinetCoords=[];
+  if(theme==='classic')this.arcadeSignCoords=[];
+  if(theme==='classic')this.arcadeStats={zones:[0,0,0,0,0],walls:0,cabinets:0,candy:0,prizes:0,pixel:0,galaxyStrips:0,arches:0,stars:0,neonSigns:0,gameScreens:0,clawMachines:0,ceilingLights:0,plazas:0,rgbFixtures:0};
+   if(theme==='jungle')this.jungleStats={wallFaces:0,arches:0,carvings:0,foliage:0,stonePiers:0,canopies:0,blossoms:0,plants:{fern:0,banana:0,palm:0,monstera:0,bamboo:0,flowers:0},floating:0,zones:{canopy:0,bamboo:0,palm:0,ferns:0,flowers:0},zoneLabels:['Canopy Forest','Bamboo Trail','Palm Grove','Fern Gully','Flower Glade']};
   // Prepare one shuffled deck of 25 detailed artworks for THIS maze layout.
   // Each painting consumes one card and no card is returned to the deck.
   // Rebuilding the same level (e.g. opening its exit) produces the same order.
@@ -278,11 +391,13 @@ class Renderer{
    if(open(r,c)){
     // Tile variation and edge shading create depth without giant square blocks.
     const v=.91+rand()*.16;
-    const zone=theme==='jungle'?this.jungleZone(c,r,H):-1;
-    const material=1;
-    const tone=theme==='jungle'?[[1.03,1.01,.97],[1.10,1.055,.95],[1.08,1.065,1.01],[.99,1.00,.96],[1.13,1.08,1.00]][zone]:[1,1,1];
+    const zone=theme==='jungle'?this.jungleZone(c,r,H):theme==='classic'?this.arcadeZone(c,r,H):-1;
+    const material=theme==='classic'?50+zone:1;
+    const tone=theme==='jungle'?[[1.03,1.01,.97],[1.10,1.055,.95],[1.08,1.065,1.01],[.99,1.00,.96],[1.13,1.08,1.00]][zone]:theme==='classic'?[[1.05,1.05,1.13],[1.12,.99,1.04],[1.14,1.09,.85],[.87,.95,1.06],[.95,.91,1.16]][zone]:[1,1,1];
     m.plane(c,r,c+1,r+1,.007,material,[v*tone[0],v*tone[1],v*tone[2]]);
-    if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,3,theme==='school'?[1.07,1.09,1.09]:theme==='castle'?[1.10,1.07,1.00]:[.89,.92,1]);
+    if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,theme==='classic'&&zone===3?13:3,theme==='school'?[1.07,1.09,1.09]:theme==='castle'?[1.10,1.07,1.00]:theme==='classic'?[1.05,1.05,1.1]:[.89,.92,1]);
+    if(theme==='classic'){this.arcadeStats.zones[zone]++;this.arcadeFloor(m,c,r,zone,rand,wallH);if(!this.arcadeInsidePlaza(c,r) && (r*7+c*13)%(H>=33?7:H>=25?5:3)===1)this.arcadeCeiling(m,c,r,zone,rand,wallH);
+      if(r>0&&c>0&&r<H-1&&c<H-1){const ns=open(r-1,c)&&open(r+1,c)&&!open(r,c-1)&&!open(r,c+1);const ew=open(r,c-1)&&open(r,c+1)&&!open(r-1,c)&&!open(r+1,c);if((ns||ew)&&((r*7+c*13)%(H>=33?17:H>=25?13:9)===0)){this.arcadeArch(m,c,r,zone,wallH,ns);this.arcadeStats.arches++;}}}
     if(theme==='school'&&(r+c)%5===1)this.schoolCeilingLight(m,c,r,wallH);
     if(theme==='castle'&&r>0&&c>0&&r<H-1&&c<H-1){
       const ns=open(r-1,c)&&open(r+1,c)&&!open(r,c-1)&&!open(r,c+1);
@@ -290,7 +405,7 @@ class Renderer{
       if((ns||ew)&&((r*7+c*13)%5===0)){this.castleCrossArch(m,c,r,wallH,ns);this.castleStats.arches++;}
       else if((r*3+c*7)%7===1){this.castleCeiling(m,c,r,wallH);this.castleStats.vaults++;}
     }
-    if(nearWall(r,c)){
+    if(nearWall(r,c)&&theme!=='classic'){
      const line=theme==='jungle'?[[.44,.71,.39],[.69,.80,.37],[.65,.83,.50],[.39,.70,.53],[.66,.85,.44]][zone]:[.64,.70,.79];
      if(!open(r-1,c))m.plane(c,r,c+1,r+.12,.019,6,line);
      if(!open(r+1,c))m.plane(c,r+.88,c+1,r+1,.019,6,line);
@@ -302,7 +417,7 @@ class Renderer{
     // Rare temple lintels stay as visual accents; overhead leaves grow from trunks.
     // No unanchored leaves across the sky: canopy is rooted in wall-cell trees.
     // Recessed floor motifs and occasional inlaid tiles.
-    if(rand()<.024&&theme!=='jungle'&&theme!=='school')m.plane(c+.14,r+.14,c+.86,r+.86,.012,14,[.35,.54,.7],.10);
+    if(rand()<.024&&theme!=='jungle'&&theme!=='school'&&theme!=='classic')m.plane(c+.14,r+.14,c+.86,r+.86,.012,14,[.35,.54,.7],.10);
    }
    if(maze[r][c]!==1||isExit)continue;
    const faces=[];
@@ -315,6 +430,7 @@ class Renderer{
     this.jungleStats.wallFaces+=faces.length;
    }else for(const f of faces){
     const shade=.9+rand()*.18;
+    if(theme==='classic'){const az=this.arcadeZone(c,r,H);this.arcadeWall(m,f,az,wallH,rand,H);this.arcadeStats.walls++;continue;}
     m.quad(f.a,f.b,f.c,f.d,wallMat,[shade,shade,shade]);
     this.wallTrim(m,f,theme,wallH);
     const chance=rand();
@@ -343,7 +459,7 @@ class Renderer{
   for(let r=2;r<H-2&&budget>0;r++)for(let c=2;c<H-2&&budget>0;c++)if(open(r,c)&&rand()<(theme==='jungle'?.28:.12)){
    if(theme==='jungle'){
      const side=rand()<.5?0:1;
-     if(nearWall(r,c)){
+     if(nearWall(r,c)&&theme!=='classic'){
        // Root each plant in an actual open floor tile touching a solid maze wall.
        const walls=[];
        if(!open(r-1,c))walls.push([c+.21+rand()*.58,r+.10]);
@@ -361,7 +477,13 @@ class Renderer{
    else if(theme!=='school')this.floorAccent(m,c,r,theme,rand);
    budget--;
   }
-  if(theme==='school')this.buildSchoolExit(m,s,wallH);else if(theme==='jungle')this.buildJungleExit(m,s,wallH,rand);else if(theme==='castle')this.buildCastleExit(m,s,wallH);else this.buildGateArch(m,s,t,wallH);
+  if(theme==='classic'){
+    for(const plaza of (this.arcadePlazas||[])){
+      this.arcadePlazaArchitecture(m,plaza,wallH,rand,H);
+      this.arcadeStats.plazas++;
+    }
+  }
+  if(theme==='classic')this.buildArcadeExit(m,s,wallH);else if(theme==='school')this.buildSchoolExit(m,s,wallH);else if(theme==='jungle')this.buildJungleExit(m,s,wallH,rand);else if(theme==='castle')this.buildCastleExit(m,s,wallH);else this.buildGateArch(m,s,t,wallH);
   // Exterior path and scenery deliberately aligned with the perimeter gateway.
   this.buildOutside(m,s,t,theme,rand);
   if(this.staticMesh)this.gl.deleteBuffer(this.staticMesh.buffer);
@@ -1205,6 +1327,419 @@ makeCastleDoor(s,openness){
  return m;
 }
 
+
+ // ======================= ARCADE ADVENTURE v4 : RGB + OPEN PLAZAS =======================
+ // Five connected visual neighbourhoods on the unchanged, fully playable maze.
+
+ // True walkable Arcade plazas: only walls are removed. Existing words and doors
+ // remain reachable, because every original floor cell is left untouched.
+ arcadeCarvePlazas(maze,s){
+   const H=maze.length;
+   // No new perimeter openings: the locked exit remains the only outer doorway.
+   const plans=H<=17?
+      [[3,3,2,'Retro Games'],[H-4,H-4,2,'Neon Galaxy'],[H-4,3,1,'Prize Plaza']]:
+      H<=25?
+      [[4,4,2,'Retro Games'],[H-5,4,2,'Prize Plaza'],[H-5,H-5,2,'Neon Galaxy'],[4,H-5,2,'Candy Carnival'],[Math.floor(H/2),Math.floor(H/2),2,'Pixel Playground']]:
+      [[5,5,3,'Retro Games'],[H-6,5,3,'Prize Plaza'],[H-6,H-6,3,'Neon Galaxy'],[5,H-6,2,'Candy Carnival'],[Math.floor(H/2),Math.floor(H/2),3,'Pixel Playground']];
+   this.arcadePlazas=[];
+   let newFloors=0;
+   for(const [r,c,rad,name] of plans){
+      let count=0;
+      const minR=Math.max(1,r-rad),maxR=Math.min(H-2,r+rad);
+      const minC=Math.max(1,c-rad),maxC=Math.min(H-2,c+rad);
+      for(let rr=minR;rr<=maxR;rr++)for(let cc=minC;cc<=maxC;cc++){
+        if(maze[rr][cc]===1){maze[rr][cc]=0;count++;newFloors++;}
+      }
+      this.arcadePlazas.push({r,c,rad,minR,maxR,minC,maxC,name,newFloors:count});
+   }
+   this.arcadePlazaStats={rooms:this.arcadePlazas.length,newFloors};
+ }
+ arcadeInsidePlaza(c,r){
+   return (this.arcadePlazas||[]).some(p=>c>=p.minC && c<=p.maxC && r>=p.minR && r<=p.maxR);
+ }
+ arcadePlazaArchitecture(m,p,h,rand,H){
+   // No walkable floor is blocked by these: architectural fixtures are suspended
+   // above eye-level, or recessed near the walls on already-solid cells.
+   // Distinct colour treatments help each destination read as a real open room.
+   const color=p.name==='Neon Galaxy'?[.14,1.28,1.45]:p.name==='Candy Carnival'?[1.36,.57,1.10]:p.name==='Prize Plaza'?[1.48,.97,.29]:p.name==='Pixel Playground'?[.82,.49,1.45]:[1.19,.35,1.43];
+   const other=p.name==='Neon Galaxy'?[1.39,.27,1.45]:[.18,1.22,1.40];
+   const left=p.minC+.12,right=p.maxC+.88,front=p.minR+.12,back=p.maxR+.88;
+   const roof=h-.13;
+   // Large suspended border lighting defines the plaza, supported by a
+   // visible ceiling truss. A central low light fixture would look like floating
+   // geometry; all fittings here connect to the roof.
+   m.box(left,roof,front,right,roof+.09,front+.11,5,[.27,.19,.47]);
+   m.box(left,roof,back-.11,right,roof+.09,back,5,[.27,.19,.47]);
+   m.box(left,roof,front,left+.11,roof+.09,back,5,[.27,.19,.47]);
+   m.box(right-.11,roof,front,right,roof+.09,back,5,[.27,.19,.47]);
+   m.box(left,roof-.07,front+.04,right,roof-.035,front+.075,7,color,1.35);
+   m.box(left,roof-.07,back-.075,right,roof-.035,back-.04,7,other,1.20);
+   m.box(left+.04,roof-.07,front,left+.075,roof-.035,back,7,other,1.20);
+   m.box(right-.075,roof-.07,front,right-.04,roof-.035,back,7,color,1.20);
+   // Ceiling trusses mark an open plaza and visually connect its lit fittings.
+   const bars=Math.max(2,Math.floor((p.maxC-p.minC+1)/2));
+   for(let k=0;k<bars;k++){
+     const z=front+(back-front)*(k+.5)/bars;
+     m.box(left+.11,h-.06,z-.045,right-.11,h+.012,z+.045,5,[.33,.29,.51]);
+     const cx=(left+right)/2;
+     m.box(cx-.17,roof-.09,z-.10,cx+.17,roof-.045,z+.10,7,k%2?other:color,.82);
+     this.arcadeStats.rgbFixtures++;
+   }
+   // A generously sized central symbol on the ceiling, deliberately above
+   // the walkable area rather than obstructing a player's path.
+   const cx=p.c+.5,cz=p.r+.5;
+   m.box(cx-.49,roof-.12,cz-.47,cx+.49,roof-.08,cz+.47,6,[.10,.08,.28]);
+   m.box(cx-.37,roof-.142,cz-.06,cx+.37,roof-.114,cz+.06,7,color,1.30);
+   m.box(cx-.06,roof-.142,cz-.35,cx+.06,roof-.114,cz+.35,7,other,1.15);
+   this.arcadeStats.rgbFixtures+=2;
+   // Floor centre uses a contrasting tile (the original zone carpet remains
+   // untouched elsewhere). Small lighting points do not create collision.
+   const centerMaterial=50+this.arcadeZone(p.c,p.r,H);
+   m.plane(cx-.46,cz-.46,cx+.46,cz+.46,.008,centerMaterial,[1.1,1.10,1.12]);
+   // Lighted dance-floor squares: four distinct colours chasing around a plaza.
+   for(let j=0;j<8;j++){
+     const angle=Math.PI*2*j/8;
+     const x=cx+Math.cos(angle)*.74,z=cz+Math.sin(angle)*.74;
+     m.box(x-.075,.024,z-.075,x+.075,.044,z+.075,7,j%2?other:color,.55);
+   }
+ }
+ arcadeZone(c,r,H){
+   const x=(c+.5)/H,z=(r+.5)/H;
+   const anchors=[[.12,.12],[.86,.14],[.14,.85],[.86,.86],[.51,.49]];
+   const wav=.018*Math.sin(x*18+z*7)+.014*Math.cos(z*16-x*5);
+   let chosen=0,bd=10;
+   for(let i=0;i<anchors.length;i++){
+     const dx=x-anchors[i][0]+wav,dz=z-anchors[i][1]-wav*.7;
+     const d=dx*dx+dz*dz;
+     if(d<bd){bd=d;chosen=i;}
+   }
+   return chosen;
+ }
+ arcadeTint(zone){return [[.94,.66,1.22],[1.18,.61,.91],[1.19,.88,.46],[.22,.70,1.29],[.89,.58,1.27]][zone];}
+ arcadeP(f,u,y,d){
+   const n=({n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]})[f.side];
+   return [f.a[0]+(f.b[0]-f.a[0])*u+n[0]*d,y,f.a[2]+(f.b[2]-f.a[2])*u+n[1]*d];
+ }
+ arcadeBox(m,f,u0,y0,d0,u1,y1,d1,mat=5,tint=[1,1,1],emit=0){
+   this.schoolWallBox(m,f,u0,y0,d0,u1,y1,d1,mat,tint,emit);
+ }
+ arcadeWall(m,f,zone,h,rand,H){
+   const P=(u,y,d)=>this.arcadeP(f,u,y,d),b=(...a)=>this.arcadeBox(m,f,...a);
+   const mat=[0,4,10,6,14][zone],col=this.arcadeTint(zone);
+   m.quad(f.a,f.b,f.c,f.d,mat,[1,1,1]);
+   // Quiet bays alternate with feature bays, especially in larger mazes.
+   // Keeps Hard navigable on older integrated school graphics hardware.
+   const quietWall=rand()<(H>=33?.63:H>=25?.31:0);
+   if(quietWall){
+      b(0,.02,.018,1,.13,.094,5,[.49,.43,.77]);
+      b(0,h-.25,.03,1,h-.16,.117,5,[.48,.37,.74]);
+      b(.07,h-.21,.12,.93,h-.175,.169,7,col,.50);
+      if(zone===3){
+         b(.03,.37,.08,.97,.419,.14,7,[1.15,.26,1.31],1.0);
+         this.arcadeStats.galaxyStrips++;
+      }
+      if(rand()<(H>=33?.24:H>=25?.45:.70))this.arcadeNeonWallSign(m,f,zone,rand,true);
+      return;
+   }
+   // Physically raised pillar corners, bold skirting and top edge channels.
+   b(.0,.0,.014,.094,h,.150,5,[.61,.58,.82]);
+   b(.016,.0,.154,.070,h,.175,7,col,.11);
+   b(.906,.0,.014,1,h,.150,5,[.61,.58,.82]);
+   b(.930,.0,.154,.983,h,.175,7,col,.11);
+   // Layered raised skirting, a recessed shadow channel, and a light diffuser.
+   b(0,.0,.022,1,.24,.073,5,[.58,.51,.82]);
+   b(0,.24,.060,1,.285,.104,6,[.18,.15,.39]);
+   b(.035,.28,.08,.965,.318,.136,7,[.21,1.20,1.25],.65);
+   b(0,.035,.081,1,.096,.16,7,[.20,.83,1.2],.62);
+   // Overhanging architectural crown casts a real geometrical shadow.
+   b(0,h-.29,.038,1,h-.17,.220,5,[.43,.32,.72]);
+   b(0,h-.18,.15,1,h-.135,.25,7,col,.88);
+   b(0,h-.115,.042,1,h-.06,.14,6,[.22,.16,.45]);
+   b(.11,h-.43,.05,.89,h-.398,.14,7,[1.2,.86,.36],.46);
+   // A layered inset panel makes the underlying wall a structural surface.
+   b(.11,.39,.014,.89,h-.52,.037,6,[.54,.52,.81]);
+   b(.13,.43,.039,.87,h-.57,.047,mat,[1.10,1.07,1.12]);
+   // A second glowing mid-wall light line makes the dark zone navigable.
+   if(zone===3){
+     b(0,.41,.080,1,.455,.155,7,[1.05,.25,1.2],1.15);
+     b(0,1.53,.061,1,1.57,.122,7,[.14,1.19,1.27],.95);
+     b(.075,.15,.08,.12,h-.24,.14,7,[.20,1.24,1.40],.72);
+     this.arcadeStats.galaxyStrips+=3;
+   }
+   // A varied but controlled number of landmark objects (no repeated wallpaper).
+   const mode=rand(),detailRate=H>=33?.26:H>=25?.44:.82;
+   if(rand()<(H>=33?.13:H>=25?.26:.42))this.arcadeNeonWallSign(m,f,zone,rand);
+   if(rand()>detailRate)return;
+   if(zone===0){
+     if(mode<.77){this.arcadeCabinet(m,f,rand);this.arcadeStats.cabinets++;}
+     else if(mode<.91)this.arcadeNeonWallSign(m,f,zone,rand,true);
+     else this.arcadeLitMarquee(m,f,rand);
+   }else if(zone===1){
+     if(mode<.64){this.arcadeLollipop(m,f,rand);this.arcadeStats.candy++;}
+     else if(mode<.86)this.arcadeCandyDisplay(m,f,rand);
+     else this.arcadeNeonWallSign(m,f,zone,rand,true);
+   }else if(zone===2){
+     if(mode<.42){this.arcadeClawMachine(m,f,rand);this.arcadeStats.clawMachines++;}
+     else if(mode<.86){this.arcadePrizeShelf(m,f,rand);this.arcadeStats.prizes++;}
+     else this.arcadeNeonWallSign(m,f,zone,rand,true);
+   }else if(zone===3){
+     if(mode<.45)this.arcadeNeonWallSign(m,f,zone,rand,true);
+     else if(mode<.72)this.arcadePanel(m,f,rand()<.65?14:8,[.35,.95,1.27]);
+     else this.arcadeLitMarquee(m,f,rand);
+   }else{
+     if(mode<.68){this.arcadeCabinet(m,f,rand);this.arcadeStats.cabinets++;}
+     else if(mode<.87){this.arcadeNeonWallSign(m,f,zone,rand,true);this.arcadeStats.pixel++;}
+     else this.arcadePixelStar(m,f,rand);
+   }
+ }
+ arcadeNeonWallSign(m,f,zone,rand,low=false){
+   // A physically supported, backlit sign with readable letters (NOT plain wallpaper).
+   const b=(...a)=>this.arcadeBox(m,f,...a);
+   const mat=rand()<.25?(65+((rand()*3)|0)):(60+zone);
+   if(this.arcadeSignCoords)this.arcadeSignCoords.push({x:(f.a[0]+f.b[0])*.5,z:(f.a[2]+f.b[2])*.5,side:f.side,zone,low,mat});
+   const dy=low?-.75:0;
+   const bs=(u,y,d,U,Y,D,mat,tint,emit=0)=>b(u,y+dy,d,U,Y+dy,D,mat,tint,emit);
+   bs(.12,1.96,.060,.88,2.43,.19,6,[.09,.075,.27]);
+   bs(.143,1.990,.195,.857,2.40,.202,mat,[1,1,1],.35);
+   bs(.107,1.943,.18,.893,1.971,.235,7,[.27,1.04,1.25],.85);
+   bs(.107,2.425,.18,.893,2.453,.235,7,[1.21,.32,1.13],.85);
+   bs(.102,1.953,.18,.134,2.449,.235,7,[1.18,.32,1.2],.6);
+   bs(.866,1.953,.18,.898,2.449,.235,7,[1.18,.32,1.2],.6);
+   this.arcadeStats.neonSigns++;
+ }
+ arcadeClawMachine(m,f,rand){
+   // Solid raised arcade claw crane with glass housing, prize balls and grabber.
+   const b=(...a)=>this.arcadeBox(m,f,...a);
+   b(.155,.10,.06,.845,.65,.31,5,[1.12,.36,.8]);
+   b(.185,.23,.317,.815,.54,.33,15,[1.05,.98,1.1]);
+   b(.15,.67,.095,.20,2.10,.31,7,[.18,1.08,1.31],.6);
+   b(.80,.67,.095,.85,2.10,.31,7,[.18,1.08,1.31],.6);
+   b(.18,.66,.081,.82,1.92,.09,11,[.94,1.11,1.16],.25);
+   b(.18,1.94,.10,.82,2.04,.32,5,[.91,.37,1.19]);
+   b(.17,2.09,.11,.83,2.32,.27,5,[1.23,.78,.24]);
+   b(.21,2.125,.276,.79,2.278,.287,62,[1,1,1],.26);
+   b(.19,.59,.31,.81,.66,.335,7,[1.19,.92,.33],.72);
+   for(let k=0;k<5;k++){
+      const u=.24+k*.117;
+      b(u-.047,.74+(k%2)*.1,.107,u+.053,.84+(k%2)*.10,.219,7,k%2?[.24,1.04,1.19]:[1.27,.53,.84]);
+   }
+   // Suspended grabber/claw, and lit control deck.
+   b(.49,1.80,.24,.51,2.00,.256,6,[1.15,1.1,1.2]);
+   for(let k=0;k<2;k++)b(.46+k*.06,1.69,.26,.48+k*.06,1.80,.28,6,[1,1,1]);
+   b(.27,.54,.33,.73,.61,.38,5,[.31,.25,.68]);
+   b(.35,.60,.348,.40,.72,.38,7,[1.22,.27,1.01],.72);
+   b(.57,.59,.35,.65,.65,.39,7,[.24,1.24,1.29],.76);
+ }
+ arcadePanel(m,f,mat,tint){
+   const b=(...a)=>this.arcadeBox(m,f,...a);
+   b(.17,.95,.030,.83,2.18,.080,5,[.52,.38,.82]);
+   b(.19,.97,.084,.81,2.16,.103,7,[.29,.94,1.1],.38);
+   b(.22,1.01,.108,.78,2.12,.114,mat,tint,.31);
+   for(const u of [.17,.81])b(u,.91,.10,u+.024,2.22,.135,7,[1.0,.35,1.15],.7);
+ }
+ arcadeCabinet(m,f,rand){
+   if(this.arcadeCabinetCoords)this.arcadeCabinetCoords.push({x:(f.a[0]+f.b[0])*.5,z:(f.a[2]+f.b[2])*.5,side:f.side,zone:this.arcadeZone(Math.floor((f.a[0]+f.b[0])*.5),Math.floor((f.a[2]+f.b[2])*.5),this.size)});
+   const b=(...a)=>this.arcadeBox(m,f,...a);
+   const P=(u,y,d)=>this.arcadeP(f,u,y,d);
+   const variant=(rand()*8)|0;
+   const hue=variant%3===0?[.99,.40,1.21]:variant%3===1?[.24,.93,1.24]:[1.27,.72,.29];
+   // Full enclosed polygonal cabinet, broad side chassis and projecting hood.
+   b(.23,.06,.038,.77,1.88,.13,6,[.22,.21,.43]);
+   b(.24,.17,.13,.285,1.84,.286,5,hue);
+   b(.715,.17,.13,.76,1.84,.286,5,hue);
+   b(.29,.20,.129,.71,1.78,.245,6,[.24,.24,.48]);
+   // Bevelled overhead marquee canopy projects toward the player.
+   b(.22,1.67,.140,.78,1.91,.28,5,hue);
+   b(.26,1.705,.284,.74,1.875,.295,65+(variant%3),[1,1,1],.45);
+   b(.235,1.665,.267,.765,1.690,.30,7,[.18,1.13,1.23],1.15);
+   b(.23,1.89,.22,.77,1.915,.31,7,hue,.95);
+   // Recessed monitor with thick 3D surround, glass screen and shiny bevel.
+   b(.28,.87,.236,.72,1.61,.257,5,[.37,.39,.73]);
+   b(.30,.92,.259,.70,1.57,.274,6,[.07,.07,.26]);
+   b(.315,.943,.276,.685,1.548,.284,68+variant,[1,1,1],.62);
+   this.arcadeStats.gameScreens++;
+   b(.285,.89,.274,.305,1.59,.297,7,[.24,.95,1.32],.65);
+   b(.695,.89,.274,.715,1.59,.297,7,[.24,.95,1.32],.65);
+   // Slanted console shape is real 3D top geometry, not a flat wall decal.
+   m.quad(P(.27,.88,.265),P(.73,.88,.265),P(.73,.73,.385),P(.27,.73,.385),5,hue);
+   m.quad(P(.27,.73,.385),P(.73,.73,.385),P(.73,.68,.388),P(.27,.68,.388),6,[.23,.20,.40]);
+   for(let k=0;k<3;k++){
+      const u=.385+k*.11;
+      b(u-.023,.800,.321,u+.021,.818,.340,7,k===0?[1.3,.45,.74]:k===1?[.35,1.26,1.32]:[1.38,1.05,.42],.8);
+   }
+   b(.39,.84,.31,.415,1.03,.334,6,[.14,.17,.25]);
+   b(.35,1.03,.31,.455,1.105,.37,7,[1.28,.31,.59]);
+   // Projecting lower kick panel and decorative coin/token slot.
+   b(.285,.18,.248,.715,.68,.302,5,[.45,.32,.75]);
+   b(.42,.36,.310,.58,.47,.325,7,[.85,.97,1.12],.25);
+   b(.34,.22,.305,.66,.285,.342,6,[.16,.16,.31]);
+   b(.20,.06,.17,.80,.16,.345,5,hue);
+ }
+ arcadeLollipop(m,f,rand){
+   const b=(...a)=>this.arcadeBox(m,f,...a),P=(u,y,d)=>this.arcadeP(f,u,y,d);
+   const u=.31+rand()*.38,yy=1.32+rand()*.36;
+   b(u-.022,.10,.12,u+.022,yy,.17,7,[1.17,1.08,1.00]);
+   const N=12;
+   for(let i=0;i<N;i++){
+     const a=i/N*6.283,beta=(i+1)/N*6.283,R=.25;
+     const v0=P(u+Math.cos(a)*R,yy+Math.sin(a)*R,.18),v1=P(u+Math.cos(beta)*R,yy+Math.sin(beta)*R,.18);
+     const tint=i%2?[1.24,.43,.78]:[1.18,1.12,.94];
+     m.tri(P(u,yy,.20),v0,v1,null,7,tint,.19);
+   }
+   b(.15,.10,.045,.85,.18,.08,15,[1.23,1.03,1.03]);
+ }
+ arcadeCandyDisplay(m,f,rand){
+   const b=(...a)=>this.arcadeBox(m,f,...a);
+   b(.14,.18,.05,.86,.91,.24,4,[1.23,1.11,1.13]);
+   b(.17,.23,.245,.83,.72,.285,15,[1.10,.99,1.08]);
+   b(.11,.80,.14,.89,.92,.315,7,[1.31,.88,.92],.60);
+   b(.17,.20,.280,.83,.25,.335,7,[.34,1.11,1.28],.55);
+   for(let i=0;i<4;i++){
+     const u=.19+i*.17;
+     b(u,.95,.077,u+.12,1.14+.10*(i%2),.18,7,i%2?[1.15,.50,1.07]:[.98,.99,1.19],.28);
+     b(u+.035,.89,.18,u+.085,.96,.20,7,[1.2,1.17,.7]);
+   }
+   b(.24,1.49,.08,.76,1.93,.10,12,[1.17,1.03,1.09]);
+ }
+ arcadePrizeShelf(m,f,rand){
+   const b=(...a)=>this.arcadeBox(m,f,...a);
+   b(.135,.15,.06,.865,.82,.20,4,[1.2,.47,.79]);
+   // Counter front panels and deep glass-fronted redemption display.
+   b(.15,.23,.205,.85,.71,.250,6,[.59,.27,.78]);
+   b(.20,.31,.252,.80,.64,.267,11,[1.17,1.15,1.09],.20);
+   b(.10,.71,.13,.90,.83,.24,7,[1.28,.96,.36],.65);
+   b(.16,.88,.07,.84,2.28,.10,6,[.52,.65,1.02]);
+   b(.17,.92,.112,.83,2.24,.128,11,[.88,1.08,1.21],.20);
+   for(let k=0;k<3;k++){
+     const y=1.02+k*.42;
+     b(.19,y,.105,.81,y+.055,.17,7,[1.12,.94,.75],.27);
+     for(let i=0;i<3;i++){
+       const u=.24+i*.20;
+       b(u,y+.06,.113,u+.12,y+.26,.21,rand()<.5?4:9,[1.0,.81+rand()*.28,1.07]);
+       b(u+.027,y+.26,.15,u+.09,y+.30,.17,7,[1.17,.9,.4],.18);
+     }
+   }
+   this.arcadePixelStar(m,f,rand,.52,2.35,.18);
+ }
+ arcadePixelStar(m,f,rand,u=.51,y=1.54,d=.16){
+   const P=(a,b,c)=>this.arcadeP(f,a,b,c),spikes=5;
+   const center=P(u,y,d),points=[];
+   for(let i=0;i<spikes*2;i++){
+     const a=-Math.PI/2+i*Math.PI/spikes,rad=i%2?.085:.21;
+     points.push(P(u+Math.cos(a)*rad,y+Math.sin(a)*rad,d+.005));
+   }
+   for(let i=0;i<points.length;i++)m.tri(center,points[i],points[(i+1)%points.length],null,7,[1.38,1.04,.22],.8);
+   this.arcadeStats.stars++;
+ }
+ arcadeLitMarquee(m,f,rand){
+   const b=(...a)=>this.arcadeBox(m,f,...a);
+   b(.14,1.50,.035,.86,2.21,.11,5,[1.19,.45,.96]);
+   b(.17,1.55,.115,.83,2.17,.122,11,[1.2,1.14,1.25],.28);
+   b(.13,1.47,.115,.87,1.52,.14,7,[1.31,.91,.33],.70);
+   b(.13,2.21,.115,.87,2.26,.14,7,[1.31,.91,.33],.70);
+ }
+ arcadeFloor(m,c,r,zone,rand,h){
+   // Real raised luminous strips along path edges and occasional centre markers.
+   const cols=zone===3?[[.13,1.28,1.40],[1.31,.31,1.34]]:
+      zone===1?[[1.35,.53,1.02],[1.27,.91,.38]]:
+      zone===2?[[1.30,.86,.28],[.32,1.16,1.25]]:
+      zone===4?[[.45,1.15,1.24],[1.27,.32,1.12]]:[[1.26,.38,1.13],[.15,1.10,1.31]];
+   const open=(rr,cc)=>this.getState().maze[rr]&&this.getState().maze[rr][cc]===0;
+   const line=(x0,z0,x1,z1,col)=>{
+      // Two raised rails and a darker base channel create apparent light bloom.
+      m.box(x0,.013,z0,x1,.019,z1,6,[.14,.12,.38]);
+      m.box(x0,.021,z0,x1,.039,z1,7,col,zone===3?1.50:1.04);
+   };
+   if(!open(r-1,c))line(c,r+.022,c+1,r+.060,cols[0]);
+   if(!open(r+1,c))line(c,r+.94,c+1,r+.978,cols[1]);
+   if(!open(r,c-1))line(c+.022,r,c+.060,r+1,cols[0]);
+   if(!open(r,c+1))line(c+.94,r,c+.978,r+1,cols[1]);
+   if(zone===3){
+     // Embedded strip lighting within the dark walking floor, neon guides ensure visibility.
+     if((c*7+r*11)%3===0){
+       m.box(c+.33,.018,r+.45,c+.67,.033,r+.53,7,[.20,1.15,1.34],.55);
+     }
+   }else if((c*5+r*3)%9===0){
+     m.plane(c+.34,r+.31,c+.66,r+.69,.021,zone===1?15:9,[1.1,1.1,1.1],.10);
+   }
+ }
+ arcadeArch(m,c,r,zone,h,alongZ){
+   // A colourful arch spanning a walkable passage (no collisions or path changes).
+   // Its structural side supports occupy only the outer 7cm of the tile.
+   const colors=zone===3?[[.13,1.18,1.3],[1.2,.28,1.35]]:
+     zone===1?[[1.30,.63,.86],[1.25,1.19,.92]]:
+     zone===2?[[1.35,.86,.27],[1.16,.38,1.22]]:
+     zone===4?[[1.11,.37,1.25],[.22,1.14,1.27]]:[[.28,1.09,1.34],[1.18,.38,1.2]];
+   const P=(u,y,d)=>alongZ?[c+.5+u,y,r+.5+d]:[c+.5+d,y,r+.5+u];
+   const strip=(a,b,y0,y1,mat,col,em)=>{
+     m.quad(P(a,y0,-.06),P(b,y1,-.06),P(b,y1+.08,-.06),P(a,y0+.08,-.06),mat,col,em);
+     m.quad(P(a,y0,.06),P(b,y1,.06),P(b,y1+.08,.06),P(a,y0+.08,.06),mat,col,em);
+   };
+   for(const side of [-1,1]){
+     const xx=side*.462;
+     const a=P(xx,0,-.056),b=P(xx,2.42,.06);
+     m.box(Math.min(a[0],b[0])-.024,0,Math.min(a[2],b[2])-.028,
+           Math.max(a[0],b[0])+.024,2.40,Math.max(a[2],b[2])+.028,5,colors[0]);
+     const c0=P(xx,0,-.087),c1=P(xx,2.40,.086);
+     m.box(Math.min(c0[0],c1[0])-.012,.17,Math.min(c0[2],c1[2])-.012,
+           Math.max(c0[0],c1[0])+.012,2.37,Math.max(c0[2],c1[2])+.012,7,colors[1],.9);
+   }
+   for(let k=0;k<10;k++){
+     const u=-.46+k*.092,u1=u+.092;
+     const y0=2.38+.42*Math.sqrt(Math.max(0,1-(u/.48)**2));
+     const y1=2.38+.42*Math.sqrt(Math.max(0,1-(u1/.48)**2));
+     strip(u,u1,y0,y1,7,k%2?colors[0]:colors[1],.7);
+   }
+   this.arcadeCeilingBillboard(m,c,r,zone,h,alongZ);
+ }
+ arcadeCeilingBillboard(m,c,r,zone,h,alongZ){
+   // Suspended arcade neon sign spanning the corridor, high above player collision.
+   const P=(u,y,d)=>alongZ?[c+.50+u,y,r+.5+d]:[c+.5+d,y,r+.50+u];
+   const mat=60+zone;
+   const x0=-.42,x1=.42,y0=2.26,y1=2.77;
+   m.quad(P(x0,y0,-.016),P(x1,y0,-.016),P(x1,y1,-.016),P(x0,y1,-.016),mat,[1,1,1],.40);
+   m.quad(P(x1,y0,.016),P(x0,y0,.016),P(x0,y1,.016),P(x1,y1,.016),mat,[1,1,1],.40);
+   for(const y of [y0-.035,y1]){
+     const a=P(x0-.026,y,-.042),b=P(x1+.026,y,.042);
+     m.box(Math.min(a[0],b[0])-.018,y,Math.min(a[2],b[2])-.018,
+            Math.max(a[0],b[0])+.018,y+.033,Math.max(a[2],b[2])+.018,7,[.18,1.23,1.36],.94);
+   }
+   this.arcadeStats.neonSigns++;
+ }
+ arcadeCeiling(m,c,r,zone,rand,h){
+   // Deep ceiling beam housing, separate from textured walls and floor.
+   m.box(c+.10,h-.13,r+.08,c+.90,h+.015,r+.16,5,[.48,.42,.76]);
+   m.box(c+.10,h-.13,r+.84,c+.90,h+.015,r+.92,5,[.48,.42,.76]);
+   if(zone===3){
+     this.arcadeStats.ceilingLights++;
+     // A constellation of separately placed tiny illuminated stars on the ceiling.
+     for(let k=0;k<4;k++){
+       const x=c+.14+rand()*.71,z=r+.14+rand()*.71;
+       const hue=k%3===0?[1.2,.98,1.45]:k%3===1?[.20,1.14,1.45]:[1.18,.39,1.35];
+       m.box(x-.016,h+.001,z-.016,x+.016,h+.015,z+.016,7,hue,1.1);
+       this.arcadeStats.stars++;
+     }
+     m.box(c+.17,h-.02,r+.19,c+.83,h+.015,r+.218,7,[.18,.91,1.27],.8);
+   }else{
+     this.arcadeStats.ceilingLights++;
+     // Ring and mini spotlight blocks hang high enough to leave unobstructed travel.
+     const yellow=zone===2?[1.35,.94,.27]:[1.10,.59,1.27];
+     m.box(c+.23,h-.04,r+.23,c+.77,h+.018,r+.28,7,yellow,.72);
+     m.box(c+.23,h-.04,r+.72,c+.77,h+.018,r+.77,7,yellow,.72);
+     m.box(c+.23,h-.04,r+.28,c+.28,h+.018,r+.72,7,[.23,1.17,1.29],.78);
+     m.box(c+.72,h-.04,r+.28,c+.77,h+.018,r+.72,7,[.23,1.17,1.29],.78);
+   }
+ }
+ buildArcadeExit(m,s,h){
+   this.buildGateArch(m,s,THEMES.classic,h);
+   this.gateBox(m,s,-.50,0,-.25,-.40,2.10,.26,5,[.69,.48,1.15]);
+   this.gateBox(m,s,.40,0,-.25,.50,2.10,.26,5,[.69,.48,1.15]);
+   this.gateBox(m,s,-.40,2.08,-.22,.40,2.19,.20,7,[.16,1.16,1.32],.9);
+   this.gateBox(m,s,-.53,.08,-.30,-.49,2.1,.19,7,[1.24,.34,1.29],1);
+   this.gateBox(m,s,.49,.08,-.30,.53,2.1,.19,7,[1.24,.34,1.29],1);
+   this.gateBox(m,s,-.34,2.23,-.34,.34,2.53,-.29,11,[1.20,1.11,1.23],.65);
+ }
+
  wallDecoration(m,f,theme,height,rand){
   const pp=(u,y,depth)=>{
    const x=f.a[0]+(f.b[0]-f.a[0])*u,z=f.a[2]+(f.b[2]-f.a[2])*u;
@@ -1456,10 +1991,16 @@ makeCastleDoor(s,openness){
   gl.uniform1f(u.uScale,1.36);gl.uniform3f(u.uEye,s.playerX*1.36,s.theme==='school'?.92:.88,s.playerY*1.36);
   gl.uniform1f(u.uAngle,s.playerAngle);gl.uniform1f(u.uAspect,w/h);gl.uniform1f(u.uFocus,s.theme==='school'?1.15:s.theme==='jungle'?1.14:1.35);
   gl.uniform1f(u.uBob,Math.sin(s.headBob||0)*.025*drift);gl.uniform1f(u.uPitch,0.015);
-  gl.uniform1f(u.uTime,now*.001);gl.uniform1f(u.uSchool,s.theme==='school'?1:0);gl.uniform1f(u.uJungle,s.theme==='jungle'?1:0);gl.uniform1f(u.uCastle,s.theme==='castle'?1:0);gl.uniform3fv(u.uFog,t.fog);
-  gl.uniform1f(u.uFogStart,s.theme==='castle'?20:s.theme==='space'?11:s.theme==='jungle'?17:13);gl.uniform1f(u.uFogEnd,s.theme==='castle'?48:s.theme==='school'?39:s.theme==='jungle'?36:31);
+  gl.uniform1f(u.uTime,now*.001);gl.uniform1f(u.uSchool,s.theme==='school'?1:0);gl.uniform1f(u.uJungle,s.theme==='jungle'?1:0);gl.uniform1f(u.uCastle,s.theme==='castle'?1:0);gl.uniform1f(u.uArcade,s.theme==='classic'?1:0);gl.uniform3fv(u.uFog,t.fog);
+  gl.uniform1f(u.uFogStart,s.theme==='classic'?25:s.theme==='castle'?20:s.theme==='space'?11:s.theme==='jungle'?17:13);gl.uniform1f(u.uFogEnd,s.theme==='classic'?58:s.theme==='castle'?48:s.theme==='school'?39:s.theme==='jungle'?36:31);
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.atlas);gl.uniform1i(u.uAtlas,0);
   gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,this.paintAtlas);gl.uniform1i(u.uPaintAtlas,1);
+  gl.activeTexture(gl.TEXTURE2);
+  gl.bindTexture(gl.TEXTURE_2D,this.arcadeFloors);
+  gl.uniform1i(u.uArcadeFloors,2);
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D,this.arcadeSigns);
+  gl.uniform1i(u.uArcadeSigns,3);
   gl.activeTexture(gl.TEXTURE0);
   if(this.staticMesh){this.bindMesh(this.staticMesh);gl.drawArrays(gl.TRIANGLES,0,this.staticMesh.count);}
   const elapsed=Math.min(.05,Math.max(0,(now-(this.lastTime||now))/1000));this.lastTime=now;
