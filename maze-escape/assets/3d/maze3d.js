@@ -41,12 +41,21 @@ void main(){vec3 pos=aPosition;pos.xz*=uScale;vec3 relative=pos-uEye;
 }`;
 const FS=`precision mediump float;
 varying vec2 vUV;varying float vMaterial;varying vec3 vNormal;varying vec3 vTint;varying float vEmit;varying float vDistance;varying vec3 vWorld;
-uniform sampler2D uAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;uniform float uJungle;uniform float uCastle;
+uniform sampler2D uAtlas;uniform sampler2D uPaintAtlas;uniform vec3 uFog;uniform float uTime;uniform float uFogStart;uniform float uFogEnd;uniform float uSchool;uniform float uJungle;uniform float uCastle;
 void main(){float m=floor(vMaterial+.5);
  float col=mod(m,4.);float row=3.-floor(m/4.);
  vec2 tileUV=clamp(vUV,.008,.992);
  vec2 texUV=(vec2(col,row)+tileUV)/4.;
+ // Painting IDs are unique 0-24 and mapped to a dedicated 8x4 Renaissance artwork atlas.
+ // They are not recycled from the three shared castle material tiles.
  vec3 tex=texture2D(uAtlas,texUV).rgb;
+ if(m>=16.0){
+    float picture=m-16.0;
+    float pictureCol=mod(picture,8.0);
+    float pictureRow=3.0-floor(picture/8.0);
+    vec2 pictureUV=(vec2(pictureCol,pictureRow)+tileUV)/vec2(8.0,4.0);
+    tex=texture2D(uPaintAtlas,pictureUV).rgb;
+ }
  vec3 n=normalize(vNormal);
  vec3 dir=normalize(vec3(-.56,.81,.38));
  float face=mix(.68+.27*max(0.,dot(n,dir)),.64+.36*max(0.,dot(n,dir)),step(.5,uSchool));
@@ -141,17 +150,48 @@ class Renderer{
   if(!gl)throw new Error('WebGL unavailable');this.gl=gl;
   this.program=program(gl,VS,FS);this.skyProgram=program(gl,SKYVS,SKYFS);
   this.a={};for(const name of ['aPosition','aNormal','aUV','aMaterial','aTint','aEmit'])this.a[name]=gl.getAttribLocation(this.program,name);
-  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uFog','uTime','uFogStart','uFogEnd','uSchool','uJungle','uCastle'])this.u[name]=gl.getUniformLocation(this.program,name);
+  this.u={};for(const name of ['uEye','uAngle','uAspect','uFocus','uBob','uPitch','uScale','uAtlas','uPaintAtlas','uFog','uTime','uFogStart','uFogEnd','uSchool','uJungle','uCastle'])this.u[name]=gl.getUniformLocation(this.program,name);
   this.skyA=gl.getAttribLocation(this.skyProgram,'aPosition');this.skyU={};for(const name of ['uTop','uHorizon','uTime','uSpace','uCastle'])this.skyU[name]=gl.getUniformLocation(this.skyProgram,name);
   this.skyBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,this.skyBuffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
   this.staticMesh=null;this.dynamicBuffer=gl.createBuffer();this.dynamicCapacity=0;
   this.atlas=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,this.atlas);
   const fallback=new Uint8Array([160,185,194,255]);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,fallback);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  // Second POT atlas stores 25 distinct detailed paintings (256px each).
+  // It is loaded only when the Castle world is selected.
+  this.paintAtlas=gl.createTexture();this.paintAtlasRequested=false;this.paintAtlasReady=false;
+  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,this.paintAtlas);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([94,79,61,255]));
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.activeTexture(gl.TEXTURE0);
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
   this.ready=true;
   this.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.ready=false;document.body.classList.remove('maze-webgl-active')});
   this.rebuild();
+ }
+ loadPaintingAtlas(){
+  if(this.paintAtlasRequested)return;
+  this.paintAtlasRequested=true;
+  const image=new Image();
+  image.onload=()=>{
+   if(!this.ready)return;
+   try{
+    const gl=this.gl;
+    gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,this.paintAtlas);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,image);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.activeTexture(gl.TEXTURE0);
+    this.paintAtlasReady=true;
+   }catch(err){console.warn('Castle artwork atlas failed to upload:',err);}
+  };
+  image.onerror=()=>console.warn('Castle artwork atlas could not load');
+  image.src=(window.__mazePaintingAtlas||'assets/3d/castle_paintings.png');
  }
  loadTexture(theme){
   if(this.themeName===theme)return;this.themeName=theme;
@@ -172,11 +212,55 @@ class Renderer{
   const s=this.getState();if(!s||!s.maze||!s.maze.length)return;
   const theme=s.theme||'jungle';const t=THEMES[theme]||THEMES.jungle;
   this.loadTexture(theme);
+  if(theme==='castle')this.loadPaintingAtlas();
   const maze=s.maze,H=maze.length,wallH=theme==='castle'?3.65:theme==='jungle'?2.16:theme==='school'?2.46:2.12;
   this.wallHeight=wallH;this.size=H;this.smoothUnlock=s.unlocked?1:0;
   const m=new Mesh(),rand=seedRand(H*11471+theme.split('').reduce((n,c)=>n+c.charCodeAt(0),0));
-  if(theme==='castle')this.castleStats={walls:0,torches:0,paintings:0,statues:0,shields:0,swords:0,arches:0,banners:0,vaults:0};
+  if(theme==='castle')this.castleStats={walls:0,torches:0,paintings:0,statues:0,shields:0,swords:0,arches:0,banners:0,vaults:0,paintingIds:[],paintingLocations:[]};
   if(theme==='jungle')this.jungleStats={wallFaces:0,arches:0,carvings:0,foliage:0,stonePiers:0,canopies:0,blossoms:0,plants:{fern:0,banana:0,palm:0,monstera:0,bamboo:0,flowers:0},floating:0,zones:{canopy:0,bamboo:0,palm:0,ferns:0,flowers:0},zoneLabels:['Canopy Forest','Bamboo Trail','Palm Grove','Fern Gully','Flower Glade']};
+  // Prepare one shuffled deck of 25 detailed artworks for THIS maze layout.
+  // Each painting consumes one card and no card is returned to the deck.
+  // Rebuilding the same level (e.g. opening its exit) produces the same order.
+  if(theme==='castle'){
+    let visualSeed=0x419CC2 ^ H;
+    for(let rr=0;rr<H;rr++)for(let cc=0;cc<H;cc++)
+      visualSeed=(Math.imul(visualSeed ^ (maze[rr][cc]+1),16777619))>>>0;
+    const artRand=seedRand(visualSeed);
+    this.castleArtworkOrder=Array.from({length:25},(_,i)=>i);
+    for(let i=24;i>0;i--){const j=Math.floor(artRand()*(i+1));
+      [this.castleArtworkOrder[i],this.castleArtworkOrder[j]]=[this.castleArtworkOrder[j],this.castleArtworkOrder[i]];
+    }
+    this.castleArtworkCursor=0;
+    // Select visibly spaced paintings before generating any wall decorations.
+    // Every map has fewer than 25 paintings, all different; larger maps have more.
+    const candidates=[];
+    for(let rr=0;rr<H;rr++)for(let cc=0;cc<H;cc++){
+      if(maze[rr][cc]!==1||(rr===s.exitR&&cc===s.exitC))continue;
+      if(rr>0&&maze[rr-1][cc]===0)candidates.push({r:rr,c:cc,side:'n',j:artRand()});
+      if(rr<H-1&&maze[rr+1][cc]===0)candidates.push({r:rr,c:cc,side:'s',j:artRand()});
+      if(cc>0&&maze[rr][cc-1]===0)candidates.push({r:rr,c:cc,side:'w',j:artRand()});
+      if(cc<H-1&&maze[rr][cc+1]===0)candidates.push({r:rr,c:cc,side:'e',j:artRand()});
+    }
+    const target=Math.min(H<=17?16:H<=25?21:25,candidates.length);
+    const chosen=[],usedCells=new Set();
+    this.castleArtSelected=new Set();
+    for(let n=0;n<target;n++){
+      let winner=null,best=-1;
+      for(const face of candidates){
+        const key=face.r+','+face.c+','+face.side;
+        if(usedCells.has(face.r+','+face.c)||this.castleArtSelected.has(key))continue;
+        const minimum=chosen.length?Math.min(...chosen.map(p=>(p.r-face.r)**2+(p.c-face.c)**2)):H*H;
+        // Deliberately scatter artwork through the entire maze; avoid repetitive galleries.
+        const score=minimum+face.j*(chosen.length?1.35:1000);
+        if(score>best){best=score;winner=face;}
+      }
+      if(!winner)break;
+      chosen.push(winner);
+      usedCells.add(winner.r+','+winner.c);
+      this.castleArtSelected.add(winner.r+','+winner.c+','+winner.side);
+    }
+    this.castlePaintingTarget=this.castleArtSelected.size;
+  }
   const open=(r,c)=>r>=0&&c>=0&&r<H&&c<H&&maze[r][c]===0;
   const nearWall=(r,c)=>!open(r-1,c)||!open(r+1,c)||!open(r,c-1)||!open(r,c+1);
   // An exterior environment is real 3D geometry, not a flat image behind the door.
@@ -240,7 +324,16 @@ class Renderer{
       // Keep the largest mazes comfortable on school computers.
       // The marble architecture remains on all walls; ornate props use a
       // size-aware density so Hard does not draw hundreds of extra busts.
-      if(rand()<(H>=33?.45:H>=25?.76:1.0))this.castleWallFace(m,f,wallH,rand,chance);
+      const faceId=r+','+c+','+f.side;
+      if(this.castleArtSelected.has(faceId)){
+        // Only the chosen locations receive real artwork; each painting is used once.
+        const uniqueId=this.castleArtworkOrder[this.castleArtworkCursor++];
+        this.castleFramedArt(m,f,uniqueId,rand);
+        this.castleStats.paintings++;
+        this.castleStats.paintingIds.push(uniqueId);
+        const normal=({n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]})[f.side];
+        this.castleStats.paintingLocations.push({id:uniqueId,x:(f.a[0]+f.b[0])*.5,z:(f.a[2]+f.b[2])*.5,nx:normal[0],nz:normal[1]});
+      }else if(rand()<(H>=33?.45:H>=25?.76:1.0))this.castleWallFace(m,f,wallH,rand,chance);
       this.castleStats.walls++;
     }else if(chance<.28)this.wallDecoration(m,f,theme,wallH,rand);
    }
@@ -935,7 +1028,9 @@ castleWallFace(m,f,h,rand,chance){
  if(chance<.25){
   this.castleTorch(m,f,.50,2.14,rand);this.castleStats.torches++;
  }else if(chance<.46){
-  this.castleFramedArt(m,f,1+Math.floor(rand()*3),rand);this.castleStats.paintings++;
+  // This wall was not selected for one of the unique painting positions.
+  // Display castle heraldry rather than repeat an existing painting.
+  this.castleBanner(m,f,rand);this.castleStats.banners++;
  }else if(chance<.64){
   this.castleArmourDisplay(m,f,rand);this.castleStats.shields++;this.castleStats.swords+=2;
  }else if(chance<.78){
@@ -967,11 +1062,11 @@ castleTorch(m,f,u,y,rand){
  // A warm little wall halo is a real geometry quad rather than a glow image.
  m.quad(P(u-.23,y-.20,.015),P(u+.23,y-.20,.015),P(u+.23,y+.40,.015),P(u-.23,y+.40,.015),7,[.22,.12,.045],.16);
 }
-castleFramedArt(m,f,kind,rand){
+castleFramedArt(m,f,uniqueId,rand){
  const b=(...a)=>this.castleWallBox(m,f,...a);
  const P=(u,y,d)=>this.castlePoint(f,u,y,d);
- const mat=kind===1?9:kind===2?11:15;
- const y0=.91,y1=2.53,x0=.19,x1=.81;
+ const mat=16+uniqueId;
+ const y0=1.08,y1=2.16,x0=.11,x1=.89;
  // Deep carved gilt frame with a real inset painting surface.
  b(x0-.038,y0-.05,.034,x1+.038,y1+.05,.118,5,[.80,.69,.43]);
  b(x0-.024,y0-.034,.121,x1+.024,y1+.034,.150,12,[1.30,1.12,.67]);
@@ -1364,6 +1459,8 @@ makeCastleDoor(s,openness){
   gl.uniform1f(u.uTime,now*.001);gl.uniform1f(u.uSchool,s.theme==='school'?1:0);gl.uniform1f(u.uJungle,s.theme==='jungle'?1:0);gl.uniform1f(u.uCastle,s.theme==='castle'?1:0);gl.uniform3fv(u.uFog,t.fog);
   gl.uniform1f(u.uFogStart,s.theme==='castle'?20:s.theme==='space'?11:s.theme==='jungle'?17:13);gl.uniform1f(u.uFogEnd,s.theme==='castle'?48:s.theme==='school'?39:s.theme==='jungle'?36:31);
   gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,this.atlas);gl.uniform1i(u.uAtlas,0);
+  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,this.paintAtlas);gl.uniform1i(u.uPaintAtlas,1);
+  gl.activeTexture(gl.TEXTURE0);
   if(this.staticMesh){this.bindMesh(this.staticMesh);gl.drawArrays(gl.TRIANGLES,0,this.staticMesh.count);}
   const elapsed=Math.min(.05,Math.max(0,(now-(this.lastTime||now))/1000));this.lastTime=now;
   this.smoothUnlock+=((s.unlocked?1:0)-this.smoothUnlock)*Math.min(1,elapsed*2.5);
