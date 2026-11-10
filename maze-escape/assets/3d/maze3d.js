@@ -65,6 +65,11 @@ void main(){float m=floor(vMaterial+.5);
      rgb*=vec3(1.075,1.045,.95);
    }
  }
+ // The walkable trail is recognisably sunlit sand rather than green foliage.
+ // Material 1 is used for the continuous jungle walking surface.
+ if(uJungle>.5 && n.y>.8 && abs(m-1.)<.4){
+   rgb*=vec3(1.17,1.15,1.06);
+ }
  float fog=smoothstep(uFogStart,uFogEnd,vDistance);
  rgb=mix(rgb,uFog,fog*.90);
  gl_FragColor=vec4(pow(max(rgb,vec3(0.)),vec3(.94)),1.);
@@ -168,20 +173,20 @@ class Renderer{
     // Tile variation and edge shading create depth without giant square blocks.
     const v=.91+rand()*.16;
     const zone=theme==='jungle'?this.jungleZone(c,r,H):-1;
-    const material=theme==='jungle'?[10,1,1,10,1][zone]:1;
-    const tone=theme==='jungle'?[[.83,.94,.75],[1.03,1.04,.79],[1.04,1.05,.91],[.67,.81,.73],[1.19,1.12,.94]][zone]:[1,1,1];
+    const material=1;
+    const tone=theme==='jungle'?[[1.03,1.01,.97],[1.10,1.055,.95],[1.08,1.065,1.01],[.99,1.00,.96],[1.13,1.08,1.00]][zone]:[1,1,1];
     m.plane(c,r,c+1,r+1,.007,material,[v*tone[0],v*tone[1],v*tone[2]]);
     if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,3,theme==='school'?[1.07,1.09,1.09]:[.89,.92,1]);
     if(theme==='school'&&(r+c)%5===1)this.schoolCeilingLight(m,c,r,wallH);
     if(nearWall(r,c)){
      const line=theme==='jungle'?[[.44,.71,.39],[.69,.80,.37],[.65,.83,.50],[.39,.70,.53],[.66,.85,.44]][zone]:[.64,.70,.79];
-     if(!open(r-1,c))m.plane(c,r,c+1,r+.07,.009,1,line);
-     if(!open(r+1,c))m.plane(c,r+.93,c+1,r+1,.009,1,line);
-     if(!open(r,c-1))m.plane(c,r,c+.07,r+1,.009,1,line);
-     if(!open(r,c+1))m.plane(c+.93,r,c+1,r+1,.009,1,line);
+     if(!open(r-1,c))m.plane(c,r,c+1,r+.12,.019,6,line);
+     if(!open(r+1,c))m.plane(c,r+.88,c+1,r+1,.019,6,line);
+     if(!open(r,c-1))m.plane(c,r,c+.12,r+1,.019,6,line);
+     if(!open(r,c+1))m.plane(c+.88,r,c+1,r+1,.019,6,line);
     }
     // Floor fragments / wind-blown leaves, kept clear of the player's walking line.
-    if(theme==='jungle'&&rand()<.18)this.jungleFloorDetail(m,c,r,rand);
+    if(theme==='jungle'&&rand()<.035)this.jungleFloorDetail(m,c,r,rand);
     // Rare temple lintels stay as visual accents; overhead leaves grow from trunks.
     // No unanchored leaves across the sky: canopy is rooted in wall-cell trees.
     // Recessed floor motifs and occasional inlaid tiles.
@@ -321,9 +326,9 @@ class Renderer{
      const n=H>=33?1:2;
      for(let k=0;k<n;k++){
        const a=k*6.283/n+rand()*.28,xx=x+Math.cos(a)*.22,zz=z+Math.sin(a)*.22;
-       const tall=k===0?2.40+rand()*.55:1.40+rand()*.55;
+       const tall=k===0?4.65+rand()*1.05:3.10+rand()*.65;
        this.jungleTrunk(m,xx,zz,tall*.65,rand);
-       this.jungleCrownVolume(m,xx,tall*.65,zz,.44*density,.55+rand()*.25,.43*density,rand,k);
+       this.jungleCrownVolume(m,xx,tall*.68,zz,.57*density,.78+rand()*.36,.55*density,rand,k);
        this.jungleStats.foliage++;
      }
      if(rand()<.35)this.jungleGroundPlant(m,c+.31,r+.30,rand);
@@ -331,7 +336,7 @@ class Renderer{
      const n=H>=33?5:H>=25?7:9;
      for(let k=0;k<n;k++){
        const a=k*2.39996+rand()*.20,rad=.08+Math.sqrt((k+.5)/n)*.38;
-       const xx=x+Math.cos(a)*rad,zz=z+Math.sin(a)*rad,hh=1.75+rand()*1.27;
+       const xx=x+Math.cos(a)*rad,zz=z+Math.sin(a)*rad,hh=2.85+rand()*1.35;
        m.box(xx-.024,0,zz-.024,xx+.024,hh,zz+.024,5,[.85,1.06,.55]);
        for(let q=1;q<=4;q++){
          const y=hh*q/5;
@@ -349,7 +354,7 @@ class Renderer{
      const n=1;
      for(let k=0;k<n;k++){
        const xx=x+(k===0?-.20:.23),zz=z+(k===0?-.12:.20);
-       this.jungleLargePalm(m,xx,zz,2.55+rand()*.60,rand);
+       this.jungleLargePalm(m,xx,zz,4.45+rand()*1.25,rand);
        this.jungleStats.plants.palm++;
      }
      this.jungleCrownVolume(m,x,.31,z,.46*density,.45,.39*density,rand,1);
@@ -389,8 +394,8 @@ class Renderer{
    const root=[x,h,z];
    for(let i=0;i<7;i++){
      const a=i*Math.PI*2/7+rand()*.19,dx=Math.cos(a),dz=Math.sin(a);
-     const mid=[x+dx*.33,h+.22+rand()*.08,z+dz*.33],tip=[x+dx*(.68+rand()*.19),h-.37+rand()*.14,z+dz*(.68+rand()*.19)];
-     this.jungleBroadLeaf(m,root,mid,tip,.13+rand()*.05,i);
+     const mid=[x+dx*.43,h+.27+rand()*.08,z+dz*.43],tip=[x+dx*(.94+rand()*.21),h-.48+rand()*.17,z+dz*(.94+rand()*.21)];
+     this.jungleBroadLeaf(m,root,mid,tip,.19+rand()*.07,i);
    }
  }
  jungleGiantFern(m,x,z,s,rand){
