@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Word Builder - Bright Arcade</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fredoka:wght@500;600;700&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#061946;
+  --red:#ef174d;
+  --orange:#f97316;
+  --yellow:#facc15;
+  --green:#49c600;
+  --blue:#0875f5;
+  --purple:#7030d8;
+  --sky:#38bdf8;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+}
+
+body{
+  font-family:'Fredoka', Arial, sans-serif;
+  color:var(--navy);
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);
+  overflow-x:hidden;
+}
+
+.sky-background{
+  position:fixed;
+  inset:0;
+  z-index:-10;
+  overflow:hidden;
+  pointer-events:none;
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);
+}
+
+.sky-background::before{
+  content:"";
+  position:absolute;
+  top:38px;
+  left:38px;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  background:#ffd60a;
+  box-shadow:
+    0 0 35px rgba(255,214,10,.75),
+    0 0 75px rgba(255,214,10,.50),
+    0 0 130px rgba(255,214,10,.28);
+}
+
+.cloud{
+  position:absolute;
+  width:220px;
+  height:74px;
+  background:rgba(255,255,255,.92);
+  border-radius:999px;
+  filter:drop-shadow(0 9px 10px rgba(14,116,144,.16));
+  opacity:.82;
+  animation:cloudDrift linear infinite;
+}
+
+.cloud::before,.cloud::after{
+  content:"";
+  position:absolute;
+  background:rgba(255,255,255,.96);
+  border-radius:50%;
+}
+
+.cloud::before{
+  width:92px;
+  height:92px;
+  left:32px;
+  top:-38px;
+}
+
+.cloud::after{
+  width:118px;
+  height:118px;
+  right:24px;
+  top:-58px;
+}
+
+.cloud.one{top:8%;left:-260px;transform:scale(.75);animation-duration:54s;}
+.cloud.two{top:28%;left:-320px;transform:scale(1.12);animation-duration:72s;animation-delay:-20s;}
+.cloud.three{top:62%;left:-280px;transform:scale(.86);animation-duration:64s;animation-delay:-36s;}
+
+@keyframes cloudDrift{
+  from{margin-left:-380px}
+  to{margin-left:calc(100vw + 520px)}
+}
+
+.side-menu{
+  position:fixed;
+  left:20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:170px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:20;
+}
+
+.side-menu a{
+  background:white;
+  color:#1f2937;
+  text-decoration:none;
+  font-weight:800;
+  text-align:center;
+  padding:12px 16px;
+  border-radius:999px;
+  border:3px solid #bfdbfe;
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+
+.side-menu a:hover{background:#fef3c7}
+
+.sidebar-logo-link{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+
+.sidebar-logo{
+  width:170px;
+  margin:0 auto 10px;
+  padding:12px 12px 14px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff7d6 100%);
+  border-radius:26px;
+  box-shadow:0 7px 16px rgba(0,0,0,.16),0 7px 0 rgba(31,41,55,.10);
+  transform:rotate(-1deg);
+}
+
+.sidebar-bright,.sidebar-arcade{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  white-space:nowrap;
+}
+
+.sidebar-bright span{
+  display:inline-block;
+  font-family:"Baloo 2","Arial Rounded MT Bold",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.68rem;
+  color:var(--c);
+  -webkit-text-stroke:1px white;
+  paint-order:stroke fill;
+  text-shadow:2px 2px 0 white,-2px 2px 0 white,2px -2px 0 white,-2px -2px 0 white,0 4px 0 rgba(31,41,55,.18);
+}
+
+.sidebar-arcade{
+  margin-top:3px;
+  font-family:"Baloo 2","Arial Rounded MT Bold",Arial,sans-serif;
+  font-weight:800;
+  font-size:1.95rem;
+  line-height:.82;
+  letter-spacing:-1px;
+  color:#061946;
+  -webkit-text-stroke:1px white;
+  paint-order:stroke fill;
+  text-shadow:2px 2px 0 white,-2px 2px 0 white,2px -2px 0 white,-2px -2px 0 white,0 4px 0 rgba(31,41,55,.18);
+}
+
+.game{
+  width:min(1080px,100%);
+  margin:0 auto;
+  padding:24px 18px 46px;
+  margin-left:220px;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.title-badge{
+  display:inline-block;
+  position:relative;
+  padding:16px 28px 18px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff7d6 100%);
+  border-radius:42px;
+  box-shadow:0 12px 0 rgba(6,25,70,.12),0 24px 32px rgba(6,25,70,.16);
+  transform:rotate(-1deg);
+}
+
+h1{
+  margin:0;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2.8rem,7vw,5.6rem);
+  line-height:.86;
+  color:#061946;
+  text-shadow:4px 4px 0 white,-4px 4px 0 white,4px -4px 0 white,-4px -4px 0 white,0 8px 0 rgba(6,25,70,.12);
+}
+
+.subtitle{
+  display:inline-block;
+  margin:14px auto 0;
+  background:rgba(255,255,255,.92);
+  border:3px solid white;
+  border-radius:999px;
+  padding:10px 18px;
+  font-size:1.08rem;
+  font-weight:800;
+  color:#164e63;
+}
+
+.main-card{
+  background:rgba(255,255,255,.96);
+  border:5px solid white;
+  border-radius:34px;
+  padding:22px;
+  box-shadow:0 18px 34px rgba(15,23,42,.20);
+}
+
+.screen{display:none}
+.screen.active{display:block}
+
+.instructions{
+  text-align:center;
+  max-width:780px;
+  margin:0 auto 18px;
+  color:#334155;
+  font-size:1.08rem;
+  line-height:1.5;
+  font-weight:700;
+}
+
+.option-heading{
+  text-align:center;
+  font-weight:900;
+  color:#1e3a8a;
+  font-size:1.2rem;
+  margin:18px 0 10px;
+}
+
+.difficulty-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(130px,1fr));
+  gap:14px;
+  margin:12px auto 20px;
+}
+
+.choice{
+  border:4px solid #bfdbfe;
+  border-radius:24px;
+  background:white;
+  padding:18px 12px;
+  font-size:1.05rem;
+  font-weight:900;
+  color:#1e3a8a;
+  cursor:pointer;
+  box-shadow:0 8px 0 #bfdbfe;
+  transition:.12s;
+}
+
+.choice small{
+  display:block;
+  margin-top:5px;
+  color:#64748b;
+  font-weight:800;
+}
+
+.choice:hover,.choice.selected{
+  background:#fef3c7;
+  border-color:#facc15;
+  box-shadow:0 8px 0 #facc15;
+  transform:translateY(-3px) rotate(-1deg);
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+  margin-top:18px;
+}
+
+button{
+  touch-action:manipulation;
+  border:0;
+  border-radius:999px;
+  padding:14px 22px;
+  font-weight:900;
+  font-size:1rem;
+  cursor:pointer;
+}
+
+button:active{transform:scale(.97)}
+
+.primary{
+  background:#ef174d;
+  color:white;
+  font-size:1.15rem;
+  padding:16px 30px;
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.24),0 8px 0 rgba(6,25,70,.18);
+}
+
+.secondary{
+  background:#e2e8f0;
+  color:#334155;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.stat{
+  background:#eff6ff;
+  border:3px solid #bfdbfe;
+  border-radius:18px;
+  padding:12px 10px;
+  text-align:center;
+  font-weight:900;
+}
+
+.stat-label{
+  display:block;
+  color:#64748b;
+  font-size:.82rem;
+  margin-bottom:4px;
+}
+
+.stat-value{
+  font-size:1.35rem;
+  color:#1d4ed8;
+}
+
+.play-area{
+  position:relative;
+  background:
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.48) 0 9%,transparent 10%),
+    linear-gradient(135deg,#ecfeff,#fef3c7);
+  border:4px solid #a5f3fc;
+  border-radius:30px;
+  padding:22px;
+  overflow:hidden;
+}
+
+.monster-stage{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  min-height:180px;
+}
+
+.monster{
+  width:160px;
+  height:150px;
+  position:relative;
+  background:
+    radial-gradient(circle at 34% 22%,rgba(255,255,255,.55) 0 10%,transparent 11%),
+    radial-gradient(circle at 72% 80%,rgba(39,0,93,.40) 0 22%,transparent 23%),
+    linear-gradient(145deg,#d8b4fe 0%,#a855f7 38%,#6d28d9 78%,#4c1d95 100%);
+  border:6px solid #061946;
+  border-radius:45% 45% 38% 38%;
+  box-shadow:9px 10px 0 rgba(6,25,70,.25), inset -12px -16px 0 rgba(76,29,149,.35), inset 10px 8px 0 rgba(255,255,255,.25);
+  animation:monsterIdle 1.8s ease-in-out infinite;
+}
+
+@keyframes monsterIdle{
+  0%,100%{transform:translateY(0) rotate(-1deg)}
+  50%{transform:translateY(-8px) rotate(1deg)}
+}
+
+.monster::before{
+  content:"";
+  position:absolute;
+  left:34px;
+  top:34px;
+  width:22px;
+  height:22px;
+  background:white;
+  border:4px solid #061946;
+  border-radius:50%;
+  box-shadow:58px 0 0 white,58px 0 0 4px #061946;
+}
+
+.monster::after{
+  content:"";
+  position:absolute;
+  left:48px;
+  top:94px;
+  width:62px;
+  height:30px;
+  background:#ef4444;
+  border:4px solid #061946;
+  border-radius:0 0 60px 60px;
+  box-shadow:inset 0 -7px 0 rgba(127,29,29,.30);
+}
+
+.monster.happy{
+  animation:monsterCelebrate .45s ease-in-out 3;
+}
+
+@keyframes monsterCelebrate{
+  0%,100%{transform:translateY(0) rotate(-1deg) scale(1)}
+  50%{transform:translateY(-18px) rotate(5deg) scale(1.08)}
+}
+
+.monster.thinking{
+  animation:monsterThink .28s ease-in-out 4;
+}
+
+@keyframes monsterThink{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-7px)}
+  75%{transform:translateX(7px)}
+}
+
+.speech-bubble{
+  position:relative;
+  max-width:440px;
+  background:white;
+  border:4px solid #061946;
+  border-radius:28px;
+  padding:18px 22px;
+  box-shadow:7px 8px 0 rgba(6,25,70,.18);
+}
+
+.speech-bubble::before{
+  content:"";
+  position:absolute;
+  left:-22px;
+  top:60px;
+  width:34px;
+  height:34px;
+  background:white;
+  border-left:4px solid #061946;
+  border-bottom:4px solid #061946;
+  transform:rotate(45deg);
+}
+
+.prompt-label{
+  font-weight:900;
+  color:#64748b;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  font-size:.78rem;
+  letter-spacing:.04em;
+}
+
+.sound-prompt{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2rem,6vw,4.2rem);
+  line-height:.95;
+  color:#5b21b6;
+  letter-spacing:4px;
+  text-align:center;
+}
+
+.build-zone{
+  margin:18px auto 6px;
+  padding:18px;
+  background:white;
+  border:4px dashed #93c5fd;
+  border-radius:26px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  min-height:104px;
+  transition:.15s;
+}
+
+.build-zone.complete{
+  border-color:#facc15;
+  box-shadow:0 0 0 7px rgba(250,204,21,.25);
+  animation:wordCompletePulse .55s ease-in-out;
+}
+
+@keyframes wordCompletePulse{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.035)}
+  100%{transform:scale(1)}
+}
+
+.word-slot{
+  width:86px;
+  min-width:70px;
+  height:64px;
+  border:4px solid #bfdbfe;
+  border-radius:20px;
+  background:#eff6ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  color:#1d4ed8;
+  font-size:1.8rem;
+  box-shadow:inset 0 -6px 0 rgba(37,99,235,.10);
+}
+
+.word-slot.filled{
+  background:#fef3c7;
+  border-color:#facc15;
+  color:#78350f;
+  animation:slotPop .25s ease-in-out;
+}
+
+@keyframes slotPop{
+  0%{transform:scale(.9)}
+  60%{transform:scale(1.12)}
+  100%{transform:scale(1)}
+}
+
+.pieces-area{
+  margin:18px auto 4px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  min-height:100px;
+}
+
+.puzzle-piece{
+  position:relative;
+  min-width:88px;
+  min-height:62px;
+  padding:13px 20px;
+  border:4px solid #061946;
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.62) 0 10%,transparent 11%),
+    linear-gradient(145deg,var(--piece1),var(--piece2));
+  color:#061946;
+  border-radius:18px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:1.85rem;
+  font-weight:900;
+  line-height:1;
+  box-shadow:6px 7px 0 rgba(6,25,70,.20),inset 0 -7px 0 rgba(6,25,70,.10);
+  cursor:pointer;
+  user-select:none;
+  transition:.12s ease;
+}
+
+.puzzle-piece::before{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  right:-15px;
+  top:19px;
+  background:inherit;
+  border:4px solid #061946;
+  border-left:0;
+  border-radius:50%;
+}
+
+.puzzle-piece::after{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  left:28px;
+  bottom:-15px;
+  background:white;
+  border:4px solid #061946;
+  border-top:0;
+  border-radius:50%;
+}
+
+.puzzle-piece:hover{
+  transform:translateY(-8px) rotate(-2deg) scale(1.04);
+}
+
+.puzzle-piece.used{
+  visibility:hidden;
+  pointer-events:none;
+}
+
+.puzzle-piece.wrong{
+  animation:wrongShake .25s ease-in-out 2;
+}
+
+@keyframes wrongShake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px) rotate(-2deg)}
+  75%{transform:translateX(8px) rotate(2deg)}
+}
+
+.flying-piece{
+  position:fixed;
+  z-index:9999;
+  pointer-events:none;
+  animation:flySpin .38s ease-in-out forwards;
+}
+
+@keyframes flySpin{
+  0%{transform:translate(0,0) rotate(0) scale(1)}
+  50%{transform:translate(calc(var(--dx) * .55), calc(var(--dy) * .55 - 35px)) rotate(12deg) scale(1.12)}
+  100%{transform:translate(var(--dx), var(--dy)) rotate(0) scale(1)}
+}
+
+.message{
+  text-align:center;
+  font-weight:900;
+  min-height:30px;
+  color:#164e63;
+  font-size:1.08rem;
+}
+
+.streak-banner{
+  position:fixed;
+  left:50%;
+  top:22%;
+  transform:translate(-50%,-50%) scale(.7);
+  z-index:10000;
+  background:#facc15;
+  color:#78350f;
+  border:5px solid #061946;
+  border-radius:28px;
+  padding:18px 28px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:2.4rem;
+  font-weight:900;
+  box-shadow:9px 10px 0 rgba(6,25,70,.22);
+  opacity:0;
+  pointer-events:none;
+}
+
+.streak-banner.show{
+  animation:streakPop .9s ease-in-out forwards;
+}
+
+@keyframes streakPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-8deg)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1.1) rotate(5deg)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}
+  100%{opacity:0;transform:translate(-50%,-70%) scale(.9)}
+}
+
+.starburst{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+.star{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:16px;
+  height:16px;
+  background:#facc15;
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 56%,79% 91%,50% 70%,21% 91%,32% 56%,2% 35%,39% 35%);
+  animation:starFly .75s ease-out forwards;
+}
+
+@keyframes starFly{
+  from{transform:translate(-50%,-50%) scale(.4);opacity:1}
+  to{transform:translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.1);opacity:0}
+}
+
+.result-box{
+  text-align:center;
+  background:linear-gradient(135deg,#ecfeff,#f5f3ff);
+  border:4px solid #a5f3fc;
+  border-radius:30px;
+  padding:28px;
+}
+
+.result-title{
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-size:clamp(2.6rem,7vw,5rem);
+  margin:0;
+  color:#5b21b6;
+}
+
+.result-details{
+  font-size:1.25rem;
+  font-weight:800;
+  color:#475569;
+  line-height:1.6;
+  margin-top:10px;
+}
+
+@media(max-width:900px){
+  .side-menu{
+    position:static;
+    transform:none;
+    width:auto;
+    flex-direction:row;
+    justify-content:center;
+    margin:12px auto;
+  }
+
+  .sidebar-logo{display:none}
+  .game{margin-left:auto;padding-top:10px}
+}
+
+@media(max-width:720px){
+  .difficulty-grid{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .monster-stage{flex-direction:column}
+  .speech-bubble::before{display:none}
+}
+
+@media(max-width:520px){
+  .game{padding:8px 10px 34px}
+  .main-card{padding:12px;border-radius:24px}
+  .title-badge{padding:12px 16px 14px;border-radius:30px}
+  h1{font-size:clamp(2.5rem,15vw,4rem)}
+  .subtitle{font-size:.92rem}
+  .difficulty-grid{grid-template-columns:1fr;gap:10px}
+  .choice{box-shadow:0 5px 0 #bfdbfe;padding:16px 10px}
+  .choice.selected,.choice:hover{transform:none;box-shadow:0 5px 0 #facc15}
+  .stats{grid-template-columns:1fr 1fr;gap:6px}
+  .stat{padding:8px;border-width:2px}
+  .stat-value{font-size:1.05rem}
+  .play-area{padding:12px;border-width:3px;border-radius:24px}
+  .monster{width:118px;height:112px;border-width:5px}
+  .monster::before{left:24px;top:25px;width:16px;height:16px;box-shadow:44px 0 0 white,44px 0 0 4px #061946}
+  .monster::after{left:34px;top:70px;width:48px;height:24px}
+  .speech-bubble{padding:14px;border-radius:22px}
+  .sound-prompt{font-size:clamp(2rem,14vw,3.4rem)}
+  .build-zone{padding:12px;gap:7px;min-height:86px}
+  .word-slot{width:62px;min-width:54px;height:52px;font-size:1.35rem;border-width:3px}
+  .puzzle-piece{min-width:70px;min-height:54px;font-size:1.42rem;padding:11px 16px;border-width:3px}
+  .puzzle-piece::before{width:17px;height:17px;right:-12px;top:17px;border-width:3px}
+  .puzzle-piece::after{width:17px;height:17px;left:22px;bottom:-12px;border-width:3px}
+  button{width:100%}
+}
+
+
+/* PUZZLE-THEMED WORD BUILDER HEADER */
+.word-builder-banner{
+  position:relative;
+  width:min(900px,96%);
+  min-height:150px;
+  margin:0 auto;
+  border:8px solid #061946;
+  border-radius:42px;
+  background:
+    radial-gradient(circle at 18% 20%,rgba(255,255,255,.30) 0 13%,transparent 14%),
+    linear-gradient(110deg,#22c55e 0%,#38bdf8 38%,#a855f7 70%,#facc15 100%);
+  box-shadow:
+    0 15px 0 rgba(6,25,70,.92),
+    0 24px 34px rgba(6,25,70,.22),
+    inset 0 8px 0 rgba(255,255,255,.30),
+    inset 0 -10px 0 rgba(6,25,70,.10);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transform:rotate(-.8deg);
+}
+
+.word-builder-banner::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.18) 0 7px,transparent 7px 58px),
+    linear-gradient(0deg,rgba(255,255,255,.16) 0 7px,transparent 7px 58px);
+  opacity:.45;
+}
+
+.word-builder-banner::after{
+  content:"";
+  position:absolute;
+  right:-55px;
+  bottom:-70px;
+  width:240px;
+  height:180px;
+  border-radius:50%;
+  background:rgba(255,255,255,.18);
+  transform:rotate(-18deg);
+}
+
+.banner-title{
+  position:relative;
+  z-index:5;
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:20px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  line-height:.9;
+  letter-spacing:-4px;
+  transform:rotate(.8deg);
+}
+
+.word-text,
+.builder-text{
+  display:inline-block;
+  font-size:clamp(3.8rem,8vw,7.3rem);
+  -webkit-text-stroke:3px #061946;
+  paint-order:stroke fill;
+  text-shadow:
+    5px 5px 0 white,
+    -3px 3px 0 white,
+    3px -3px 0 white,
+    0 10px 0 rgba(6,25,70,.22),
+    0 18px 18px rgba(0,0,0,.20);
+}
+
+.word-text{
+  color:#ffffff;
+  transform:rotate(-2deg);
+}
+
+.builder-text{
+  color:#fef08a;
+  transform:rotate(2deg);
+}
+
+.banner-puzzle{
+  position:absolute;
+  z-index:4;
+  width:116px;
+  height:82px;
+  border:6px solid #061946;
+  border-radius:22px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  font-size:2.3rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#061946;
+  box-shadow:
+    7px 8px 0 rgba(6,25,70,.25),
+    inset 0 -8px 0 rgba(6,25,70,.10);
+}
+
+.banner-puzzle::before{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  top:22px;
+  right:-22px;
+  border:6px solid #061946;
+  border-left:0;
+  border-radius:50%;
+  background:inherit;
+}
+
+.banner-puzzle::after{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  left:36px;
+  bottom:-22px;
+  border:6px solid #061946;
+  border-top:0;
+  border-radius:50%;
+  background:#d9f7ff;
+}
+
+.banner-puzzle.left{
+  left:34px;
+  top:35px;
+  transform:rotate(-9deg);
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.70) 0 12%,transparent 13%),
+    linear-gradient(145deg,#fef08a,#facc15);
+}
+
+.banner-puzzle.right{
+  right:36px;
+  top:36px;
+  transform:rotate(10deg);
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.70) 0 12%,transparent 13%),
+    linear-gradient(145deg,#fecdd3,#fb7185);
+}
+
+.word-builder-banner:hover .banner-puzzle.left{
+  animation:puzzleWiggleLeft .42s ease-in-out infinite alternate;
+}
+
+.word-builder-banner:hover .banner-puzzle.right{
+  animation:puzzleWiggleRight .42s ease-in-out infinite alternate;
+}
+
+@keyframes puzzleWiggleLeft{
+  from{transform:rotate(-11deg) translateY(0)}
+  to{transform:rotate(-3deg) translateY(-8px)}
+}
+
+@keyframes puzzleWiggleRight{
+  from{transform:rotate(10deg) translateY(0)}
+  to{transform:rotate(3deg) translateY(-8px)}
+}
+
+@media(max-width:760px){
+  .word-builder-banner{
+    min-height:128px;
+    border-width:6px;
+    border-radius:34px;
+  }
+
+  .banner-title{
+    flex-direction:column;
+    gap:0;
+    letter-spacing:-2px;
+  }
+
+  .word-text,
+  .builder-text{
+    font-size:clamp(3rem,14vw,5.2rem);
+  }
+
+  .banner-puzzle{
+    width:78px;
+    height:58px;
+    font-size:1.5rem;
+    border-width:4px;
+  }
+
+  .banner-puzzle::before{
+    width:20px;
+    height:20px;
+    top:17px;
+    right:-15px;
+    border-width:4px;
+  }
+
+  .banner-puzzle::after{
+    width:20px;
+    height:20px;
+    left:24px;
+    bottom:-15px;
+    border-width:4px;
+  }
+
+  .banner-puzzle.left{
+    left:12px;
+    top:34px;
+  }
+
+  .banner-puzzle.right{
+    right:12px;
+    top:34px;
+  }
+}
+
+@media(max-width:480px){
+  .word-builder-banner{
+    min-height:116px;
+  }
+
+  .banner-puzzle{
+    opacity:.85;
+    transform:scale(.8);
+  }
+
+  .banner-puzzle.left{
+    left:4px;
+  }
+
+  .banner-puzzle.right{
+    right:4px;
+  }
+}
+
+/* FRIENDLIER WORD BUILDER MONSTER */
+.monster{
+  width:170px !important;
+  height:150px !important;
+  position:relative;
+  background:
+    radial-gradient(circle at 35% 18%,rgba(255,255,255,.70) 0 12%,transparent 13%),
+    radial-gradient(circle at 70% 74%,rgba(91,33,182,.28) 0 24%,transparent 25%),
+    linear-gradient(145deg,#d8b4fe 0%,#b06cff 42%,#7c3aed 78%,#5b21b6 100%) !important;
+  border:6px solid #061946 !important;
+  border-radius:48% 48% 42% 42% !important;
+  box-shadow:
+    9px 10px 0 rgba(6,25,70,.20),
+    inset -12px -15px 0 rgba(76,29,149,.28),
+    inset 12px 9px 0 rgba(255,255,255,.25) !important;
+  animation:monsterIdle 1.8s ease-in-out infinite;
+}
+
+.monster::before{
+  content:"" !important;
+  position:absolute !important;
+  left:34px !important;
+  top:35px !important;
+  width:34px !important;
+  height:38px !important;
+  background:
+    radial-gradient(circle at 38% 35%,#ffffff 0 30%,#dbeafe 31% 100%) !important;
+  border:5px solid #061946 !important;
+  border-radius:50% !important;
+  box-shadow:
+    66px 0 0 #ffffff,
+    66px 0 0 5px #061946 !important;
+}
+
+.monster::after{
+  content:"" !important;
+  position:absolute !important;
+  left:52px !important;
+  top:92px !important;
+  width:62px !important;
+  height:28px !important;
+  background:transparent !important;
+  border:0 !important;
+  border-bottom:8px solid #061946 !important;
+  border-radius:0 0 80px 80px !important;
+  box-shadow:none !important;
+}
+
+.monster .pupil{
+  position:absolute;
+  left:48px;
+  top:50px;
+  width:11px;
+  height:13px;
+  border-radius:50%;
+  background:#061946;
+  z-index:3;
+  box-shadow:66px 0 0 #061946;
+  animation:blink 4.5s ease-in-out infinite;
+}
+
+.monster .cheek{
+  position:absolute;
+  left:24px;
+  top:82px;
+  width:22px;
+  height:13px;
+  background:rgba(251,113,133,.42);
+  border-radius:50%;
+  z-index:2;
+  box-shadow:104px 0 0 rgba(251,113,133,.42);
+}
+
+.monster .horn-left,
+.monster .horn-right{
+  position:absolute;
+  top:-20px;
+  width:34px;
+  height:38px;
+  background:linear-gradient(145deg,#fef3c7,#facc15);
+  border:5px solid #061946;
+  border-radius:50% 50% 12px 12px;
+  z-index:-1;
+}
+
+.monster .horn-left{
+  left:34px;
+  transform:rotate(-18deg);
+}
+
+.monster .horn-right{
+  right:34px;
+  transform:rotate(18deg);
+}
+
+@keyframes blink{
+  0%,92%,100%{transform:scaleY(1)}
+  95%{transform:scaleY(.15)}
+}
+
+
+/* FRIENDLIER WORD BUILDER MONSTER OVERRIDE */
+.monster{
+  width:170px !important;
+  height:150px !important;
+  background:
+    radial-gradient(circle at 35% 18%,rgba(255,255,255,.70) 0 12%,transparent 13%),
+    radial-gradient(circle at 70% 74%,rgba(91,33,182,.28) 0 24%,transparent 25%),
+    linear-gradient(145deg,#d8b4fe 0%,#b06cff 42%,#7c3aed 78%,#5b21b6 100%) !important;
+  border-radius:48% 48% 42% 42% !important;
+  box-shadow:
+    9px 10px 0 rgba(6,25,70,.20),
+    inset -12px -15px 0 rgba(76,29,149,.28),
+    inset 12px 9px 0 rgba(255,255,255,.25) !important;
+}
+
+.monster::before{
+  left:34px !important;
+  top:35px !important;
+  width:34px !important;
+  height:38px !important;
+  background:
+    radial-gradient(circle at 38% 35%,#ffffff 0 30%,#dbeafe 31% 100%) !important;
+  border:5px solid #061946 !important;
+  border-radius:50% !important;
+  box-shadow:
+    66px 0 0 #ffffff,
+    66px 0 0 5px #061946 !important;
+}
+
+.monster::after{
+  left:52px !important;
+  top:92px !important;
+  width:62px !important;
+  height:28px !important;
+  background:transparent !important;
+  border:0 !important;
+  border-bottom:8px solid #061946 !important;
+  border-radius:0 0 80px 80px !important;
+  box-shadow:none !important;
+}
+
+.monster .pupil{
+  position:absolute;
+  left:48px;
+  top:50px;
+  width:11px;
+  height:13px;
+  border-radius:50%;
+  background:#061946;
+  z-index:3;
+  box-shadow:66px 0 0 #061946;
+  animation:blink 4.5s ease-in-out infinite;
+}
+
+.monster .cheek{
+  position:absolute;
+  left:24px;
+  top:82px;
+  width:22px;
+  height:13px;
+  background:rgba(251,113,133,.42);
+  border-radius:50%;
+  z-index:2;
+  box-shadow:104px 0 0 rgba(251,113,133,.42);
+}
+
+.monster .horn-left,
+.monster .horn-right{
+  position:absolute;
+  top:-20px;
+  width:34px;
+  height:38px;
+  background:linear-gradient(145deg,#fef3c7,#facc15);
+  border:5px solid #061946;
+  border-radius:50% 50% 12px 12px;
+  z-index:-1;
+}
+
+.monster .horn-left{
+  left:34px;
+  transform:rotate(-18deg);
+}
+
+.monster .horn-right{
+  right:34px;
+  transform:rotate(18deg);
+}
+
+@keyframes blink{
+  0%,92%,100%{transform:scaleY(1)}
+  95%{transform:scaleY(.15)}
+}
+
+
+/* WORD BUILDER HEADER ONLY - DOES NOT AFFECT GAME PIECES */
+.wb-title-card{
+  position:relative;
+  width:min(920px,96%);
+  height:150px;
+  margin:0 auto;
+  border:8px solid #061946;
+  border-radius:46px;
+  background:
+    radial-gradient(circle at 15% 22%,rgba(255,255,255,.23) 0 14%,transparent 15%),
+    radial-gradient(circle at 82% 78%,rgba(6,25,70,.15) 0 18%,transparent 19%),
+    linear-gradient(110deg,#22c55e 0%,#17b7dd 34%,#7c3aed 68%,#facc15 100%);
+  box-shadow:
+    0 16px 0 rgba(6,25,70,.96),
+    0 28px 34px rgba(6,25,70,.26),
+    inset 0 9px 0 rgba(255,255,255,.30),
+    inset 0 -11px 0 rgba(6,25,70,.12);
+  overflow:hidden;
+  transform:rotate(-.6deg);
+}
+
+.wb-title-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.13) 0 8px,transparent 8px 64px),
+    linear-gradient(0deg,rgba(255,255,255,.11) 0 8px,transparent 8px 64px);
+  opacity:.30;
+}
+
+.wb-title-card::after{
+  content:"";
+  position:absolute;
+  right:-55px;
+  bottom:-80px;
+  width:260px;
+  height:185px;
+  border-radius:50%;
+  background:rgba(255,255,255,.17);
+  transform:rotate(-15deg);
+}
+
+.wb-title-text{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  line-height:.86;
+  letter-spacing:-3px;
+  transform:rotate(.6deg);
+}
+
+.wb-word,
+.wb-builder{
+  display:inline-block;
+  font-size:clamp(3.45rem,6.8vw,6.45rem);
+  -webkit-text-stroke:3px #061946;
+  paint-order:stroke fill;
+  text-shadow:
+    4px 4px 0 #061946,
+    -2px 2px 0 #061946,
+    2px -2px 0 #061946,
+    -2px -2px 0 #061946,
+    0 8px 0 rgba(6,25,70,.25),
+    0 15px 15px rgba(0,0,0,.18);
+}
+
+.wb-word{
+  color:#ffffff;
+  transform:rotate(-2deg);
+}
+
+.wb-builder{
+  color:#fef08a;
+  transform:rotate(2deg);
+}
+
+.wb-piece{
+  position:absolute;
+  z-index:6;
+  width:112px;
+  height:78px;
+  border:6px solid #061946;
+  border-radius:22px;
+  font-family:"Baloo 2",Fredoka,Arial,sans-serif;
+  font-weight:800;
+  font-size:2.15rem;
+  color:#061946;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:
+    7px 8px 0 rgba(6,25,70,.25),
+    inset 0 -8px 0 rgba(6,25,70,.12);
+}
+
+.wb-piece::before{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  top:20px;
+  right:-22px;
+  border:6px solid #061946;
+  border-left:0;
+  border-radius:50%;
+  background:inherit;
+}
+
+.wb-piece::after{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:30px;
+  left:36px;
+  bottom:-22px;
+  border:6px solid #061946;
+  border-top:0;
+  border-radius:50%;
+  background:#d9f7ff;
+}
+
+.wb-piece-left{
+  left:32px;
+  top:36px;
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.72) 0 12%,transparent 13%),
+    linear-gradient(145deg,#fef08a,#facc15);
+  animation:wbLeftFloat 1.35s ease-in-out infinite;
+}
+
+.wb-piece-right{
+  right:34px;
+  top:36px;
+  background:
+    radial-gradient(circle at 28% 24%,rgba(255,255,255,.72) 0 12%,transparent 13%),
+    linear-gradient(145deg,#fecdd3,#fb7185);
+  animation:wbRightFloat 1.35s ease-in-out infinite;
+  animation-delay:.18s;
+}
+
+@keyframes wbLeftFloat{
+  0%,100%{transform:rotate(-10deg) translateY(0)}
+  50%{transform:rotate(-4deg) translateY(-9px)}
+}
+
+@keyframes wbRightFloat{
+  0%,100%{transform:rotate(10deg) translateY(0)}
+  50%{transform:rotate(4deg) translateY(-9px)}
+}
+
+@media(max-width:780px){
+  .wb-title-card{
+    height:136px;
+    border-width:6px;
+    border-radius:38px;
+  }
+
+  .wb-title-text{
+    flex-direction:column;
+    gap:0;
+    letter-spacing:-2px;
+  }
+
+  .wb-word,
+  .wb-builder{
+    font-size:clamp(3rem,13vw,5.4rem);
+    -webkit-text-stroke:3px #061946;
+  }
+
+  .wb-piece{
+    width:78px;
+    height:56px;
+    font-size:1.45rem;
+    border-width:4px;
+  }
+
+  .wb-piece::before{
+    width:20px;
+    height:20px;
+    top:16px;
+    right:-15px;
+    border-width:4px;
+  }
+
+  .wb-piece::after{
+    width:20px;
+    height:20px;
+    left:24px;
+    bottom:-15px;
+    border-width:4px;
+  }
+
+  .wb-piece-left{
+    left:12px;
+    top:40px;
+  }
+
+  .wb-piece-right{
+    right:12px;
+    top:40px;
+  }
+}
+
+@media(max-width:500px){
+  .wb-title-card{
+    height:122px;
+  }
+
+  .wb-piece{
+    opacity:.72;
+  }
+
+  .wb-word,
+  .wb-builder{
+    font-size:clamp(2.6rem,15vw,4.5rem);
+  }
+}
+
+
+/* FORCE GAME PUZZLE LETTERS ABOVE THE PUZZLE SHAPE */
+.puzzle-piece{
+  color:#061946 !important;
+}
+
+.puzzle-piece .piece-label{
+  position:relative;
+  z-index:5;
+  display:inline-block;
+  color:#061946 !important;
+  line-height:1;
+  pointer-events:none;
+}
+
+
+
+/* =============================================================
+   Bright Arcade — Word Builder visual remaster
+   Visual/UX only. Existing word banks, scoring and gameplay remain intact.
+   ============================================================= */
+:root{
+  --wb-navy:#061946;
+  --wb-blue:#0875f5;
+  --wb-red:#ef174d;
+  --wb-orange:#f97316;
+  --wb-yellow:#facc15;
+  --wb-green:#49c600;
+  --wb-purple:#7030d8;
+  --wb-line:#d5e7fa;
+}
+
+html{background:#57c2ef}
+body{
+  min-height:100vh;
+  padding:24px 26px 34px 220px;
+  color:var(--wb-navy);
+  font-family:'Fredoka',Arial,sans-serif;
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%) !important;
+  overflow-x:hidden;
+}
+
+.sky-background{
+  position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+  background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 45%,#d9f7ff 100%);
+}
+.sky-background::before{display:none !important}
+.cloud{
+  position:absolute;width:220px;height:74px;background:rgba(255,255,255,.92);
+  border-radius:999px;filter:drop-shadow(0 9px 10px rgba(14,116,144,.16));
+  opacity:.9;animation:cloudDrift linear infinite;
+}
+.cloud::before,.cloud::after{content:"";position:absolute;background:rgba(255,255,255,.96);border-radius:50%}
+.cloud::before{width:92px;height:92px;left:32px;top:-38px}
+.cloud::after{width:118px;height:118px;right:24px;top:-58px}
+.cloud.one{top:10%;left:-260px;transform:scale(.9);animation-duration:54s}
+.cloud.two{top:27%;left:-320px;transform:scale(1.25);animation-duration:72s;animation-delay:-18s;opacity:.78}
+.cloud.three{top:52%;left:-280px;transform:scale(.75);animation-duration:64s;animation-delay:-34s;opacity:.72}
+.cloud.four{top:72%;left:-360px;transform:scale(1.45);animation-duration:86s;animation-delay:-42s;opacity:.62}
+.cloud.five{top:3%;left:-240px;transform:scale(.58);animation-duration:47s;animation-delay:-25s;opacity:.75}
+.cloud.six{top:40%;left:-300px;transform:scale(1);animation-duration:78s;animation-delay:-55s;opacity:.58}
+.extra-cloud{opacity:.56}
+.extra-one{top:18%!important;left:-280px!important;transform:scale(.55)!important;animation-duration:66s!important;animation-delay:-12s!important}
+.extra-two{top:42%!important;left:-340px!important;transform:scale(.82)!important;animation-duration:84s!important;animation-delay:-34s!important;opacity:.48!important}
+.extra-three{top:58%!important;left:-300px!important;transform:scale(.62)!important;animation-duration:72s!important;animation-delay:-48s!important;opacity:.50!important}
+.extra-four{top:76%!important;left:-360px!important;transform:scale(1.05)!important;animation-duration:96s!important;animation-delay:-26s!important;opacity:.42!important}
+.extra-five{top:7%!important;left:-310px!important;transform:scale(.42)!important;animation-duration:58s!important;animation-delay:-41s!important;opacity:.46!important}
+@keyframes cloudDrift{from{margin-left:-380px}to{margin-left:calc(100vw + 520px)}}
+
+.game{position:relative;z-index:1;width:min(1080px,100%);margin:0 auto!important;padding:0 0 34px!important}
+.header{
+  margin:0 0 18px!important;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+/* Homepage-style animated title, with Word Builder identity retained. */
+.wb-title-card{
+  position:relative!important;width:auto!important;height:auto!important;min-height:0!important;
+  margin:0 auto!important;padding:2px 8px!important;border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;overflow:visible!important;
+  transform:none!important;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  animation:wbLogoFloat 4s ease-in-out infinite;
+}
+.wb-title-card::before,.wb-title-card::after{display:none!important}
+.wb-title-text{
+  position:static!important;inset:auto!important;display:flex!important;align-items:flex-end!important;
+  justify-content:center!important;gap:12px!important;letter-spacing:0!important;transform:none!important;
+}
+.wb-title-word{display:inline-flex;align-items:flex-end;white-space:nowrap;line-height:.82}
+.wb-title-letter{
+  display:inline-block;font-family:'Baloo 2','Fredoka',Arial,sans-serif;font-weight:800;
+  font-size:clamp(3.15rem,6.8vw,5.65rem);letter-spacing:-2px;color:#fff;
+  transform:rotate(var(--r));animation:wbLetterWiggle 2.2s ease-in-out infinite;animation-delay:var(--d);
+  -webkit-text-stroke:4px var(--wb-navy);paint-order:stroke fill;
+  text-shadow:0 4px 0 rgba(255,255,255,.58),0 10px 18px rgba(6,25,70,.16);
+}
+.wb-builder-group .wb-title-letter{color:var(--wb-yellow)}
+.wb-title-icon{
+  display:inline-block;font-size:clamp(2.2rem,4.7vw,3.9rem);line-height:1;
+  filter:drop-shadow(0 5px 0 rgba(6,25,70,.15));animation:wbIconBob 1.8s ease-in-out infinite;
+}
+.wb-title-icon-right{animation-delay:.5s}
+@keyframes wbLogoFloat{0%,100%{transform:translateY(0) rotate(-.45deg)}50%{transform:translateY(-6px) rotate(.45deg)}}
+@keyframes wbLetterWiggle{0%,100%{transform:rotate(var(--r)) translateY(0)}50%{transform:rotate(calc(var(--r) * -1)) translateY(-4px)}}
+@keyframes wbIconBob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-7px) rotate(6deg) scale(1.06)}}
+.subtitle{
+  display:block!important;
+  width:max-content;
+  max-width:min(92vw,620px);
+  margin:3px auto 0!important;
+  padding:8px 16px!important;
+  border:2px solid rgba(255,255,255,.94)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.84)!important;
+  color:#315a86!important;
+  font-size:1rem!important;
+  font-weight:700!important;
+  line-height:1.25;
+  box-shadow:0 7px 18px rgba(6,25,70,.08)!important;
+  backdrop-filter:blur(6px);
+}
+
+/* Navigation now matches the refreshed games. */
+.side-menu{left:22px;top:50%;width:168px;gap:10px;z-index:30}
+.side-menu a{border:1px solid rgba(255,255,255,.94);border-radius:16px;background:rgba(255,255,255,.94);color:var(--wb-navy);padding:12px 14px;box-shadow:0 10px 24px rgba(6,25,70,.14)}
+.side-menu a:hover{background:#fff8d7}
+.sidebar-logo{width:168px;margin:0 auto 3px;padding:13px 10px 15px;border:1px solid rgba(255,255,255,.96);border-radius:24px;background:linear-gradient(180deg,#fff 0%,#fff8dd 100%);box-shadow:0 12px 28px rgba(6,25,70,.16);transform:none}
+.sidebar-logo-link:hover .sidebar-logo{transform:translateY(-2px);background:linear-gradient(180deg,#fff 0%,#fff4bf 100%)}
+.sidebar-bright span{font-size:1.6rem}.sidebar-arcade{font-size:1.8rem;margin-top:4px}
+
+/* Main shell */
+.main-card{
+  position:relative;overflow:hidden;padding:28px;border:2px solid rgba(255,255,255,.96);border-radius:30px;
+  background:rgba(255,255,255,.97);box-shadow:0 22px 60px rgba(6,25,70,.20),inset 0 0 0 1px rgba(8,117,245,.08);
+}
+.main-card::before{content:"";position:absolute;inset:0 0 auto;height:8px;background:linear-gradient(90deg,var(--wb-red) 0 16.6%,var(--wb-orange) 16.6% 33.2%,var(--wb-yellow) 33.2% 49.8%,var(--wb-green) 49.8% 66.4%,var(--wb-blue) 66.4% 83%,var(--wb-purple) 83% 100%)}
+.main-card>*{position:relative;z-index:1}
+.instructions{max-width:760px;margin:7px auto 22px;color:#60728e;font-size:1rem;font-weight:600;line-height:1.55}
+.option-heading{margin:18px 0 10px;color:var(--wb-navy);font-size:.82rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase}
+.difficulty-grid{gap:12px;margin:0 0 22px}
+.choice{
+  position:relative;border:2px solid var(--wb-line);border-radius:18px;background:linear-gradient(180deg,#fff 0%,#f5faff 100%);
+  color:#204a82;padding:18px 12px;font-family:'Fredoka',Arial,sans-serif;font-size:1.02rem;font-weight:700;
+  box-shadow:0 5px 12px rgba(6,25,70,.06);transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease;
+}
+.choice small{color:#71849e;font-weight:600;font-size:.78rem}
+.choice:hover{transform:translateY(-2px);border-color:#9dc8fb;background:#f3f9ff;box-shadow:0 9px 20px rgba(8,117,245,.11)}
+.choice.selected{transform:none;color:#fff;border-color:var(--wb-blue);background:linear-gradient(180deg,#2c8cff 0%,#0875f5 100%);box-shadow:0 8px 18px rgba(8,117,245,.24),inset 0 0 0 2px rgba(255,255,255,.18)}
+.choice.selected small{color:#e8f4ff}
+.choice.selected::after{content:"✓";position:absolute;width:22px;height:22px;right:9px;top:9px;display:grid;place-items:center;border-radius:50%;background:#fff;color:var(--wb-blue);font-size:13px;font-weight:900}
+.actions{gap:10px;margin-top:18px}
+button{font-family:'Fredoka',Arial,sans-serif;font-weight:700}
+.primary,.secondary{min-height:48px;border-radius:15px;padding:0 22px;box-shadow:none}
+.primary{color:#fff;background:linear-gradient(180deg,#ff315f 0%,var(--wb-red) 100%);box-shadow:0 9px 20px rgba(239,23,77,.22)}
+.primary:hover{transform:translateY(-2px);filter:brightness(1.02)}
+.secondary{color:#315a86;background:#edf5ff;border:1px solid #d5e7fb}
+.secondary:hover{background:#e6f1ff;transform:translateY(-1px)}
+
+/* Game status */
+.stats{gap:10px;margin:0 0 14px}
+.stat{
+  min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:11px 8px;
+  border:1px solid #d9e9fb;border-radius:17px;background:linear-gradient(180deg,#fafdff 0%,#edf7ff 100%);box-shadow:none;
+}
+.stat-label{margin-bottom:4px;color:#70839e;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.stat-value{color:var(--wb-navy);font-size:1.3rem;font-weight:700}
+.stats .stat:nth-child(2) .stat-value{color:var(--wb-blue)}
+.stats .stat:nth-child(3) .stat-value{color:#dc8d00}
+.stats .stat:nth-child(4) .stat-value{color:#d92b52}
+
+/* Builder workbench */
+.play-area{
+  position:relative;padding:22px;border:2px solid #cfe4fa;border-radius:28px;overflow:hidden;
+  background:
+    linear-gradient(rgba(8,117,245,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(8,117,245,.035) 1px,transparent 1px),
+    linear-gradient(180deg,#fbfdff 0%,#f1f8ff 100%)!important;
+  background-size:28px 28px,28px 28px,auto!important;
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.72),0 10px 28px rgba(6,25,70,.07);
+}
+.monster-stage{gap:25px;min-height:172px}
+.monster{
+  width:158px!important;height:142px!important;border:5px solid var(--wb-navy)!important;border-radius:48% 48% 43% 43%!important;
+  background:linear-gradient(145deg,#d9c2ff 0%,#a96ef1 48%,#7740cf 100%)!important;
+  box-shadow:0 10px 20px rgba(6,25,70,.15),inset -8px -10px 0 rgba(76,29,149,.18),inset 8px 7px 0 rgba(255,255,255,.20)!important;
+}
+.monster::before{left:31px!important;top:34px!important;width:32px!important;height:35px!important;border:4px solid var(--wb-navy)!important;box-shadow:61px 0 0 #fff,61px 0 0 4px var(--wb-navy)!important}
+.monster::after{left:48px!important;top:91px!important;width:60px!important;height:25px!important;border-bottom:7px solid var(--wb-navy)!important}
+.monster .pupil{left:44px;top:47px;width:10px;height:12px;box-shadow:61px 0 0 var(--wb-navy)}
+.monster .cheek{left:22px;top:78px;width:20px;height:12px;box-shadow:94px 0 0 rgba(251,113,133,.42)}
+.builder-hat{
+  position:absolute;left:31px;top:-28px;width:96px;height:45px;z-index:5;border:5px solid var(--wb-navy);border-radius:48px 48px 16px 16px;
+  background:linear-gradient(180deg,#ffe75a 0%,#facc15 100%);box-shadow:inset 0 -7px 0 rgba(180,125,0,.12);
+}
+.builder-hat::before{content:"";position:absolute;left:-13px;right:-13px;bottom:-8px;height:14px;border:5px solid var(--wb-navy);border-radius:999px;background:#f7bd0b}
+.builder-hat::after{content:"";position:absolute;left:40px;top:-9px;width:18px;height:18px;border-radius:9px 9px 0 0;background:#ffe75a;border:5px solid var(--wb-navy);border-bottom:0}
+.builder-arm{position:absolute;top:91px;width:38px;height:18px;border:5px solid var(--wb-navy);border-radius:999px;background:#9a61e6;z-index:-1}
+.arm-left{left:-28px;transform:rotate(22deg)}.arm-right{right:-28px;transform:rotate(-22deg)}
+
+.speech-bubble{max-width:470px;padding:18px 23px;border:3px solid #c9def7;border-radius:22px;background:#fff;box-shadow:0 9px 22px rgba(6,25,70,.09)}
+.speech-bubble::before{left:-14px;top:59px;width:24px;height:24px;border-left:3px solid #c9def7;border-bottom:3px solid #c9def7}
+.prompt-label{margin-bottom:7px;color:#71839b;font-size:.7rem;font-weight:700;letter-spacing:.1em}
+.sound-prompt{color:var(--wb-purple);font-size:clamp(2.35rem,5.6vw,4.15rem);font-weight:800;letter-spacing:.12em;text-shadow:0 3px 0 #f0e9ff}
+
+.build-zone{
+  margin:19px auto 8px;padding:16px;min-height:100px;gap:9px;border:3px dashed #93bff1;border-radius:21px;
+  background:rgba(255,255,255,.90);box-shadow:inset 0 0 0 3px rgba(239,247,255,.95);
+}
+.build-zone.complete{border-color:var(--wb-yellow);box-shadow:0 0 0 6px rgba(250,204,21,.16),inset 0 0 0 3px #fff}
+.word-slot{
+  width:82px;min-width:68px;height:61px;border:2px solid #c6dcf5;border-radius:15px;background:#eff6ff;color:#195cb5;
+  font-size:1.62rem;font-weight:700;box-shadow:inset 0 -4px 0 rgba(37,99,235,.06);
+}
+.word-slot.filled{background:#fff7cf;border-color:#f2c928;color:#72520a;box-shadow:0 5px 12px rgba(250,204,21,.12)}
+.pieces-area{margin:16px auto 5px;gap:13px;min-height:94px}
+.puzzle-piece{
+  min-width:82px;min-height:58px;padding:12px 18px;border:3px solid var(--wb-navy);border-radius:16px;
+  font-size:1.7rem;font-weight:800;box-shadow:0 6px 12px rgba(6,25,70,.14),inset 0 -5px 0 rgba(6,25,70,.07);
+  transition:transform .15s ease,box-shadow .15s ease,filter .15s ease;
+}
+.puzzle-piece::before{width:20px;height:20px;right:-14px;top:18px;border-width:3px}
+.puzzle-piece::after{width:20px;height:20px;left:27px;bottom:-14px;border-width:3px;background:#f4f9ff}
+.puzzle-piece:hover{transform:translateY(-5px) rotate(-1deg) scale(1.035);box-shadow:0 10px 18px rgba(6,25,70,.16);filter:saturate(1.06)}
+.puzzle-piece .piece-label{font-weight:800}
+.message{min-height:28px;margin-top:7px;color:#58718f;font-size:.94rem;font-weight:600}
+
+.streak-banner{
+  top:20%;padding:15px 25px;border:4px solid var(--wb-navy);border-radius:22px;
+  background:linear-gradient(180deg,#ffe65c,#facc15);font-size:2.15rem;box-shadow:0 12px 30px rgba(6,25,70,.20);
+}
+.star{background:var(--wb-yellow)}
+
+/* Result presentation */
+.result-box{
+  position:relative;overflow:hidden;padding:38px 28px;border:2px solid #cfe5ff;border-radius:28px;
+  background:linear-gradient(180deg,#fbfdff 0%,#eef7ff 100%);box-shadow:inset 0 0 0 5px rgba(255,255,255,.75);
+}
+.result-box::before{content:"🧩";position:absolute;right:25px;top:18px;font-size:46px;transform:rotate(9deg);filter:drop-shadow(0 5px 0 rgba(6,25,70,.10))}
+.result-title{color:var(--wb-blue);font-size:clamp(3rem,7vw,5rem);font-weight:800;line-height:1;text-shadow:0 4px 0 #fff}
+.result-details{color:#60728e;font-size:1.08rem;font-weight:600;line-height:1.75}
+.result-details strong{color:var(--wb-navy)}
+
+@media(max-width:900px){
+  body{padding:14px}
+  .side-menu{position:relative;left:auto;top:auto;transform:none;width:100%;margin:0 auto 12px;flex-direction:row;align-items:center;justify-content:center}
+  .sidebar-logo-link{width:auto}.sidebar-logo{display:block;width:132px;margin:0;padding:8px 9px 10px;border-radius:17px}.sidebar-bright span{font-size:1.18rem}.sidebar-arcade{font-size:1.36rem}.side-menu>a:not(.sidebar-logo-link){width:auto;padding:10px 15px}
+  .game{margin:0 auto!important}
+}
+@media(max-width:760px){
+  .cloud{width:170px;height:58px}.cloud::before{width:70px;height:70px;left:25px;top:-28px}.cloud::after{width:90px;height:90px;right:20px;top:-44px}.cloud.four,.cloud.six,.extra-four{display:none}
+  .main-card{padding:20px;border-radius:24px}.difficulty-grid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}
+  .monster-stage{gap:15px}
+}
+@media(max-width:520px){
+  body{padding:8px}.sky-background{background:linear-gradient(180deg,#49b9ed 0%,#dff6ff 100%)}
+  .cloud.five,.extra-two,.extra-three{display:none}
+  .side-menu{margin-bottom:7px;gap:7px}.sidebar-logo{width:112px;padding:7px 7px 9px}.sidebar-bright span{font-size:1rem}.sidebar-arcade{font-size:1.18rem}.side-menu>a:not(.sidebar-logo-link){font-size:.84rem;padding:9px 12px;border-radius:13px}
+  .header{margin-bottom:10px!important;gap:7px}.wb-title-card{gap:5px!important}.wb-title-text{gap:7px!important}.wb-title-letter{font-size:clamp(2.15rem,11vw,3.45rem);-webkit-text-stroke:2.5px var(--wb-navy);letter-spacing:-1px}.wb-title-icon{font-size:clamp(1.65rem,7vw,2.35rem)}
+  .subtitle{font-size:.8rem!important;margin-top:8px!important;padding:6px 10px!important}
+  .main-card{padding:15px 12px;border-radius:21px}.instructions{font-size:.88rem;margin:6px auto 15px}.option-heading{font-size:.72rem;margin:14px 0 7px}.difficulty-grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:15px}.choice{padding:14px 8px;font-size:.9rem;border-radius:14px}.choice.selected::after{width:18px;height:18px;right:6px;top:6px;font-size:11px}
+  .stats{gap:5px;margin-bottom:8px}.stat{min-height:62px;padding:6px 4px;border-radius:13px}.stat-label{font-size:.58rem}.stat-value{font-size:.92rem}
+  .play-area{padding:13px 9px;border-radius:20px;background-size:22px 22px,22px 22px,auto!important}
+  .monster-stage{flex-direction:column;min-height:0;gap:10px}.monster{width:122px!important;height:108px!important}.builder-hat{left:23px;top:-25px;width:77px;height:36px;border-width:4px}.builder-hat::before{left:-10px;right:-10px;bottom:-7px;height:11px;border-width:4px}.builder-hat::after{left:31px;top:-8px;width:15px;height:15px;border-width:4px}.monster::before{left:24px!important;top:27px!important;width:24px!important;height:26px!important;border-width:3px!important;box-shadow:48px 0 0 #fff,48px 0 0 3px var(--wb-navy)!important}.monster::after{left:38px!important;top:69px!important;width:45px!important;height:21px!important;border-bottom-width:6px!important}.monster .pupil{left:34px;top:36px;width:8px;height:9px;box-shadow:48px 0 0 var(--wb-navy)}.monster .cheek{left:18px;top:59px;width:16px;height:10px;box-shadow:72px 0 0 rgba(251,113,133,.42)}.builder-arm{top:68px;width:30px;height:15px;border-width:4px}.arm-left{left:-21px}.arm-right{right:-21px}
+  .speech-bubble{width:100%;padding:12px;border-radius:17px}.speech-bubble::before{display:none}.sound-prompt{font-size:clamp(2rem,13vw,3.2rem)}
+  .build-zone{padding:10px 7px;gap:6px;min-height:78px;border-radius:16px}.word-slot{width:58px;min-width:48px;height:48px;font-size:1.2rem;border-radius:11px}.pieces-area{gap:9px;min-height:80px}.puzzle-piece{min-width:64px;min-height:48px;font-size:1.25rem;padding:9px 13px;border-width:2px}.puzzle-piece::before{width:15px;height:15px;right:-10px;top:15px;border-width:2px}.puzzle-piece::after{width:15px;height:15px;left:20px;bottom:-10px;border-width:2px}.message{font-size:.78rem}
+  .primary,.secondary{width:auto;min-height:44px;padding:0 16px;border-radius:13px;font-size:.9rem}.result-box{padding:28px 14px 24px;border-radius:20px}.result-box::before{font-size:34px;right:13px;top:10px}.result-details{font-size:.92rem}
+}
+@media(max-width:380px){.difficulty-grid{grid-template-columns:1fr}.wb-title-icon{display:none}.wb-title-text{gap:4px!important}.wb-title-letter{font-size:clamp(2rem,11.6vw,3rem)}}
+@media(prefers-reduced-motion:reduce){.cloud,.wb-title-card,.wb-title-letter,.wb-title-icon,.monster{animation:none!important}}
+
+
+/* ==========================================================
+  BRIGHT ARCADE SPOTLIGHT SKY — WORD BUILDER
+  New intro and difficulty experience; preserved game rules.
+  ========================================================== */
+.wb-spotlight,.wb-setup-screen{position:fixed;inset:0;min-height:100svh;overflow-y:auto;overflow-x:hidden;isolation:isolate;background:linear-gradient(180deg,#38bdf8 0%,#7dd3fc 43%,#d9f7ff 100%);color:#061946;font-family:'Fredoka',Arial,sans-serif}
+.wb-spotlight{z-index:260;display:flex}.wb-spotlight.hidden{display:none!important}
+#startScreen{z-index:230;display:none;align-items:center;justify-content:center;padding:28px 16px;overscroll-behavior:contain}
+#startScreen.active{display:flex}
+body.wb-intro-open .game,body.wb-in-setup .game{visibility:hidden}
+body.wb-intro-open .side-menu,body.wb-in-setup .side-menu{visibility:hidden}
+.wb-cloudscape{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.wb-cloud{position:absolute;width:220px;height:74px;border-radius:999px;background:rgba(255,255,255,.93);filter:drop-shadow(0 9px 10px rgba(14,116,144,.16));opacity:.89;animation:wbCloudDrift linear infinite}
+.wb-cloud::before,.wb-cloud::after{content:'';position:absolute;background:rgba(255,255,255,.96);border-radius:50%}
+.wb-cloud::before{width:92px;height:92px;left:32px;top:-38px}.wb-cloud::after{width:118px;height:118px;right:24px;top:-58px}
+.wb-cloud.one{top:12%;left:-265px;animation-duration:54s}.wb-cloud.two{top:26%;left:-330px;animation-duration:71s;animation-delay:-18s;opacity:.78}.wb-cloud.three{top:53%;left:-280px;animation-duration:64s;animation-delay:-35s;opacity:.73}.wb-cloud.four{top:75%;left:-360px;animation-duration:85s;animation-delay:-40s;opacity:.63}.wb-cloud.five{top:5%;left:-260px;animation-duration:48s;animation-delay:-25s;opacity:.70}
+@keyframes wbCloudDrift{from{margin-left:-380px}to{margin-left:calc(100vw + 520px)}}
+.wb-spotlight-shell{position:relative;z-index:1;display:flex;flex-direction:column;margin:0 auto;width:100%;max-width:1540px;min-height:100svh}
+.wb-topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:24px clamp(20px,5vw,76px) 0}
+.wb-brand{display:inline-flex;align-items:center;gap:10px;font:800 1.04rem 'Baloo 2',sans-serif;letter-spacing:.085em;color:#092a66;text-decoration:none;white-space:nowrap}
+.wb-brand b{color:#2463aa}.wb-brand-dots{display:grid;grid-template-columns:repeat(2,10px);gap:4px;transform:rotate(-8deg)}.wb-brand-dots i{width:10px;height:10px;border-radius:3px;background:#ff598b;box-shadow:inset 0 2px 2px #ffffff80,0 2px 3px #0a459522}.wb-brand-dots i:nth-child(2){background:#ffce57}.wb-brand-dots i:nth-child(3){background:#43dfa7}.wb-brand-dots i:nth-child(4){background:#40bcff}
+.wb-home{width:46px;height:46px;display:grid;place-items:center;border:2px solid #ffffffb5;border-radius:15px;background:#ffffff8a;color:#12376e;text-decoration:none;box-shadow:0 8px 17px #2369a42b}
+.wb-hero{display:grid;grid-template-columns:minmax(360px,.94fr) minmax(410px,1.06fr);align-items:center;gap:8px;flex:1;padding:12px clamp(25px,5.5vw,84px) 20px}
+.wb-hero-copy{position:relative;z-index:3}
+.wb-kicker,.wb-setup-kicker{display:inline-flex;align-items:center;gap:10px;font-size:clamp(.68rem,1vw,.83rem);font-weight:800;letter-spacing:.17em;color:#275b9c}
+.wb-kicker{margin-bottom:22px}.wb-live-dot{width:9px;height:9px;background:#3fd89f;border-radius:50%;box-shadow:0 0 0 5px #43df9f39;animation:wbBlink 2s ease-in-out infinite}
+@keyframes wbBlink{50%{box-shadow:0 0 0 9px #43df9f15}}
+.wb-hero-title{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:0;font-family:'Bebas Neue','Baloo 2',Impact,sans-serif;letter-spacing:.025em;line-height:.79;transform:skewX(-3deg);text-shadow:none}
+.wb-hero-title span,.wb-hero-title strong{display:block;font-size:clamp(5rem,9.3vw,9.7rem);font-weight:900;white-space:nowrap;-webkit-text-stroke:3px #061946;paint-order:stroke fill;text-shadow:0 8px 0 #2360a646,0 18px 30px #245b9429}
+.wb-hero-title span{color:white}.wb-hero-title strong{color:#ffd12e;font-size:clamp(5.25rem,9.05vw,9.4rem);text-shadow:0 9px 0 #cd7c11b0,0 18px 30px #245b9429}.wb-hero-title strong .wb-pink{display:inline;color:#ff527e;font-size:inherit}
+.wb-hero-tagline{margin:30px 0 28px;font-family:'Baloo 2',sans-serif;font-size:clamp(1rem,1.8vw,1.38rem);font-weight:800;color:#245385}
+.wb-play-now,.wb-start-building{display:flex;justify-content:space-between;align-items:center;gap:32px;width:min(330px,100%);border:0;border-radius:20px;padding:18px 26px;background:linear-gradient(180deg,#ffe96e,#ffd13b 52%,#ffae1a);color:#092e62;font:800 1.4rem 'Baloo 2',sans-serif;letter-spacing:.02em;box-shadow:0 9px 0 #ca7815,0 18px 34px #22699d33,inset 0 2px 0 #ffffff8c;transition:transform .16s ease,filter .16s ease;cursor:pointer}
+.wb-play-now span,.wb-start-building span{font-size:1.6rem}.wb-play-now:hover,.wb-start-building:hover{transform:translateY(-3px);filter:brightness(1.05)}.wb-play-now:active,.wb-start-building:active{transform:translateY(4px)}
+.wb-hero-points{display:flex;align-items:center;gap:11px;margin-top:25px;color:#4673a2;font-size:.74rem;font-weight:800;letter-spacing:.09em;white-space:nowrap}.wb-hero-points em{color:#2888da;font-style:normal}
+.wb-pill-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}.wb-pill-list span{display:inline-flex;align-items:center;gap:5px;border:1px solid #d7eeffb8;border-radius:999px;padding:7px 10px;background:#ffffffb8;color:#244f84;box-shadow:0 4px 15px #2477b121;font-size:.66rem;font-weight:700;letter-spacing:.05em}.wb-pill-list i{width:7px;height:7px;border-radius:50%;background:var(--dot)}
+.wb-hero-art{min-height:575px;position:relative;display:grid;place-items:center;perspective:1200px}.wb-hero-halo{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle,#ffffffb5,#b5eaff88 34%,#53b8f51a 62%,transparent 75%);filter:blur(8px)}.wb-orbit{position:absolute;inset:8% 0;border:2px solid #288fcb28;border-radius:50%;transform:rotate(-22deg)}.wb-orbit-alt{inset:-3% -7%;border-style:dashed;border-color:#288fcb18;animation:wbOrbit 65s linear infinite}@keyframes wbOrbit{to{transform:rotate(338deg)}}
+.wb-preview-board{position:relative;width:min(690px,95%);padding:19px 23px 22px;transform:rotate(-6deg) rotateX(8deg);border:3px solid #b8edff;border-radius:34px;background:linear-gradient(160deg,#21638a,#113c66 62%,#0a2b4e);box-shadow:0 18px 0 #0c4470,0 36px 60px #145e8a4d,0 0 70px #ffffff55,inset 0 3px 0 #ffffff47;color:#fff;animation:wbBoardFloat 5.6s ease-in-out infinite}
+@keyframes wbBoardFloat{50%{transform:rotate(-4deg) rotateX(8deg) translateY(-11px)}}
+.wb-board-top{display:flex;align-items:center;gap:8px;color:#ccefff;font-size:.7rem;font-weight:800;letter-spacing:.16em}.wb-board-top i{width:9px;height:9px;border-radius:50%;background:#4de8a5;box-shadow:0 0 12px #4de8a5}.wb-board-top span{margin-left:auto;color:#d7f5ffb8;font-size:.64rem}
+.wb-board-stage{display:flex;align-items:center;justify-content:center;gap:36px;min-height:205px;padding:18px 4px 8px}.wb-preview-monster{flex-shrink:0;transform:scale(.9);animation:wbPreviewMonster 2.5s ease-in-out infinite!important}.wb-preview-monster .builder-hat{z-index:5}
+@keyframes wbPreviewMonster{50%{transform:scale(.9) translateY(-9px) rotate(2deg)}}
+.wb-board-speech{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:205px;padding:24px 14px 20px;border:2px solid #a7e7ff;border-radius:24px;background:linear-gradient(180deg,#fafdff,#eaf8ff);box-shadow:0 10px 0 #0a294f64;color:#153b74}
+.wb-board-speech small{font-weight:800;font-size:.67rem;letter-spacing:.1em;color:#6283a8}.wb-board-speech>span{font:800 2.45rem 'Baloo 2',sans-serif;color:#6d39c6;white-space:nowrap}.wb-board-speech em{font-style:normal;color:#d2c3f4}
+.wb-board-build-label{text-align:center;font-size:.68rem;font-weight:800;letter-spacing:.18em;color:#a9e5ff}
+.wb-board-slots{display:flex;justify-content:center;gap:15px;margin:12px 0 20px}.wb-board-slots span{width:77px;height:68px;display:grid;place-items:center;border:2px solid #d4e4ff;border-radius:16px;background:linear-gradient(180deg,#ffffff,#e4f6ff);color:#145da7;font:800 2.5rem 'Baloo 2',sans-serif;box-shadow:0 7px 0 #7ed1ed,0 13px 24px #031d4266}.wb-board-slots span:nth-child(2){color:#ac47da}.wb-board-slots span:nth-child(3){color:#e25c46}
+.wb-board-tray{display:flex;justify-content:center;gap:11px;margin:5px 0 19px}.wb-board-tray span{display:grid;place-items:center;width:48px;height:42px;border:2px solid #042146;border-radius:12px;background:linear-gradient(150deg,#fce87a,#ffbc34);color:#102f55;font:800 1.3rem 'Baloo 2',sans-serif;box-shadow:0 4px 0 #0b223d}.wb-board-tray span:nth-child(2){background:linear-gradient(145deg,#c5efff,#6fb8f4)}.wb-board-tray span:nth-child(3){background:linear-gradient(145deg,#fec6df,#ff79a1)}.wb-board-tray span:nth-child(4){background:linear-gradient(145deg,#dbd0ff,#aa83f5)}.wb-board-tray span:nth-child(5){background:linear-gradient(145deg,#baf8d7,#69d6a5)}
+.wb-board-success{text-align:center;border-radius:10px;padding:9px;background:#1fbf8d25;border:1px solid #53e9bd56;color:#bdfde7;font-size:.74rem;font-weight:800;letter-spacing:.12em}
+.wb-float-icon{position:absolute;z-index:3;display:grid;place-items:center;width:68px;height:68px;border:2px solid #ffffffcf;border-radius:22px;background:linear-gradient(145deg,#fff,#ffda6c);box-shadow:0 8px 0 #d99e36,0 18px 30px #21639341;font:800 2.3rem 'Baloo 2',sans-serif;color:#ef7b28;animation:wbTileFloat 4s ease-in-out infinite}.wb-float-one{top:10%;left:5%;transform:rotate(-12deg)}.wb-float-two{bottom:10%;right:1%;background:linear-gradient(145deg,#fff,#9feaff);color:#2497d6;box-shadow:0 8px 0 #49a3ce,0 18px 30px #21639341;animation-delay:-1.3s}.wb-float-three{right:6%;top:7%;background:linear-gradient(145deg,#fff,#ffa9cd);color:#db4c90;box-shadow:0 8px 0 #d6548c,0 18px 30px #21639341;animation-delay:-2.5s}@keyframes wbTileFloat{50%{translate:0 -15px;rotate:8deg}}
+.wb-rainbow{display:flex;height:7px;width:100%;margin-top:auto;overflow:hidden}.wb-rainbow i{flex:1;background:#ff5283}.wb-rainbow i:nth-child(2){background:#ff9e45}.wb-rainbow i:nth-child(3){background:#ffe267}.wb-rainbow i:nth-child(4){background:#46dfa0}.wb-rainbow i:nth-child(5){background:#31caff}.wb-rainbow i:nth-child(6){background:#965cff}
+/* Level selection */
+.wb-setup-panel{position:relative;z-index:1;width:min(1100px,100%);margin:auto;padding:0 31px 29px;border:3px solid #fffffff0;border-radius:30px;background:linear-gradient(180deg,#ffffffed,#f4fbffff);box-shadow:0 25px 65px #17578833,0 10px 0 #0a356f13;overflow:hidden}
+.wb-setup-panel::before{content:'';position:absolute;top:0;left:12px;right:12px;height:7px;border-radius:0 0 12px 12px;background:linear-gradient(90deg,#ff3f6c,#ff922b,#ffda47,#31d48f,#2187ff,#8e5aff)}
+.wb-setup-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:21px 0 7px}.wb-back-btn{padding:10px 16px;border:2px solid #c5e5fa;border-radius:14px;background:#e8f5ff;color:#143c70;font:800 .9rem 'Baloo 2',sans-serif;box-shadow:none}.wb-back-btn:hover{background:#d8edff}.wb-setup-mark{font:800 1.5rem 'Bebas Neue',sans-serif;letter-spacing:.07em;color:#143c70}.wb-setup-mark b{color:#e4a600}.wb-setup-mark span{color:#f28e35}
+.wb-setup-head{text-align:center;padding:3px 0 17px}.wb-setup-head h2{margin:3px 0 5px;color:#123a70;font:900 clamp(3rem,5vw,5rem)/1 'Bebas Neue',Impact,sans-serif;letter-spacing:.025em}.wb-setup-head h2 em{font-style:normal;color:#e2a400}.wb-setup-head p{margin:0 auto;max-width:630px;color:#5e7896;font-size:.91rem;font-weight:600;line-height:1.5}
+.wb-setup-section-title{display:flex;align-items:center;gap:10px;margin-bottom:12px;color:#244e7c;font:800 .89rem 'Baloo 2',sans-serif;letter-spacing:.08em}.wb-setup-section-title small{margin-left:auto;font-size:.71rem;font-weight:700;color:#8099b0}.wb-step-icon{display:grid;place-items:center;width:33px;height:33px;border-radius:10px;background:#258cf2;color:white;letter-spacing:0}
+#startScreen .difficulty-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 18px}
+#startScreen .choice{position:relative;display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:18px 16px 19px;border:2px solid #d4e5f7;border-radius:22px;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:0 7px 0 #c3e0ee,0 14px 22px #246d9520;color:#173d70;font-family:'Fredoka',sans-serif;text-align:left;transform:none;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+#startScreen .choice:hover{transform:translateY(-3px);border-color:var(--level);box-shadow:0 9px 0 #c3e0ee,0 19px 26px #246d952a}
+#startScreen .choice.selected{border-color:var(--level);background:linear-gradient(180deg,#fff,var(--level-light));box-shadow:0 7px 0 color-mix(in srgb,var(--level) 38%,#fff),0 16px 25px #246d9524}
+#startScreen .choice:focus-visible{outline:4px solid #ffcf3a;outline-offset:3px}
+.wb-level-icon{display:grid;place-items:center;min-width:58px;height:58px;padding:0 7px;border-radius:15px;background:var(--level-light);color:var(--level);font:800 1.65rem 'Baloo 2',sans-serif;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--level) 17%,transparent);margin-bottom:13px}
+.wb-level-name{display:block;font:800 1.35rem/1.05 'Baloo 2',sans-serif;color:#173d70}.wb-level-grid .choice small{margin:6px 0 15px;font-size:.77rem;font-weight:600;color:#728ba6;white-space:normal;line-height:1.3}
+.wb-level-example{display:flex;align-items:center;flex-wrap:nowrap;gap:3px;width:100%;margin-top:auto}.wb-level-example i{display:grid;place-items:center;min-width:24px;height:30px;padding:0 4px;border:1px solid color-mix(in srgb,var(--level) 32%,#fff);border-radius:7px;background:var(--level-light);color:#1c4575;font:800 .8rem 'Fredoka',sans-serif;font-style:normal}.wb-level-example b{font-size:.73rem;color:#9fb4c6}.wb-check{position:absolute;top:14px;right:14px;display:none;place-items:center;width:27px;height:27px;border:2px solid white;border-radius:50%;background:var(--level);color:white;box-shadow:0 4px 10px #102c5033;font-weight:900}.choice.selected .wb-check{display:grid}
+.wb-how-to{display:flex;align-items:center;gap:14px;margin:22px 0 18px;padding:15px 17px;border:1px solid #d6e8f9;border-radius:18px;background:#edf7ff;color:#174976}.wb-tip-icon{font-size:1.7rem}.wb-how-to strong{font:800 .85rem 'Baloo 2',sans-serif;letter-spacing:.06em}.wb-how-to p{margin:3px 0 0;font-size:.82rem;font-weight:600;line-height:1.4;color:#5c7895}.wb-tip-badge{margin-left:auto;flex-shrink:0;padding:7px 10px;border-radius:10px;background:white;color:#2372b7;font-weight:800;font-size:.67rem;letter-spacing:.08em}
+.wb-start-building{margin:0 0 0 auto;width:min(350px,100%);padding:15px 23px;font-size:1.23rem}
+/* Matched gameplay HUD and result screen */
+.wb-play-heading{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:0 0 12px}.wb-play-eyebrow{color:#6685a3;letter-spacing:.14em;font-size:.65rem;font-weight:800}.wb-play-heading h2{margin:2px 0 0;color:#173e73;font:900 clamp(1.65rem,3.25vw,2.7rem)/1.1 'Bebas Neue',sans-serif;letter-spacing:.05em}.wb-play-heading h2 em{font-style:normal;color:#de9900}.wb-round-label{padding:9px 12px;border:1px solid #cfe7fb;border-radius:999px;background:#eef8ff;color:#2772ae;font-size:.75rem;font-weight:800;white-space:nowrap}
+.wb-progress-rail{width:100%;height:10px;margin:0 0 17px;border:1px solid #bfdff3;border-radius:999px;background:#e1f2fc;overflow:hidden}.wb-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#39c9f2,#1889f3,#8a5bfb);border-radius:999px;transition:width .4s ease}
+body:not(.wb-in-setup) .main-card{border-radius:27px;box-shadow:0 20px 55px rgba(6,25,70,.17);border:2px solid #fff;position:relative;overflow:hidden}
+body:not(.wb-in-setup) .main-card::before{height:7px}.game .stats .stat{background:linear-gradient(180deg,#fff,#eff8ff);border-color:#d5e8f9;box-shadow:0 5px 14px #194c7410}
+.game .play-area{background:linear-gradient(rgba(8,117,245,.038) 1px,transparent 1px),linear-gradient(90deg,rgba(8,117,245,.038) 1px,transparent 1px),linear-gradient(180deg,#fafdff,#eaf6ff)!important;background-size:27px 27px,27px 27px,auto!important;border-color:#cbe5fb}
+.game .speech-bubble{background:linear-gradient(180deg,#fff,#f8fbff);box-shadow:0 10px 21px #113a6a17}
+.game .build-zone{border-color:#91c4f5;background:#ffffffee}.game .message{font-weight:700}
+.game .actions .secondary{border:1px solid #cfe3f7;background:#eff7ff;color:#335c87;border-radius:13px;box-shadow:0 4px 12px #123e6811}.game .actions .secondary:hover{background:#e1f0ff}
+.game .actions .primary{border-radius:14px;background:linear-gradient(180deg,#ffe96e,#ffb925);color:#113668;box-shadow:0 6px 0 #cf9116,0 14px 24px #11396823}
+.wb-result-celebrate{font-size:2rem;letter-spacing:12px;color:#efb52d}.wb-result-subtitle{color:#5c7898;font-size:1.05rem;font-weight:700}
+#resultDetails{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:23px 0 0}
+.wb-result-stat{display:flex;flex-direction:column;justify-content:center;gap:7px;min-height:96px;padding:12px 8px;border:1px solid #d0e7fa;border-radius:15px;background:white;box-shadow:0 5px 14px #25669a10}.wb-result-stat span{color:#6487a6;font-size:.68rem;letter-spacing:.08em;font-weight:800}.wb-result-stat b{color:#174f96;font:800 1.8rem 'Baloo 2',sans-serif}
+@media(max-width:1100px){.wb-hero{grid-template-columns:minmax(300px,.93fr) minmax(360px,1.07fr)}.wb-hero-title span{font-size:clamp(4.7rem,8.5vw,8.3rem)}.wb-hero-title strong{font-size:clamp(4.85rem,8.15vw,8rem)}.wb-hero-art{min-height:505px}.wb-preview-board{padding:14px 15px 18px}.wb-board-stage{gap:17px}.wb-board-speech{min-width:175px}}
+@media(max-width:850px){.wb-hero{grid-template-columns:1fr;gap:0;padding:24px 22px}.wb-hero-copy{text-align:center}.wb-kicker{margin-bottom:12px}.wb-hero-title{align-items:center}.wb-hero-title span{font-size:clamp(5rem,14vw,8rem)}.wb-hero-title strong{font-size:clamp(5rem,12.8vw,7.3rem)}.wb-hero-tagline{margin:16px 0 22px}.wb-play-now{margin:auto}.wb-hero-points,.wb-pill-list{justify-content:center}.wb-hero-art{min-height:460px}.wb-preview-board{max-width:600px}.wb-float-icon{width:55px;height:55px;font-size:1.7rem}.wb-orbit{inset:7% 8%}#startScreen .difficulty-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wb-setup-panel{max-width:700px}.wb-level-grid .choice small{margin-bottom:10px}.wb-level-icon{min-width:49px;height:48px;margin-bottom:10px}.wb-how-to{margin-top:18px}#resultDetails{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.wb-cloud{width:170px;height:58px}.wb-cloud::before{width:70px;height:70px;left:25px;top:-28px}.wb-cloud::after{width:90px;height:90px;right:20px;top:-44px}.wb-cloud.four{display:none}.wb-topbar{padding:15px 16px 0}.wb-brand{font-size:.84rem}.wb-home{width:42px;height:42px}.wb-hero{padding:12px 12px 20px}.wb-kicker{font-size:.61rem}.wb-hero-title span{font-size:clamp(4.5rem,17vw,6.2rem)}.wb-hero-title strong{font-size:clamp(4.3rem,14.5vw,5.8rem)}.wb-hero-tagline{font-size:.97rem}.wb-play-now{width:min(305px,92%);padding:14px 21px;font-size:1.2rem}.wb-hero-points{gap:6px;flex-wrap:wrap;font-size:.59rem;margin-top:19px}.wb-pill-list{gap:4px;margin-top:11px}.wb-pill-list span{padding:5px 7px;font-size:.56rem}.wb-hero-art{min-height:325px}.wb-preview-board{width:89%;padding:11px;border-radius:19px}.wb-board-top{font-size:.52rem}.wb-board-top span{font-size:.49rem}.wb-board-stage{min-height:130px;gap:7px;padding:13px 0 4px}.wb-preview-monster{width:103px!important;height:94px!important;transform:scale(.8)}.wb-preview-monster .builder-hat{left:20px;top:-23px;width:64px;height:31px;border-width:3px}.wb-preview-monster .builder-hat::before{left:-8px;right:-8px;bottom:-7px;height:10px;border-width:3px}.wb-preview-monster .builder-hat::after{left:27px;top:-7px;width:12px;height:12px;border-width:3px}.wb-preview-monster::before{left:21px!important;top:22px!important;width:21px!important;height:22px!important;border-width:3px!important;box-shadow:39px 0 0 #fff,39px 0 0 3px #061946!important}.wb-preview-monster::after{left:33px!important;top:59px!important;width:38px!important;height:16px!important;border-bottom-width:5px!important}.wb-preview-monster .pupil{left:31px;top:29px;width:7px;height:8px;box-shadow:39px 0 0 #061946}.wb-preview-monster .cheek{left:16px;top:54px;width:14px;height:9px;box-shadow:65px 0 0 rgba(251,113,133,.42)}.wb-preview-monster .builder-arm{top:58px;width:24px;height:13px;border-width:3px}.wb-preview-monster .arm-left{left:-18px}.wb-preview-monster .arm-right{right:-18px}.wb-board-speech{min-width:128px;gap:5px;padding:12px 7px;border-radius:13px}.wb-board-speech small{font-size:.45rem}.wb-board-speech>span{font-size:1.65rem}.wb-board-slots{gap:8px;margin:7px 0 12px}.wb-board-slots span{width:46px;height:43px;border-radius:11px;font-size:1.65rem;box-shadow:0 4px 0 #7ed1ed}.wb-board-build-label{font-size:.48rem}.wb-board-tray{gap:7px;margin-bottom:12px}.wb-board-tray span{width:31px;height:30px;border-radius:8px;font-size:.94rem}.wb-board-success{font-size:.51rem;padding:6px}.wb-float-icon{width:39px;height:39px;font-size:1.3rem;border-radius:12px}.wb-float-one{left:0}.wb-float-three{right:0}#startScreen{padding:10px 8px;align-items:flex-start}.wb-setup-panel{padding:0 13px 19px;border-radius:22px}.wb-setup-top{padding:15px 0 8px}.wb-back-btn{padding:9px 12px;font-size:.75rem}.wb-setup-mark{font-size:1.1rem}.wb-setup-head{padding-bottom:15px}.wb-setup-head h2{font-size:clamp(2.7rem,11vw,4rem)}.wb-setup-head p{font-size:.81rem}.wb-setup-section-title{font-size:.75rem;gap:7px}.wb-step-icon{width:27px;height:27px}.wb-setup-section-title small{font-size:.62rem}#startScreen .difficulty-grid{gap:9px;margin-bottom:9px}#startScreen .choice{padding:12px 9px 14px;border-radius:16px;box-shadow:0 5px 0 #c3e0ee}#startScreen .choice.selected{box-shadow:0 5px 0 color-mix(in srgb,var(--level) 38%,#fff)}.wb-level-icon{min-width:42px;height:40px;border-radius:11px;font-size:1.2rem;margin-bottom:9px}.wb-level-name{font-size:1.08rem}.wb-level-grid .choice small{font-size:.66rem;margin:4px 0 11px}.wb-level-example{gap:1px}.wb-level-example i{min-width:20px;height:26px;font-size:.7rem;padding:0 3px}.wb-level-example b{font-size:.6rem}.wb-check{top:8px;right:8px;width:22px;height:22px;font-size:.78rem}.wb-how-to{padding:11px;margin:17px 0 14px;gap:10px}.wb-tip-icon{font-size:1.35rem}.wb-how-to strong{font-size:.72rem}.wb-how-to p{font-size:.7rem}.wb-tip-badge{display:none}.wb-start-building{width:100%;padding:12px 18px;font-size:1.1rem}.wb-play-heading h2{font-size:1.65rem}.wb-round-label{font-size:.66rem;padding:7px 9px}.wb-progress-rail{height:8px;margin-bottom:11px}#resultDetails{grid-template-columns:repeat(2,1fr);gap:6px}.wb-result-stat{min-height:79px;padding:9px 5px}.wb-result-stat span{font-size:.58rem}.wb-result-stat b{font-size:1.45rem}.wb-result-celebrate{font-size:1.4rem;letter-spacing:5px}}
+@media(max-width:370px){.wb-hero-title span{font-size:4.2rem}.wb-hero-title strong{font-size:4.05rem}.wb-setup-head h2{font-size:2.5rem}.wb-level-example i{min-width:18px;font-size:.62rem}.wb-preview-board{width:92%}}
+@media(max-height:700px) and (min-width:851px){.wb-hero-art{min-height:445px}.wb-hero-title span{font-size:clamp(4.8rem,8vw,8.3rem)}.wb-hero-title strong{font-size:clamp(5rem,7.5vw,8rem)}}
+@media(prefers-reduced-motion:reduce){.wb-cloud,.wb-live-dot,.wb-orbit-alt,.wb-preview-board,.wb-float-icon,.wb-preview-monster{animation:none!important}}
+
+#startScreen .wb-back-btn{width:auto;flex-shrink:0}
+@media(max-width:560px){
+  body:not(.wb-in-setup) .game .header{display:none}
+  body:not(.wb-in-setup) .game .main-card{padding:12px 9px}
+  body:not(.wb-in-setup) #gameScreen .wb-play-heading{margin-bottom:8px}
+  body:not(.wb-in-setup) #gameScreen .wb-play-heading h2{font-size:1.52rem}
+  body:not(.wb-in-setup) #gameScreen .stats{margin-bottom:8px}
+  body:not(.wb-in-setup) #gameScreen .play-area{padding:12px 7px}
+  body:not(.wb-in-setup) #gameScreen .monster-stage{flex-direction:row;min-height:121px;justify-content:center;gap:13px;align-items:center}
+  body:not(.wb-in-setup) #gameScreen .monster{width:106px!important;height:95px!important;flex-shrink:0}
+  body:not(.wb-in-setup) #gameScreen .speech-bubble{width:auto;max-width:none;flex:1;min-width:0;padding:10px 7px}
+  body:not(.wb-in-setup) #gameScreen .sound-prompt{font-size:clamp(1.45rem,7.6vw,2.35rem);letter-spacing:.07em}
+  body:not(.wb-in-setup) #gameScreen .prompt-label{font-size:.56rem}
+  body:not(.wb-in-setup) #gameScreen .build-zone{margin:10px auto 3px;min-height:68px}
+  body:not(.wb-in-setup) #gameScreen .pieces-area{margin:9px auto 3px;min-height:68px;gap:10px}
+  body:not(.wb-in-setup) #gameScreen .puzzle-piece{width:auto;min-width:60px;flex:0 0 auto}
+}
+
+
+/* === Word Builder — modern 3D Spotlight hero (replaces legacy flat game-board art) === */
+.wb-hero{grid-template-columns:minmax(385px,.96fr) minmax(0,1.04fr);column-gap:8px}
+.wb-hero-copy{min-width:0}
+.wbn-art{min-width:0;isolation:isolate;height:590px;min-height:590px;display:block;position:relative;perspective:1100px;overflow:visible;filter:drop-shadow(0 18px 35px rgba(23,102,155,.10))}
+.wbn-art:after{content:'';position:absolute;z-index:-1;left:1%;right:-7%;top:6%;bottom:3%;border-radius:50%;background:radial-gradient(ellipse,rgba(252,255,255,.85) 0%,rgba(231,252,255,.55) 29%,rgba(132,219,255,.20) 53%,transparent 72%);filter:blur(13px)}
+.wbn-ambient{position:absolute;pointer-events:none;border-radius:50%;filter:blur(2px)}
+.wbn-ambient-one{width:78%;height:70%;left:17%;top:11%;background:radial-gradient(circle,rgba(255,255,255,.73),rgba(255,255,255,0) 67%)}
+.wbn-ambient-two{width:77%;height:37%;left:20%;bottom:6%;background:radial-gradient(ellipse,rgba(9,152,249,.24),transparent 70%)}
+.wbn-top-caption{position:absolute;z-index:10;top:8.5%;left:10%;right:4%;display:flex;align-items:center;gap:11px;color:#20558d;font:800 .75rem 'Fredoka',sans-serif;letter-spacing:.15em}
+.wbn-top-caption-right{margin-left:auto;color:#477ca7;letter-spacing:.06em}
+.wbn-live-dot{display:block;width:9px;height:9px;border-radius:50%;background:#45d99d;box-shadow:0 0 0 5px rgba(69,217,157,.20)}
+.wbn-stage{position:absolute;inset:11% 0 12%;transform-style:preserve-3d}
+.wbn-back-halo{position:absolute;left:9%;top:10%;width:88%;height:79%;border-radius:50%;border:1px solid rgba(255,255,255,.52);background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.50),rgba(205,245,255,.33) 40%,rgba(255,255,255,0) 69%);box-shadow:0 0 90px rgba(255,255,255,.6),inset 0 0 60px rgba(255,255,255,.34)}
+.wbn-stage-rings{position:absolute;inset:4% 3%;border:1px dashed rgba(59,152,203,.18);border-radius:50%;transform:rotate(-17deg)}
+.wbn-stage-rings:before{content:'';position:absolute;inset:9% 13%;border:1px solid rgba(255,255,255,.60);border-radius:50%;transform:rotate(29deg)}
+.wbn-sound-label{position:absolute;z-index:8;top:12%;left:50%;transform:translateX(-50%);white-space:nowrap;color:#417da9;letter-spacing:.20em;font:800 .73rem 'Fredoka',sans-serif;text-align:center}
+.wbn-sound-label span{font-size:.38rem;vertical-align:middle;color:#2dc69c;margin:0 12px}
+.wbn-letter-row{position:absolute;z-index:7;inset:0;display:flex;align-items:center;justify-content:center;gap:clamp(14px,2vw,25px);transform:translateY(-5px);perspective:900px;transform-style:preserve-3d}
+.wbn-letter-block{--shade:#1758af;--rim:#cef7ff;--light:#7cddff;--solid:#3f9eec;--front:#e5faff;position:relative;display:grid;place-items:center;flex:none;width:clamp(104px,10.2vw,145px);height:clamp(116px,11.8vw,159px);border-radius:28px;transform:rotateY(-13deg) rotateX(7deg) rotateZ(-4deg);transform-style:preserve-3d;filter:drop-shadow(17px 21px 16px rgba(18,75,135,.23));animation:wbnHover 5.5s ease-in-out infinite}
+.wbn-letter-block:before{content:'';position:absolute;left:18px;right:-18px;top:15px;bottom:-17px;z-index:-2;border-radius:30px;transform:translateZ(-26px);background:linear-gradient(110deg,var(--solid),var(--shade) 75%);box-shadow:0 20px 35px rgba(7,64,125,.19)}
+.wbn-letter-block:after{content:'';position:absolute;inset:5px 6px auto 9px;height:35%;z-index:2;border-radius:23px 23px 50% 50%;background:linear-gradient(180deg,rgba(255,255,255,.83),rgba(255,255,255,.08));filter:blur(1px);pointer-events:none}
+.wbn-letter-face{position:relative;z-index:1;display:grid;place-items:center;width:100%;height:100%;border-radius:27px;border:2px solid rgba(255,255,255,.94);background:linear-gradient(145deg,#fff 0%,var(--front) 30%,var(--light) 95%);color:#0759b1;font:900 clamp(4.5rem,7vw,7.4rem)/1 'Baloo 2',sans-serif;text-shadow:0 3px 0 rgba(255,255,255,.4),0 8px 12px rgba(6,47,117,.13);box-shadow:inset 0 -10px 18px rgba(28,118,190,.11),inset 0 8px 12px rgba(255,255,255,.67),0 0 0 1px var(--rim)}
+.wbn-block-a{--shade:#7f31b2;--solid:#ba6bdb;--rim:#f7deff;--light:#e1baff;--front:#fbf1ff;transform:rotateY(-7deg) rotateX(-3deg) translateY(-23px);animation-delay:-1.4s}
+.wbn-block-a .wbn-letter-face{color:#8339c7}
+.wbn-block-t{--shade:#cf326c;--solid:#fc80a4;--rim:#ffe5ec;--light:#ffa8bd;--front:#fff0f2;transform:rotateY(9deg) rotateX(4deg) rotateZ(4deg);animation-delay:-2.7s}
+.wbn-block-t .wbn-letter-face{color:#e84175}
+@keyframes wbnHover{0%,100%{translate:0 0}50%{translate:0 -14px}}
+.wbn-floor-light{position:absolute;left:14%;right:7%;bottom:14%;height:17%;border-radius:50%;background:radial-gradient(ellipse,rgba(12,130,234,.38),rgba(26,143,238,.13) 49%,transparent 76%);filter:blur(16px)}
+.wbn-floor-disc{position:absolute;z-index:3;left:13%;right:6%;bottom:10%;height:21%;border-radius:50%;transform:rotateX(59deg);background:linear-gradient(175deg,rgba(255,255,255,.55),rgba(156,233,255,.14));border:2px solid rgba(255,255,255,.6);box-shadow:inset 0 5px 9px rgba(255,255,255,.38),0 18px 22px rgba(15,132,214,.14)}
+.wbn-floor-ring{position:absolute;z-index:4;left:20%;right:13%;bottom:13%;height:17%;border:2px solid rgba(255,255,255,.75);border-radius:50%;transform:rotateX(59deg);box-shadow:0 0 18px #e6feff,0 0 26px rgba(32,188,240,.26)}
+.wbn-sound-orb{position:absolute;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;width:76px;height:76px;border:1px solid rgba(255,255,255,.95);border-radius:24px;background:linear-gradient(140deg,rgba(255,255,255,.96),rgba(215,247,255,.88));box-shadow:inset 0 2px 4px #fff,0 14px 30px rgba(11,94,167,.17);backdrop-filter:blur(6px);transform:rotate(-9deg);animation:wbnOrb 5s ease-in-out infinite}
+.wbn-sound-orb b{color:#1a74c0;font:800 2rem 'Baloo 2',sans-serif;line-height:1}.wbn-sound-orb small{font-size:.52rem;letter-spacing:.14em;color:#5c86a7}
+.wbn-orb-one{top:26%;left:0}.wbn-orb-two{bottom:26%;right:-1%;transform:rotate(9deg);animation-delay:-2.2s}
+@keyframes wbnOrb{50%{translate:0 -12px}}
+.wbn-twinkle{position:absolute;z-index:6;color:#fff;filter:drop-shadow(0 0 8px rgba(255,255,255,.96));font-family:Arial;font-size:2.5rem;animation:wbnTwinkle 2.7s ease-in-out infinite}.wbn-twinkle-one{left:12%;top:26%}.wbn-twinkle-two{right:9%;top:28%;color:#eaffff;animation-delay:-1s}.wbn-twinkle-three{left:22%;bottom:21%;font-size:1.6rem;animation-delay:-1.9s}
+@keyframes wbnTwinkle{50%{opacity:.4;transform:scale(.7) rotate(32deg)}}
+.wbn-success{position:absolute;z-index:11;left:13%;right:11%;bottom:7%;display:flex;align-items:center;gap:14px;padding:13px 19px;border:1px solid rgba(255,255,255,.97);border-radius:18px;background:linear-gradient(125deg,rgba(255,255,255,.96),rgba(237,255,250,.93));box-shadow:0 15px 38px rgba(30,107,164,.15),inset 0 1px 1px #fff;backdrop-filter:blur(12px)}
+.wbn-success-tick{flex:none;width:39px;height:39px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(145deg,#4debb6,#1bc78f);color:#fff;font-size:1.4rem;font-weight:900;box-shadow:0 6px 11px rgba(7,177,125,.19)}
+.wbn-success strong{display:block;color:#185a79;font-size:.9rem;letter-spacing:.12em;font-weight:800;white-space:nowrap}
+.wbn-success small{display:block;margin-top:3px;color:#6892a5;font-size:.74rem;font-weight:600;white-space:nowrap}
+.wbn-success-star{color:#35d5a1;font-size:1.35rem;margin-left:auto}
+.wbn-corner-mark{position:absolute;right:4%;bottom:17%;display:grid;grid-template-columns:repeat(2,7px);gap:5px;transform:rotate(-12deg);opacity:.55}.wbn-corner-mark i{height:7px;border-radius:2px;background:#ff5680}.wbn-corner-mark i:nth-child(2){background:#ffcd54}.wbn-corner-mark i:nth-child(3){background:#46dca5}.wbn-corner-mark i:nth-child(4){background:#40b9ff}
+@media(max-width:1100px){.wb-hero{grid-template-columns:minmax(300px,.96fr) minmax(0,1.04fr)}.wbn-art{height:510px;min-height:510px}.wbn-letter-block{width:clamp(82px,9.7vw,127px);height:clamp(94px,11vw,141px)}.wbn-letter-face{font-size:clamp(3.6rem,6.6vw,6.5rem)}.wbn-success{left:7%;right:6%}.wbn-sound-orb{width:64px;height:64px}.wbn-orb-one{left:-2%}}
+@media(max-width:850px){.wb-hero{grid-template-columns:1fr}.wbn-art{height:510px;min-height:510px;width:min(660px,100%);margin:0 auto}.wbn-letter-block{width:clamp(100px,17vw,142px);height:clamp(111px,20vw,157px)}.wbn-letter-face{font-size:clamp(4.8rem,10vw,7rem)}.wbn-success{left:15%;right:13%}.wbn-orb-one{left:5%}.wbn-orb-two{right:5%}}
+@media(max-width:560px){.wbn-art{height:340px;min-height:340px;width:100%;margin-top:7px}.wbn-top-caption{left:9%;top:7%;font-size:.49rem;letter-spacing:.1em}.wbn-top-caption-right{font-size:.49rem}.wbn-stage{inset:8% 1% 12%}.wbn-sound-label{top:10%;font-size:.51rem;letter-spacing:.11em}.wbn-sound-label span{margin:0 4px}.wbn-letter-row{gap:13px;transform:translateY(-2px)}.wbn-letter-block{width:clamp(75px,22vw,105px);height:clamp(87px,25vw,118px);border-radius:19px}.wbn-letter-block:before{border-radius:18px;left:10px;right:-10px;top:10px;bottom:-10px}.wbn-letter-block:after{border-radius:15px}.wbn-letter-face{border-radius:18px;font-size:clamp(3.4rem,17vw,5.8rem)}.wbn-success{left:9%;right:8%;bottom:1%;padding:9px 11px;gap:9px;border-radius:13px}.wbn-success-tick{width:30px;height:30px;border-radius:9px;font-size:1rem}.wbn-success strong{font-size:.65rem;letter-spacing:.09em}.wbn-success small{font-size:.56rem}.wbn-success-star{font-size:.9rem}.wbn-sound-orb{width:44px;height:44px;border-radius:13px}.wbn-sound-orb b{font-size:1.2rem}.wbn-sound-orb small{font-size:.34rem}.wbn-orb-one{top:25%;left:1%}.wbn-orb-two{bottom:24%;right:0}.wbn-twinkle{font-size:1.3rem}.wbn-floor-disc{bottom:12%}}
+@media(max-width:370px){.wbn-letter-block{width:71px;height:85px}.wbn-letter-face{font-size:3.2rem}.wbn-letter-row{gap:9px}.wbn-art{height:315px;min-height:315px}}
+@media(prefers-reduced-motion:reduce){.wbn-letter-block,.wbn-sound-orb,.wbn-twinkle{animation:none!important}}
+
+</style>
+</head>
+
+<body class="wb-intro-open wb-in-setup">
+
+<!-- Bright Arcade Spotlight Sky — opening screen -->
+<section class="wb-spotlight" id="wbIntro" aria-label="Word Builder introduction">
+  <div class="wb-cloudscape" aria-hidden="true"><i class="wb-cloud one"></i><i class="wb-cloud two"></i><i class="wb-cloud three"></i><i class="wb-cloud four"></i><i class="wb-cloud five"></i></div>
+  <div class="wb-spotlight-shell">
+    <div class="wb-topbar">
+      <a class="wb-brand" href="/" aria-label="Bright Arcade Home"><span class="wb-brand-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>BRIGHT <b>ARCADE</b></a>
+      <a class="wb-home" href="/" title="Bright Arcade home" aria-label="Bright Arcade home"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></a>
+    </div>
+    <div class="wb-hero">
+      <div class="wb-hero-copy">
+        <div class="wb-kicker"><span class="wb-live-dot"></span> SOUND IT OUT. BUILD IT UP.</div>
+        <h1 class="wb-hero-title"><span>WORD</span><strong>BUILDER<span class="wb-pink">!</span></strong></h1>
+        <p class="wb-hero-tagline">Piece together sounds. Build amazing words.</p>
+        <button type="button" id="wbEnter" class="wb-play-now">PLAY NOW <span aria-hidden="true">➜</span></button>
+        <div class="wb-hero-points">READ & BLEND <em>•</em> BUILD WORDS <em>•</em> SCORE POINTS</div>
+        <div class="wb-pill-list" aria-label="Four difficulty levels"><span><i style="--dot:#35bf69"></i>EASY</span><span><i style="--dot:#168fe9"></i>MEDIUM</span><span><i style="--dot:#a961eb"></i>HARD</span><span><i style="--dot:#f38b30"></i>EXPERT</span></div>
+      </div>
+      <div class="wb-hero-art wbn-art" role="img" aria-label="Three luminous three-dimensional letter blocks combining to form the word CAT in a modern Word Builder world">
+        <div class="wbn-ambient wbn-ambient-one" aria-hidden="true"></div>
+        <div class="wbn-ambient wbn-ambient-two" aria-hidden="true"></div>
+        <div class="wbn-twinkle wbn-twinkle-one" aria-hidden="true">✦</div>
+        <div class="wbn-twinkle wbn-twinkle-two" aria-hidden="true">✧</div>
+        <div class="wbn-twinkle wbn-twinkle-three" aria-hidden="true">✦</div>
+        <div class="wbn-top-caption"><span class="wbn-live-dot"></span> WORDS COME TO LIFE <span class="wbn-top-caption-right">01 / 12</span></div>
+        <div class="wbn-stage">
+          <div class="wbn-stage-rings" aria-hidden="true"></div>
+          <div class="wbn-back-halo" aria-hidden="true"></div>
+          <div class="wbn-sound-label">SOUND IT OUT <span>●</span> BUILD IT UP</div>
+          <div class="wbn-letter-row" aria-hidden="true">
+            <div class="wbn-letter-block wbn-block-c"><div class="wbn-letter-face">C</div></div>
+            <div class="wbn-letter-block wbn-block-a"><div class="wbn-letter-face">A</div></div>
+            <div class="wbn-letter-block wbn-block-t"><div class="wbn-letter-face">T</div></div>
+          </div>
+          <div class="wbn-floor-light" aria-hidden="true"></div>
+          <div class="wbn-floor-disc" aria-hidden="true"></div>
+          <div class="wbn-floor-ring" aria-hidden="true"></div>
+        </div>
+        <div class="wbn-sound-orb wbn-orb-one" aria-hidden="true"><b>sh</b><small>sound</small></div>
+        <div class="wbn-sound-orb wbn-orb-two" aria-hidden="true"><b>br</b><small>sound</small></div>
+        <div class="wbn-success"><span class="wbn-success-tick">✓</span><span><strong>WORD COMPLETE</strong><small>Three sounds. One brilliant word.</small></span><span class="wbn-success-star">✦</span></div>
+        <div class="wbn-corner-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+    <div class="wb-rainbow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+</section>
+
+<div class="sky-background" aria-hidden="true">
+  <div class="cloud one"></div>
+  <div class="cloud extra-cloud extra-one"></div>
+  <div class="cloud extra-cloud extra-two"></div>
+  <div class="cloud extra-cloud extra-three"></div>
+  <div class="cloud extra-cloud extra-four"></div>
+  <div class="cloud extra-cloud extra-five"></div>
+  <div class="cloud two"></div>
+  <div class="cloud three"></div>
+  <div class="cloud four"></div>
+  <div class="cloud five"></div>
+  <div class="cloud six"></div>
+</div>
+
+<nav class="side-menu">
+<a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home">
+  <div class="sidebar-logo">
+    <div class="sidebar-bright">
+      <span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span><span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span>
+    </div>
+    <div class="sidebar-arcade">ARCADE</div>
+  </div>
+</a>
+<a href="/">Home</a>
+</nav>
+
+<div class="game">
+<header class="header">
+  <div class="wb-title-card" aria-label="Word Builder">
+    <span class="wb-title-icon wb-title-icon-left" aria-hidden="true">🧩</span>
+    <div class="wb-title-text" aria-hidden="true">
+      <span class="wb-title-word wb-word-group">
+        <span class="wb-title-letter" style="--r:-2deg;--d:0s">W</span><span class="wb-title-letter" style="--r:2deg;--d:.08s">o</span><span class="wb-title-letter" style="--r:-1deg;--d:.16s">r</span><span class="wb-title-letter" style="--r:2deg;--d:.24s">d</span>
+      </span>
+      <span class="wb-title-word wb-builder-group">
+        <span class="wb-title-letter" style="--r:-2deg;--d:.08s">B</span><span class="wb-title-letter" style="--r:2deg;--d:.16s">u</span><span class="wb-title-letter" style="--r:-1deg;--d:.24s">i</span><span class="wb-title-letter" style="--r:2deg;--d:.32s">l</span><span class="wb-title-letter" style="--r:-2deg;--d:.40s">d</span><span class="wb-title-letter" style="--r:2deg;--d:.48s">e</span><span class="wb-title-letter" style="--r:-1deg;--d:.56s">r</span>
+      </span>
+    </div>
+    <span class="wb-title-icon wb-title-icon-right" aria-hidden="true">🔨</span>
+  </div>
+  <p class="subtitle">Build words from puzzle pieces!</p>
+</header>
+
+<main class="main-card">
+  <section class="screen" id="gameScreen">
+    <div class="wb-play-heading"><div><span class="wb-play-eyebrow">WELCOME TO THE WORD WORKSHOP</span><h2>LET’S BUILD <em>SOME WORDS!</em></h2></div><span id="wbRoundLabel" class="wb-round-label">EASY · WORD 1 OF 12</span></div>
+    <div class="wb-progress-rail" role="progressbar" aria-label="Words completed" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0"><div id="wbProgressFill" class="wb-progress-fill"></div></div>
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Words</span><span class="stat-value" id="wordsBuilt">0 / 12</span></div>
+      <div class="stat"><span class="stat-label">Score</span><span class="stat-value" id="scoreText">0</span></div>
+      <div class="stat"><span class="stat-label">Streak</span><span class="stat-value" id="streakText">0</span></div>
+      <div class="stat"><span class="stat-label">Mistakes</span><span class="stat-value" id="mistakesText">0</span></div>
+    </div>
+
+    <section class="play-area">
+      <div class="starburst" id="starburst"></div>
+
+      <div class="monster-stage">
+        <div class="monster" id="monster"><span class="builder-hat" aria-hidden="true"></span><span class="pupil"></span><span class="cheek"></span><span class="builder-arm arm-left" aria-hidden="true"></span><span class="builder-arm arm-right" aria-hidden="true"></span></div>
+        <div class="speech-bubble">
+          <div class="prompt-label">SOUND IT OUT • BUILD IT UP</div>
+          <div class="sound-prompt" id="soundPrompt">c a t</div>
+        </div>
+      </div>
+
+      <div class="build-zone" id="buildZone"></div>
+      <div class="pieces-area" id="piecesArea"></div>
+      <div class="message" id="message">Click the puzzle pieces in order.</div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="secondary" id="clearBtn">Clear Word</button>
+      <button type="button" class="secondary" id="menuBtn">Back to Menu</button>
+    </div>
+  </section>
+
+  <section class="screen" id="resultScreen">
+    <div class="result-box">
+      <div class="wb-result-celebrate" aria-hidden="true">★ ✦ 🧩 ✦ ★</div>
+      <p class="result-title">GREAT BUILDING!</p>
+      <p class="wb-result-subtitle">You've completed the Word Builder challenge!</p>
+      <div class="result-details" id="resultDetails"></div>
+    </div>
+    <div class="actions">
+      <button type="button" class="primary" id="playAgainBtn">Play Again</button>
+      <button type="button" class="secondary" id="chooseLevelBtn">Choose Difficulty</button>
+    </div>
+  </section>
+</main>
+</div>
+
+
+<!-- Bright Arcade Spotlight Sky — difficulty selection -->
+<section class="screen active wb-setup-screen" id="startScreen" aria-label="Word Builder settings">
+  <div class="wb-cloudscape" aria-hidden="true"><i class="wb-cloud one"></i><i class="wb-cloud two"></i><i class="wb-cloud three"></i><i class="wb-cloud four"></i><i class="wb-cloud five"></i></div>
+  <div class="wb-setup-panel">
+    <div class="wb-setup-top"><button type="button" id="wbBackToIntro" class="wb-back-btn"><span aria-hidden="true">←</span> Back</button><div class="wb-setup-mark">WORD <b>BUILDER</b> <span aria-hidden="true">✦</span></div></div>
+    <div class="wb-setup-head"><div class="wb-setup-kicker">GET READY TO BUILD</div><h2>CHOOSE YOUR <em>LEVEL</em></h2><p>Choose a challenge, then click the puzzle pieces in the right order to build each word.</p></div>
+    <div class="wb-setup-section-title"><span class="wb-step-icon">1</span> PICK YOUR DIFFICULTY <small>4 LEVELS</small></div>
+    <div class="difficulty-grid wb-level-grid">
+      <button type="button" class="choice selected" data-level="easy" aria-pressed="true" style="--level:#29bc78;--level-light:#e4f9ed"><span class="wb-level-icon">Aa</span><span class="wb-level-name">Easy</span><small>Simple CVC words</small><span class="wb-level-example"><i>c</i><b>+</b><i>a</i><b>+</b><i>t</i></span><span class="wb-check" aria-hidden="true">✓</span></button>
+      <button type="button" class="choice" data-level="medium" aria-pressed="false" style="--level:#178eee;--level-light:#e5f3ff"><span class="wb-level-icon">sh</span><span class="wb-level-name">Medium</span><small>Digraph sounds</small><span class="wb-level-example"><i>sh</i><b>+</b><i>i</i><b>+</b><i>p</i></span><span class="wb-check" aria-hidden="true">✓</span></button>
+      <button type="button" class="choice" data-level="hard" aria-pressed="false" style="--level:#9252e6;--level-light:#f1e9ff"><span class="wb-level-icon">br</span><span class="wb-level-name">Hard</span><small>Consonant blends</small><span class="wb-level-example"><i>f</i><b>+</b><i>r</i><b>+</b><i>o</i><b>+</b><i>g</i></span><span class="wb-check" aria-hidden="true">✓</span></button>
+      <button type="button" class="choice" data-level="expert" aria-pressed="false" style="--level:#ef8d1b;--level-light:#fff4d8"><span class="wb-level-icon">igh</span><span class="wb-level-name">Expert</span><small>Tricky sound chunks</small><span class="wb-level-example"><i>br</i><b>+</b><i>igh</i><b>+</b><i>t</i></span><span class="wb-check" aria-hidden="true">✓</span></button>
+    </div>
+    <div class="wb-how-to"><span class="wb-tip-icon">💡</span><div><strong>HOW TO PLAY</strong><p>Read the sound chunks, then select the colourful pieces to build the word. Complete 12 words to finish!</p></div><span class="wb-tip-badge">12 WORDS</span></div>
+    <button type="button" class="wb-start-building" id="startBtn">START BUILDING <span aria-hidden="true">➜</span></button>
+  </div>
+</section>
+
+<div class="streak-banner" id="streakBanner">STREAK!</div>
+
+<script>
+const WORD_BANKS = {
+  easy: [
+    {word:"cat", chunks:["c","a","t"]},
+    {word:"dog", chunks:["d","o","g"]},
+    {word:"sun", chunks:["s","u","n"]},
+    {word:"hat", chunks:["h","a","t"]},
+    {word:"pin", chunks:["p","i","n"]},
+    {word:"map", chunks:["m","a","p"]},
+    {word:"bed", chunks:["b","e","d"]},
+    {word:"cup", chunks:["c","u","p"]},
+    {word:"jam", chunks:["j","a","m"]},
+    {word:"run", chunks:["r","u","n"]},
+    {word:"fox", chunks:["f","o","x"]},
+    {word:"pig", chunks:["p","i","g"]},
+    {word:"box", chunks:["b","o","x"]},
+    {word:"web", chunks:["w","e","b"]},
+    {word:"hen", chunks:["h","e","n"]},
+    {word:"log", chunks:["l","o","g"]}
+  ],
+  medium: [
+    {word:"ship", chunks:["sh","i","p"]},
+    {word:"shop", chunks:["sh","o","p"]},
+    {word:"chat", chunks:["ch","a","t"]},
+    {word:"chip", chunks:["ch","i","p"]},
+    {word:"thin", chunks:["th","i","n"]},
+    {word:"that", chunks:["th","a","t"]},
+    {word:"duck", chunks:["d","u","ck"]},
+    {word:"kick", chunks:["k","i","ck"]},
+    {word:"ring", chunks:["r","i","ng"]},
+    {word:"song", chunks:["s","o","ng"]},
+    {word:"fish", chunks:["f","i","sh"]},
+    {word:"much", chunks:["m","u","ch"]},
+    {word:"path", chunks:["p","a","th"]},
+    {word:"wing", chunks:["w","i","ng"]},
+    {word:"lock", chunks:["l","o","ck"]},
+    {word:"rush", chunks:["r","u","sh"]}
+  ],
+  hard: [
+    {word:"frog", chunks:["f","r","o","g"]},
+    {word:"stop", chunks:["s","t","o","p"]},
+    {word:"drum", chunks:["d","r","u","m"]},
+    {word:"black", chunks:["b","l","a","ck"]},
+    {word:"spin", chunks:["s","p","i","n"]},
+    {word:"flag", chunks:["f","l","a","g"]},
+    {word:"clap", chunks:["c","l","a","p"]},
+    {word:"brick", chunks:["b","r","i","ck"]},
+    {word:"grass", chunks:["g","r","a","ss"]},
+    {word:"truck", chunks:["t","r","u","ck"]},
+    {word:"crab", chunks:["c","r","a","b"]},
+    {word:"skip", chunks:["s","k","i","p"]},
+    {word:"smell", chunks:["s","m","e","ll"]},
+    {word:"plant", chunks:["p","l","a","n","t"]},
+    {word:"stamp", chunks:["s","t","a","m","p"]}
+  ],
+  expert: [
+    {word:"street", chunks:["s","t","r","ee","t"]},
+    {word:"bright", chunks:["br","igh","t"]},
+    {word:"splash", chunks:["s","p","l","a","sh"]},
+    {word:"cheese", chunks:["ch","ee","s","e"]},
+    {word:"train", chunks:["t","r","ai","n"]},
+    {word:"float", chunks:["f","l","oa","t"]},
+    {word:"green", chunks:["g","r","ee","n"]},
+    {word:"brown", chunks:["br","ow","n"]},
+    {word:"light", chunks:["l","igh","t"]},
+    {word:"spoon", chunks:["s","p","oo","n"]},
+    {word:"storm", chunks:["s","t","or","m"]},
+    {word:"chair", chunks:["ch","air"]},
+    {word:"toast", chunks:["t","oa","s","t"]},
+    {word:"clown", chunks:["c","l","ow","n"]}
+  ]
+};
+
+const TOTAL_WORDS = 12;
+let selectedLevel = "easy";
+let currentWords = [];
+let currentWordIndex = 0;
+let currentWord = null;
+let buildIndex = 0;
+let score = 0;
+let streak = 0;
+let mistakes = 0;
+
+const startScreen = document.getElementById("startScreen");
+const gameScreen = document.getElementById("gameScreen");
+const resultScreen = document.getElementById("resultScreen");
+const choices = document.querySelectorAll(".choice");
+const startBtn = document.getElementById("startBtn");
+const soundPrompt = document.getElementById("soundPrompt");
+const buildZone = document.getElementById("buildZone");
+const piecesArea = document.getElementById("piecesArea");
+const message = document.getElementById("message");
+const wordsBuilt = document.getElementById("wordsBuilt");
+const scoreText = document.getElementById("scoreText");
+const streakText = document.getElementById("streakText");
+const mistakesText = document.getElementById("mistakesText");
+const clearBtn = document.getElementById("clearBtn");
+const menuBtn = document.getElementById("menuBtn");
+const playAgainBtn = document.getElementById("playAgainBtn");
+const chooseLevelBtn = document.getElementById("chooseLevelBtn");
+const resultDetails = document.getElementById("resultDetails");
+const monster = document.getElementById("monster");
+const streakBanner = document.getElementById("streakBanner");
+const starburst = document.getElementById("starburst");
+
+function showScreen(screen){
+  startScreen.classList.remove("active");
+  gameScreen.classList.remove("active");
+  resultScreen.classList.remove("active");
+  screen.classList.add("active");
+}
+
+function shuffle(arr){
+  const copy = arr.slice();
+  for(let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+function updateStats(){
+  wordsBuilt.textContent = currentWordIndex + " / " + TOTAL_WORDS;
+  scoreText.textContent = score;
+  streakText.textContent = streak;
+  mistakesText.textContent = mistakes;
+  const progress = document.getElementById('wbProgressFill');
+  const rail = document.querySelector('.wb-progress-rail');
+  const label = document.getElementById('wbRoundLabel');
+  if(progress) progress.style.width = (currentWordIndex / TOTAL_WORDS * 100) + '%';
+  if(rail) rail.setAttribute('aria-valuenow', String(currentWordIndex));
+  if(label) label.textContent = selectedLevel.toUpperCase() + ' · WORD ' + Math.min(currentWordIndex + 1, TOTAL_WORDS) + ' OF ' + TOTAL_WORDS;
+}
+
+function chooseLevel(level, button){
+  selectedLevel = level;
+  choices.forEach(function(choice){choice.classList.remove("selected");choice.setAttribute('aria-pressed','false');});
+  button.classList.add("selected");
+  button.setAttribute('aria-pressed','true');
+}
+
+choices.forEach(function(button){
+  button.addEventListener("click", function(){
+    chooseLevel(button.dataset.level, button);
+  });
+});
+
+function startGame(){
+  document.body.classList.remove('wb-in-setup','wb-intro-open');
+  document.getElementById('wbIntro').classList.add('hidden');
+  currentWords = shuffle(WORD_BANKS[selectedLevel]).slice(0, TOTAL_WORDS);
+  currentWordIndex = 0;
+  score = 0;
+  streak = 0;
+  mistakes = 0;
+  showScreen(gameScreen);
+  loadWord();
+}
+
+function loadWord(){
+  currentWord = currentWords[currentWordIndex];
+  buildIndex = 0;
+  buildZone.classList.remove("complete");
+  soundPrompt.textContent = currentWord.chunks.join("   ");
+  message.textContent = "Blend the sounds, then build the word.";
+  updateStats();
+
+  buildZone.innerHTML = "";
+  currentWord.chunks.forEach(function(){
+    const slot = document.createElement("div");
+    slot.className = "word-slot";
+    buildZone.appendChild(slot);
+  });
+
+  const distractorCount = getDistractorCount(currentWord.chunks.length);
+  const distractors = makeDistractors(currentWord.chunks, distractorCount);
+
+  // IMPORTANT:
+  // Always include every required chunk. Never shuffle and then trim the full list,
+  // because that can accidentally remove a required piece and make the word impossible.
+  const pieces = shuffle(currentWord.chunks.concat(distractors));
+
+  piecesArea.innerHTML = "";
+  pieces.forEach(function(pieceData, index){
+    const chunkValue = (typeof pieceData === "string") ? pieceData : pieceData.chunk;
+    const pieceId = (typeof pieceData === "string") ? ("piece-" + index + "-" + chunkValue) : pieceData.id;
+
+    const piece = document.createElement("button");
+    piece.type = "button";
+    piece.className = "puzzle-piece";
+    piece.innerHTML = '<span class="piece-label">' + chunkValue + '</span>';
+    piece.dataset.chunk = chunkValue;
+    piece.dataset.pieceId = pieceId;
+    piece.style.setProperty("--piece1", pieceColor(index).one);
+    piece.style.setProperty("--piece2", pieceColor(index).two);
+    piece.addEventListener("click", function(){ handlePieceClick(piece); });
+    piecesArea.appendChild(piece);
+  });
+
+  validateRequiredPiecesVisible();
+}
+
+function getDistractorCount(chunkCount){
+  if(selectedLevel === "easy") return 2;
+  if(selectedLevel === "medium") return 3;
+  if(selectedLevel === "hard") return 3;
+  return 4;
+}
+
+function makeDistractors(chunks, count){
+  const all = ["a","e","i","o","u","b","c","d","f","g","h","j","k","l","m","n","p","r","s","t","w","sh","ch","th","ck","ng","ee","oa","ai","oo","igh","or","ow","air","br","fl","gr","pl","st","sp","tr","dr","cl","fr"];
+
+  const filtered = all.filter(function(item){
+    return chunks.indexOf(item) === -1;
+  });
+
+  return shuffle(filtered).slice(0, count);
+}
+
+
+function validateRequiredPiecesVisible(){
+  const available = {};
+  piecesArea.querySelectorAll(".puzzle-piece").forEach(function(piece){
+    const chunk = piece.dataset.chunk;
+    available[chunk] = (available[chunk] || 0) + 1;
+  });
+
+  const needed = {};
+  currentWord.chunks.forEach(function(chunk){
+    needed[chunk] = (needed[chunk] || 0) + 1;
+  });
+
+  Object.keys(needed).forEach(function(chunk){
+    if(!available[chunk] || available[chunk] < needed[chunk]){
+      console.error("Missing required puzzle piece:", chunk, "Needed:", needed[chunk], "Available:", available[chunk] || 0);
+      message.textContent = "Oops — this word needs a reset. Loading another word.";
+      setTimeout(loadWord, 500);
+    }
+  });
+}
+
+
+function pieceColor(index){
+  const colours = [
+    {one:"#fef08a",two:"#facc15"},
+    {one:"#bfdbfe",two:"#38bdf8"},
+    {one:"#fecdd3",two:"#fb7185"},
+    {one:"#dcfce7",two:"#22c55e"},
+    {one:"#e9d5ff",two:"#a855f7"},
+    {one:"#fed7aa",two:"#f97316"}
+  ];
+  return colours[index % colours.length];
+}
+
+function handlePieceClick(piece){
+  const expected = currentWord.chunks[buildIndex];
+  const chosen = piece.dataset.chunk;
+
+  if(!chosen || chosen === "undefined"){
+    console.error("Puzzle piece has no chunk value:", piece);
+    message.textContent = "Oops — this piece did not load properly. Resetting the word.";
+    setTimeout(loadWord, 400);
+    return;
+  }
+
+  if(chosen !== expected){
+    mistakes++;
+    streak = 0;
+    updateStats();
+    piece.classList.add("wrong");
+    monster.classList.remove("happy");
+    monster.classList.add("thinking");
+    message.textContent = "Not quite. Try the next sound carefully.";
+    setTimeout(function(){
+      piece.classList.remove("wrong");
+      monster.classList.remove("thinking");
+    }, 600);
+    return;
+  }
+
+  animatePieceToSlot(piece, buildIndex, function(){
+    const slot = buildZone.children[buildIndex];
+    slot.textContent = chosen;
+    slot.classList.add("filled");
+    piece.classList.add("used");
+    buildIndex++;
+
+    if(buildIndex >= currentWord.chunks.length){
+      completeWord();
+    }else{
+      message.textContent = "Great! Keep building.";
+    }
+  });
+}
+
+function animatePieceToSlot(piece, slotIndex, callback){
+  const slot = buildZone.children[slotIndex];
+  const pieceRect = piece.getBoundingClientRect();
+  const slotRect = slot.getBoundingClientRect();
+
+  const clone = piece.cloneNode(true);
+  clone.classList.add("flying-piece");
+  clone.style.left = pieceRect.left + "px";
+  clone.style.top = pieceRect.top + "px";
+  clone.style.width = pieceRect.width + "px";
+  clone.style.height = pieceRect.height + "px";
+  clone.style.setProperty("--dx", (slotRect.left + slotRect.width/2 - pieceRect.left - pieceRect.width/2) + "px");
+  clone.style.setProperty("--dy", (slotRect.top + slotRect.height/2 - pieceRect.top - pieceRect.height/2) + "px");
+  document.body.appendChild(clone);
+
+  setTimeout(function(){
+    clone.remove();
+    callback();
+  }, 390);
+}
+
+function completeWord(){
+  buildZone.classList.add("complete");
+  score += 10 + streak * 2;
+  streak++;
+  updateStats();
+  message.textContent = currentWord.word.toUpperCase() + " built!";
+  monster.classList.remove("thinking");
+  monster.classList.add("happy");
+  burstStars();
+
+  if(streak > 0 && streak % 5 === 0){
+    showStreak();
+  }
+
+  setTimeout(function(){
+    monster.classList.remove("happy");
+    currentWordIndex++;
+    if(currentWordIndex >= TOTAL_WORDS){
+      finishGame();
+    }else{
+      loadWord();
+    }
+  }, 1150);
+}
+
+function burstStars(){
+  starburst.innerHTML = "";
+  for(let i = 0; i < 16; i++){
+    const star = document.createElement("div");
+    star.className = "star";
+    const angle = (Math.PI * 2 * i) / 16;
+    const distance = 90 + Math.random() * 80;
+    star.style.setProperty("--x", Math.cos(angle) * distance + "px");
+    star.style.setProperty("--y", Math.sin(angle) * distance + "px");
+    starburst.appendChild(star);
+  }
+  setTimeout(function(){ starburst.innerHTML = ""; }, 900);
+}
+
+function showStreak(){
+  streakBanner.textContent = "STREAK x" + streak + "!";
+  streakBanner.classList.remove("show");
+  void streakBanner.offsetWidth;
+  streakBanner.classList.add("show");
+}
+
+function clearWord(){
+  buildIndex = 0;
+  message.textContent = "Word cleared. Try again.";
+  buildZone.classList.remove("complete");
+  const slots = buildZone.querySelectorAll(".word-slot");
+  slots.forEach(function(slot){
+    slot.textContent = "";
+    slot.classList.remove("filled");
+  });
+  const pieces = piecesArea.querySelectorAll(".puzzle-piece");
+  pieces.forEach(function(piece){
+    piece.classList.remove("used");
+  });
+}
+
+function finishGame(){
+  const progress = document.getElementById('wbProgressFill');
+  if(progress) progress.style.width='100%';
+  const accuracy = Math.round((TOTAL_WORDS / Math.max(TOTAL_WORDS + mistakes, 1)) * 100);
+  resultDetails.innerHTML =
+    '<div class="wb-result-stat"><span>WORDS BUILT</span><b>' + TOTAL_WORDS + '</b></div>' +
+    '<div class="wb-result-stat"><span>YOUR SCORE</span><b>' + score + '</b></div>' +
+    '<div class="wb-result-stat"><span>ACCURACY</span><b>' + accuracy + '%</b></div>' +
+    '<div class="wb-result-stat"><span>MISTAKES</span><b>' + mistakes + '</b></div>' +
+    '<div class="wb-result-stat"><span>FINAL STREAK</span><b>' + streak + '</b></div>';
+  showScreen(resultScreen);
+}
+
+function backToMenu(){
+  document.body.classList.add('wb-in-setup');
+  showScreen(startScreen);
+}
+
+const wbIntro = document.getElementById('wbIntro');
+document.getElementById('wbEnter').addEventListener('click',function(){
+  wbIntro.classList.add('hidden');
+  document.body.classList.remove('wb-intro-open');
+});
+document.getElementById('wbBackToIntro').addEventListener('click',function(){
+  document.body.classList.add('wb-intro-open');
+  wbIntro.classList.remove('hidden');
+});
+startBtn.addEventListener("click", startGame);
+clearBtn.addEventListener("click", clearWord);
+menuBtn.addEventListener("click", backToMenu);
+playAgainBtn.addEventListener("click", startGame);
+chooseLevelBtn.addEventListener("click", backToMenu);
+</script>
+</body>
+</html>
