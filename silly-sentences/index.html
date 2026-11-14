@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-spotlight-game="silly-sentences">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -1220,6 +1220,25 @@ textarea{
   .sentence-card{border-radius:16px!important}
 }
 
+
+/* ===========================================================
+   BRIGHT ARCADE SPOTLIGHT SKY — FINAL MINIMAL ARCHETYPE
+   Unified 2026-11: original gameplay and state logic retained.
+   =========================================================== */
+.ss-spotlight .ss-kicker,.ss-spotlight .ss-subtitle{display:none!important}
+.ss-spotlight .ss-title{margin-bottom:clamp(24px,4.2vh,38px)!important}
+.ss-spotlight .ss-cta{display:inline-flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;width:min(340px,90vw)!important;min-width:0!important;min-height:72px!important;padding:15px 25px!important;border:0!important;border-radius:20px!important;background:linear-gradient(180deg,#ffe66a 0%,#ffd133 80%,#ffc025 100%)!important;color:#102958!important;font-family:'Fredoka',Arial,sans-serif!important;font-weight:700!important;font-size:1.25rem!important;letter-spacing:.025em!important;box-shadow:0 8px 0 #d88a19,0 17px 30px rgba(12,81,139,.16),inset 0 2px 0 rgba(255,255,255,.82)!important;text-shadow:none!important;cursor:pointer!important;transform:none!important;transition:transform .15s,filter .15s!important}
+.ss-spotlight .ss-cta:hover{transform:translateY(-2px)!important;filter:brightness(1.03)!important}
+.ss-spotlight .ss-cta:active{transform:translateY(3px)!important;box-shadow:0 4px 0 #d88a19,0 9px 18px rgba(12,81,139,.14)!important}
+.ss-spotlight .ss-cta:focus-visible{outline:4px solid #0f5aaa!important;outline-offset:5px!important}
+.ss-spotlight .ss-title{letter-spacing:.01em!important}
+@media(max-width:700px){.ss-spotlight .ss-cta{min-height:64px!important;width:min(320px,88vw)!important;font-size:1.14rem!important;padding:13px 21px!important}}
+
+.ss-art.spotlight-silly-hero{display:flex!important;align-items:center!important;justify-content:center!important;overflow:visible!important;min-width:0!important;isolation:isolate}
+.spotlight-silly-illustration{display:block;width:min(100%,650px);height:auto;max-height:min(70vh,630px);filter:drop-shadow(0 16px 20px rgba(12,86,137,.16));animation:ssSculptFloat 5.3s ease-in-out infinite}
+@keyframes ssSculptFloat{50%{transform:translateY(-11px) rotate(1deg)}}
+@media(max-width:670px){.spotlight-silly-illustration{max-height:35vh;width:min(100%,450px)}}
+
 </style>
 </head>
 <body class="ss-opening">
@@ -1246,19 +1265,34 @@ textarea{
       <p class="ss-subtitle">WRITE. LAUGH. SCORE.</p>
       <button class="ss-cta" type="button" id="sillySpotlightPlay"><span>PLAY NOW</span><span aria-hidden="true">➜</span></button>
     </div>
-    <div class="ss-art" aria-hidden="true">
-      <div class="ss-stage-glow"></div><div class="ss-halo"></div>
-      <div class="ss-paper">
-        <span class="ss-paper-top">THE SILLY STORY MACHINE</span>
-        <div class="ss-doodle"><strong>A llama</strong><br>ate <em>my</em><br>homework!</div>
-        <span class="ss-paper-smile">🤪</span>
-      </div>
-      <div class="ss-tile ss-tile-a"><span>🦙</span></div>
-      <div class="ss-tile ss-tile-b"><span>🧀</span></div>
-      <div class="ss-tile ss-tile-c"><span>🥒</span></div>
-      <div class="ss-tile ss-tile-d"><span>💥</span></div>
-      <span class="ss-star one"></span><span class="ss-star two"></span><span class="ss-star three"></span>
-    </div>
+    <div class="ss-art spotlight-silly-hero" aria-hidden="true">
+<svg class="spotlight-silly-illustration" viewBox="0 0 720 640" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="ss3Bubble" cx="29%" cy="19%" r="79%"><stop stop-color="#f8e5ff"/><stop offset=".22" stop-color="#c19aff"/><stop offset=".6" stop-color="#8d61ed"/><stop offset="1" stop-color="#5b45c7"/></radialGradient>
+  <radialGradient id="ss3Eye" cx="32%" cy="26%" r="84%"><stop stop-color="#fff"/><stop offset=".84" stop-color="#e9faff"/><stop offset="1" stop-color="#bfd8f2"/></radialGradient>
+  <linearGradient id="ss3Lip" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#32376b"/><stop offset="1" stop-color="#161f55"/></linearGradient>
+  <radialGradient id="ss3Cheek" cx="40%" cy="50%" r="60%"><stop stop-color="#ff92bd" stop-opacity=".85"/><stop offset="1" stop-color="#ff92bd" stop-opacity="0"/></radialGradient>
+  <filter id="ss3Depth" x="-30%" y="-30%" width="170%" height="180%"><feDropShadow dx="12" dy="20" stdDeviation="14" flood-color="#165283" flood-opacity=".32"/></filter>
+</defs>
+<ellipse cx="390" cy="556" rx="192" ry="31" fill="#1a76ad" opacity=".11"/>
+<g filter="url(#ss3Depth)" transform="rotate(-7 360 310)">
+ <path d="M194 163 C130 206 96 290 120 363 C139 435 223 480 303 489 C341 494 377 489 401 480 C438 519 476 539 506 531 C514 497 510 477 500 456 C573 421 616 365 612 295 C608 213 543 149 456 128 C375 107 255 118 194 163Z" fill="#5232b4" transform="translate(9 17)"/>
+ <path d="M194 163 C130 206 96 290 120 363 C139 435 223 480 303 489 C341 494 377 489 401 480 C438 519 476 539 506 531 C514 497 510 477 500 456 C573 421 616 365 612 295 C608 213 543 149 456 128 C375 107 255 118 194 163Z" fill="url(#ss3Bubble)" stroke="#e6d6ff" stroke-width="8" stroke-linejoin="round"/>
+ <path d="M190 255 C210 171 310 134 403 143" fill="none" stroke="#fff" stroke-width="30" opacity=".40" stroke-linecap="round"/>
+ <path d="M194 265 C206 218 246 190 291 183" fill="none" stroke="#fff" stroke-width="10" opacity=".65" stroke-linecap="round"/>
+ <ellipse cx="255" cy="340" rx="51" ry="31" fill="url(#ss3Cheek)"/>
+ <ellipse cx="479" cy="340" rx="51" ry="31" fill="url(#ss3Cheek)"/>
+ <ellipse cx="305" cy="289" rx="46" ry="55" fill="url(#ss3Eye)"/>
+ <ellipse cx="424" cy="277" rx="46" ry="55" fill="url(#ss3Eye)"/>
+ <ellipse cx="320" cy="300" rx="21" ry="29" fill="#1b315a"/>
+ <ellipse cx="413" cy="286" rx="21" ry="29" fill="#1b315a"/>
+ <circle cx="312" cy="288" r="8" fill="#fff"/><circle cx="406" cy="275" r="8" fill="#fff"/>
+ <path d="M276 376 C317 454 423 456 470 364 C454 373 431 380 400 383 C350 394 310 390 276 376Z" fill="url(#ss3Lip)" stroke="#352465" stroke-width="7" stroke-linejoin="round"/>
+ <path d="M338 418 C352 392 382 393 402 415 C412 442 389 461 370 464 C353 461 340 444 338 418Z" fill="#ff71a9"/>
+ <path d="M348 421 C362 415 383 417 394 429" fill="none" stroke="#ffbad5" stroke-width="8" stroke-linecap="round"/>
+</g>
+</svg>
+</div>
   </div>
   <div class="ss-bottom-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </section>
