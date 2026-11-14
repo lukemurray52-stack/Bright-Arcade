@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-spotlight-game="grid-words">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -1320,6 +1320,31 @@ body.gw-intro-open .gw-setup-screen{display:none!important}
 .gw-level-pills span{font-size:.65rem;gap:4px;white-space:nowrap;}
 .gw-choice-timer{font-size:.77rem;letter-spacing:.065em;}
 @media(max-width:560px){.gw-choice-icon svg{width:30px;height:30px}.gw-level-pills span{white-space:normal}}
+
+/* ===========================================================
+   BRIGHT ARCADE SPOTLIGHT SKY — FINAL MINIMAL ARCHETYPE
+   Unified 2026-11: original gameplay and state logic retained.
+   =========================================================== */
+.gw-intro .gw-kicker,.gw-intro .gw-tagline,.gw-intro .gw-hero-meta,.gw-intro .gw-level-pills{display:none!important}
+.gw-intro .gw-headline{margin-bottom:clamp(24px,4.2vh,38px)!important}
+.gw-intro .gw-yellow-button{display:inline-flex!important;align-items:center!important;justify-content:space-between!important;gap:18px!important;width:min(340px,90vw)!important;min-width:0!important;min-height:72px!important;padding:15px 25px!important;border:0!important;border-radius:20px!important;background:linear-gradient(180deg,#ffe66a 0%,#ffd133 80%,#ffc025 100%)!important;color:#102958!important;font-family:'Fredoka',Arial,sans-serif!important;font-weight:700!important;font-size:1.25rem!important;letter-spacing:.025em!important;box-shadow:0 8px 0 #d88a19,0 17px 30px rgba(12,81,139,.16),inset 0 2px 0 rgba(255,255,255,.82)!important;text-shadow:none!important;cursor:pointer!important;transform:none!important;transition:transform .15s,filter .15s!important}
+.gw-intro .gw-yellow-button:hover{transform:translateY(-2px)!important;filter:brightness(1.03)!important}
+.gw-intro .gw-yellow-button:active{transform:translateY(3px)!important;box-shadow:0 4px 0 #d88a19,0 9px 18px rgba(12,81,139,.14)!important}
+.gw-intro .gw-yellow-button:focus-visible{outline:4px solid #0f5aaa!important;outline-offset:5px!important}
+.gw-intro .gw-headline{letter-spacing:.01em!important}
+@media(max-width:700px){.gw-intro .gw-yellow-button{min-height:64px!important;width:min(320px,88vw)!important;font-size:1.14rem!important;padding:13px 21px!important}}
+
+.gw-hero-art.spotlight-grid-hero{display:flex!important;align-items:center!important;justify-content:center!important;overflow:visible!important;isolation:isolate}
+.grid-word-sculpture{position:relative;width:min(100%,700px);aspect-ratio:740/550;min-height:0;animation:gwSculptFloat 5.3s ease-in-out infinite;filter:drop-shadow(0 19px 20px rgba(15,85,142,.15))}
+.grid-sculpture-ribbon{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.gw-sculpture-letter{position:absolute;display:block;font:800 clamp(6rem,10vw,10rem)/1 'Fredoka','Arial Rounded MT Bold',sans-serif;letter-spacing:-.05em;color:#fff;filter:drop-shadow(4px 9px 1px rgba(14,96,163,.28));-webkit-text-stroke:3px #3879be;paint-order:stroke fill;transform:translate(-50%,-50%) rotate(var(--r));text-shadow:0 9px 0 var(--shadow),0 16px 16px rgba(25,83,135,.17)}
+.gw-sculpture-letter.a{left:18%;top:56%;--r:-12deg;--shadow:#3479c6;color:#effdff}
+.gw-sculpture-letter.b{left:40%;top:30%;--r:7deg;--shadow:#b78918;color:#fff2a5;-webkit-text-stroke-color:#d9a72e}
+.gw-sculpture-letter.c{left:61%;top:61%;--r:-8deg;--shadow:#9760dc;color:#f6e3ff;-webkit-text-stroke-color:#995bd9}
+.gw-sculpture-letter.d{left:82%;top:42%;--r:12deg;--shadow:#cc4272;color:#ffe4f1;-webkit-text-stroke-color:#d64a7e}
+@keyframes gwSculptFloat{50%{transform:translateY(-12px)}}
+@media(max-width:750px){.gw-sculpture-letter{font-size:clamp(4.9rem,18vw,7.4rem)}.grid-word-sculpture{width:min(100%,500px)}}
+
 </style>
 </head>
 
@@ -1341,23 +1366,19 @@ body.gw-intro-open .gw-setup-screen{display:none!important}
     <div class="gw-hero-meta"><span>16 LETTERS</span><i></i><span>4 DIFFICULTIES</span><i></i><span>ENDLESS WORDS</span></div>
     <div class="gw-level-pills" aria-label="Four difficulty levels"><span><b>EASY</b> · STARTER</span><span><b>MEDIUM</b> · EXPLORER</span><span><b>HARD</b> · CHALLENGER</span><span><b>EXTREME</b> · LEGEND</span></div>
    </div>
-   <div class="gw-hero-art" role="img" aria-label="A floating glass letter grid, with STAR connected across its top row and a glowing word found message">
-    <div class="gw-art-aura" aria-hidden="true"></div>
-    <div class="gw-art-orbit" aria-hidden="true"></div>
-    <div class="gw-spark gw-spark-a" aria-hidden="true">✦</div><div class="gw-spark gw-spark-b" aria-hidden="true">✳</div><div class="gw-spark gw-spark-c" aria-hidden="true">✦</div>
-    <div class="gw-floating-tile gw-float-left" aria-hidden="true">W</div><div class="gw-floating-tile gw-float-right" aria-hidden="true">?</div>
-    <div class="gw-showcase">
-     <div class="gw-showcase-head"><span><i></i> LIVE WORD HUNT</span><span>01 / 04</span></div>
-     <div class="gw-board-grid" aria-hidden="true">
-      <span class="gw-hero-tile gw-active-tile">S</span><span class="gw-hero-tile gw-active-tile">T</span><span class="gw-hero-tile gw-active-tile">A</span><span class="gw-hero-tile gw-active-tile">R</span>
-      <span class="gw-hero-tile">E</span><span class="gw-hero-tile">O</span><span class="gw-hero-tile">P</span><span class="gw-hero-tile">L</span>
-      <span class="gw-hero-tile">I</span><span class="gw-hero-tile">M</span><span class="gw-hero-tile">N</span><span class="gw-hero-tile">D</span>
-      <span class="gw-hero-tile">C</span><span class="gw-hero-tile">H</span><span class="gw-hero-tile">U</span><span class="gw-hero-tile">G</span>
-     </div>
-     <div class="gw-preview-status"><span class="gw-status-icon">✓</span><div><b>STAR FOUND!</b><small>Four letters. Brilliant work.</small></div><strong>+4</strong></div>
-    </div>
-    <div class="gw-score-float" aria-hidden="true"><span>✦</span> SCORE <b>0240</b></div>
-   </div>
+   <div class="gw-hero-art spotlight-grid-hero" role="img" aria-label="Four big floating glossy letters S T A R linked by a sweeping yellow line">
+  <div class="grid-word-sculpture" aria-hidden="true">
+    <svg class="grid-sculpture-ribbon" viewBox="0 0 740 550" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="gwTrace" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8ad"/><stop offset=".5" stop-color="#ffd52b"/><stop offset="1" stop-color="#f7ae22"/></linearGradient></defs>
+      <path d="M135 305 C174 115 316 97 357 261 C403 430 528 415 603 227" fill="none" stroke="#fff" stroke-width="38" opacity=".75" stroke-linecap="round"/>
+      <path d="M135 305 C174 115 316 97 357 261 C403 430 528 415 603 227" fill="none" stroke="url(#gwTrace)" stroke-width="26" stroke-linecap="round"/>
+    </svg>
+    <span class="gw-sculpture-letter a" data-letter="S">S</span>
+    <span class="gw-sculpture-letter b" data-letter="T">T</span>
+    <span class="gw-sculpture-letter c" data-letter="A">A</span>
+    <span class="gw-sculpture-letter d" data-letter="R">R</span>
+  </div>
+</div>
   </div>
   <div class="gw-rainbow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
  </div>
