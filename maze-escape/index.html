@@ -1139,6 +1139,7 @@ header,.main-card{position:relative;z-index:1;}
 <audio id="themeMusic" loop preload="auto" aria-hidden="true"></audio>
 <script src="assets/3d/maze3d.js"></script>
 <script src="assets/3d/arcade_attractions_v9.js"></script>
+<script src="assets/3d/school_world_v2.js"></script>
 <script>
 const difficultySettings={"easy": {"total": 4, "label": "Easy: 3\u20134 letter words", "banks": ["CAT", "DOG", "SUN", "RUN", "HOP", "MAP", "RED", "BOX", "BUG", "MUD", "JAM", "PEN", "CUP", "HAT", "FOX", "PIG", "HEN", "LOG", "WEB", "ZIP", "BAT", "COW", "OWL", "ANT", "CAR", "BUS", "BED", "BAG", "EGG", "FAN", "GUM", "HUG", "JAR", "KEY", "LEG", "NET", "POT", "RUG", "TOY", "VAN", "FROG", "DUCK", "BEAR", "FISH", "BIRD", "LION", "GOAT", "MILK", "CAKE", "BOOK", "STAR", "MOON", "TREE", "SHIP", "SOCK", "BALL", "JUMP", "PLAY", "READ", "TYPE", "FAST", "SLOW", "BLUE", "PINK", "GOLD", "RAIN", "WIND", "SNOW", "FIRE", "RING", "DRUM", "BELL", "ROAD", "PARK", "DOOR", "DESK", "LAMP", "CLAP", "SPIN", "GRIN", "FLIP", "SKIP", "BUMP", "ZOOM", "YELL", "JOKE", "QUIZ", "MAZE", "WORD", "LINE", "PAGE", "KIND", "WILD"]}, "medium": {"total": 6, "label": "Medium: 5\u20136 letter words", "banks": ["APPLE", "TIGER", "ZEBRA", "SNAKE", "HORSE", "MOUSE", "PANDA", "EAGLE", "SHARK", "WHALE", "CHAIR", "TABLE", "HAPPY", "SILLY", "FUNNY", "QUICK", "BRAVE", "GREEN", "BLACK", "WHITE", "BROWN", "CLOUD", "STORM", "RIVER", "BEACH", "MUSIC", "DRUMS", "PIZZA", "TOAST", "GRAPE", "MELON", "LEMON", "MANGO", "CHIPS", "SAUCE", "DANCE", "JUMPS", "SKATE", "SLIDE", "SMILE", "LAUGH", "MAGIC", "ROBOT", "ALIEN", "CROWN", "TRAIN", "PLANE", "SPACE", "LIGHT", "NIGHT", "WORLD", "DREAM", "STORY", "WORDS", "TIMER", "BANANA", "PICKLE", "ROCKET", "PLANET", "SCHOOL", "LIBRARY", "TYPING", "MONKEY", "DONKEY", "RABBIT", "TURKEY", "DRAGON", "WIZARD", "CASTLE", "PIRATE", "PUPPET", "BUTTON", "WINDOW", "YELLOW", "ORANGE", "PURPLE", "SILVER", "CIRCLE", "PENCIL", "TEACHER", "STUDENT", "READING", "WRITING", "GOBLIN", "MONSTER", "UNICORN"]}, "hard": {"total": 8, "label": "Hard: 7+ letter words", "banks": ["KEYBOARD", "SENTENCE", "COMPUTER", "CUPCAKE", "NOODLES", "DINOSAUR", "KANGAROO", "PLATYPUS", "CROCODILE", "UMBRELLA", "BACKPACK", "TRAMPOLINE", "ANCIENT", "LOLLIPOP", "MYSTERY", "JELLYBEAN", "SANDWICH", "BREAKFAST", "FOOTBALL", "JOURNEY", "CLASSROOM", "ADVENTURE", "CHAMPION", "CHALLENGE", "FANTASTIC", "VOLCANO", "TREASURE", "EXPLORER", "MOUNTAIN", "RAINBOW", "ELEPHANT", "GIRAFFE", "PENGUIN", "BUTTERFLY", "NOTEBOOK", "PAINTBRUSH", "SUNSHINE", "STARLIGHT", "HOMEWORK", "DISCOVERY", "IMAGINE", "CREATIVE", "CURIOUS", "BRILLIANT", "QUESTION", "ANSWERING", "SPELLING", "THUNDER", "OCTOPUS", "CHOCOLATE", "CAMPING", "BALLOON", "HAMBURGER", "PANCAKES", "FRIENDSHIP", "AFTERNOON", "YESTERDAY", "TOMORROW", "IMPORTANT", "BEAUTIFUL", "WONDERFUL", "AMAZINGLY", "DIFFICULT", "CONFIDENT", "PRACTICE", "LEARNING", "PROBLEM", "SOLUTION"]}};
 const themes={classic:{name:'Arcade',accent:'#7c3aed',accent2:'#2563eb',bg:'#12183e'},castle:{name:'Castle',accent:'#7c3aed',accent2:'#4338ca',bg:'#18162c'},jungle:{name:'Jungle',accent:'#65a30d',accent2:'#15803d',bg:'#0c251b'},school:{name:'School',accent:'#f97316',accent2:'#2563eb',bg:'#dbeafe'}};
@@ -1240,6 +1241,7 @@ function buildMaze(){
  shuffle(breaks).slice(0,Math.round(breaks.length*.11)).forEach(([r,c])=>maze[r][c]=0);
  // Immersive Arcade: carve open, collision-solid attraction islands BEFORE placing words and the exit.
  if(selectedTheme==='classic' && window.__mazeArcadeLayout)window.__mazeArcadeLayout(maze);
+ if(selectedTheme==='school' && window.__mazeSchoolLayout)window.__mazeSchoolLayout(maze);
  // Select an accessible corridor touching the exterior wall, preferably far from spawn.
  // Only the single locked gateway can cross the perimeter, and the door is in that wall.
  const {distances}=bfs(1,1),choices=[];
@@ -1455,6 +1457,23 @@ function drawMinimap(){
   g.globalAlpha=wall(r,c)?1:revealed?.95:.43;
   g.fillRect(xo+c*size+.3,yo+r*size+.3,size-.6,size-.6);
  }g.globalAlpha=1;
+ // Coloured landmarks make the newly walkable School rooms easy to discover.
+ if(selectedTheme==='school'&&window.__schoolWorldLayout?.maze===maze){
+  const campus=window.__schoolWorldLayout;
+  const colours={library:'#32abdd',office:'#eead48',hall:'#d978cb',yard:'#66c47b'};
+  for(const room of campus.rooms){
+   g.fillStyle=colours[room.name];g.globalAlpha=.27;
+   for(const [rr,cc] of room.tiles)g.fillRect(xo+cc*size+.4,yo+rr*size+.4,size-.8,size-.8);
+   g.globalAlpha=1;
+   const tag={library:'LIBRARY',office:'OFFICE',hall:'HALL',yard:'PLAY'}[room.name];
+   const xx=xo+(room.c+.5)*size,yy=yo+(room.r+.5)*size;
+   g.font=`bold ${Math.max(7,Math.min(10,size*.70))}px Arial`;
+   g.textAlign='center';g.textBaseline='middle';
+   const ww=g.measureText(tag).width+6;
+   g.fillStyle='rgba(17,43,71,.84)';g.fillRect(xx-ww/2,yy-6,ww,12);
+   g.fillStyle='#fff';g.fillText(tag,xx,yy);
+  }
+ }
  for(const t of tokens)if(mapVisibility.words&&!collected[t.word]){g.fillStyle='#ffc83c';g.beginPath();g.arc(xo+(t.c+.5)*size,yo+(t.r+.5)*size,Math.max(2.1,size*.34),0,Math.PI*2);g.fill()}
  if(mapVisibility.exit){g.fillStyle=allWordsCollected()?'#27d98e':'#38a7f6';g.beginPath();g.arc(xo+(exitC+.5)*size,yo+(exitR+.5)*size,Math.max(2.1,size*.43),0,Math.PI*2);g.fill();g.strokeStyle='#e8ffff';g.lineWidth=Math.max(.8,size*.11);g.stroke();}
  const px=xo+playerX*size,py=yo+playerY*size;
