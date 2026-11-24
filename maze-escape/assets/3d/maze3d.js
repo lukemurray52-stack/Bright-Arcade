@@ -1944,22 +1944,90 @@ makeCastleDoor(s,openness){
  }
  dynamicMesh(s,now){
   const m=this.makeGateMesh(s,this.smoothUnlock);
-  for(const token of s.tokens)if(!s.collected[token.word])this.addToken(m,token,now,s.theme);
+  // Every maze theme uses animated monsters as spelling challenges.
+  for(const token of s.tokens){
+   const remaining=!s.collected[token.word],recent=token.defeatedAt&&now-token.defeatedAt<850;
+   if(remaining||recent)this.addToken(m,token,now,s.theme,s.playerX,s.playerY);
+  }
   return new Float32Array(m.v);
  }
- addToken(m,t,now,theme){
-  const x=t.x,z=t.y,y=.85+Math.sin(now*.0023+x*1.3)*.095,sz=.165;
-  // Real 3D rotating crystal marker with levitating halo, small plinth and light.
-  m.box(x-.19,0,z-.19,x+.19,.14,z+.19,theme==='jungle'?0:6,[.87,.93,1]);
-  const a=now*.0012+x,rx=Math.cos(a)*sz,rz=Math.sin(a)*sz;
-  const rot=(u,v,h)=>[x+u*Math.cos(a)-v*Math.sin(a),y+h,z+u*Math.sin(a)+v*Math.cos(a)];
-  const top=rot(0,0,sz*1.8),bot=rot(0,0,-sz*1.3),pts=[rot(sz,0,0),rot(0,sz,0),rot(-sz,0,0),rot(0,-sz,0)];
-  for(let i=0;i<4;i++){
-   m.tri(pts[i],pts[(i+1)%4],top,null,7,[1.22,1.04,.48],.65);
-   m.tri(pts[(i+1)%4],pts[i],bot,null,7,[.66,.9,1.22],.38);
+ // Smooth, low-cost creature volumes suitable for a WebGL1 classroom laptop.
+ // No textures/models are fetched: monsters animate entirely from the existing mesh renderer.
+ monsterOrb(m,p,center,radii,color,emit=0,lon=10,lat=7){
+  for(let j=0;j<lat;j++)for(let k=0;k<lon;k++){
+   const pt=(a,b)=>p(center[0]+radii[0]*Math.sin(a)*Math.cos(b),center[1]+radii[1]*Math.cos(a),center[2]+radii[2]*Math.sin(a)*Math.sin(b));
+   const a=j*Math.PI/lat,b=(j+1)*Math.PI/lat,c=k*Math.PI*2/lon,d=(k+1)*Math.PI*2/lon;
+   m.quad(pt(a,c),pt(a,d),pt(b,d),pt(b,c),emit?7:5,color,emit);
   }
-  // Low-tech halo: small illuminated raised square under the crystal.
-  m.box(x-.26,.016,z-.26,x+.26,.035,z+.26,7,[1.05,.91,.54],.35);
+ }
+ monsterLimb(m,p,a,b,thick,color){
+  // Rounded capsule impression: seven-sided joint, capped with small ellipsoids.
+  const dir=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],len=Math.hypot(...dir)||1;
+  const up=Math.abs(dir[1]/len)>.84?[1,0,0]:[0,1,0],v=dir.map(x=>x/len);
+  let u=[v[1]*up[2]-v[2]*up[1],v[2]*up[0]-v[0]*up[2],v[0]*up[1]-v[1]*up[0]],l=Math.hypot(...u)||1;u=u.map(x=>x/l);
+  const w=[v[1]*u[2]-v[2]*u[1],v[2]*u[0]-v[0]*u[2],v[0]*u[1]-v[1]*u[0]];
+  const q=(z,k)=>p(z[0]+thick*(u[0]*Math.cos(k)+w[0]*Math.sin(k)),z[1]+thick*(u[1]*Math.cos(k)+w[1]*Math.sin(k)),z[2]+thick*(u[2]*Math.cos(k)+w[2]*Math.sin(k)));
+  const n=7;
+  for(let i=0;i<n;i++){const c=i*2*Math.PI/n,d=(i+1)*2*Math.PI/n;m.quad(q(a,c),q(a,d),q(b,d),q(b,c),5,color);}
+ }
+ addToken(m,t,now,theme,playerX,playerZ){
+  const x=t.x,z=t.y,time=now*.001,seed=t.monsterVariant??((t.r*11+t.c*7)%4);
+  const palette={
+   school:[[.22,1.22,1.12],[1.32,.65,.36],[.83,.63,1.34],[.42,.82,1.42]],
+   jungle:[[.51,1.28,.39],[.30,1.12,.88],[1.35,.90,.35],[.88,.72,1.29]],
+   castle:[[1.06,.54,1.31],[.57,.69,1.40],[1.31,.72,.42],[.37,1.08,1.12]],
+   classic:[[1.36,.42,.94],[.40,1.16,1.29],[1.34,.94,.35],[.82,.60,1.39]]
+  };
+  const colors=palette[theme]||palette.jungle,color=colors[seed%colors.length];
+  const accent=colors[(seed+2)%colors.length],cream=[1.45,1.47,1.39],dark=[.13,.16,.26];
+  const delta=now-(t.defeatedAt||0),dying=!!t.defeatedAt&&delta>=0&&delta<850;
+  const fade=dying?Math.max(.035,1-delta/850):1;
+  const bounce=.055*Math.sin(time*5.4+seed*1.7),sway=Math.sin(time*2.3+seed)*.037;
+  const facing=Math.atan2(playerZ-z,playerX-x),fx=Math.cos(facing),fz=Math.sin(facing),rx=-fz,rz=fx;
+  const P=(u,y,d)=>[x+rx*u+fx*d+sway,y,z+rz*u+fz*d];
+  const bodyY=.78+bounce+(dying?delta/850*.48:0),scale=fade*(dying?1-.30*Math.sin(delta/850*Math.PI):1);
+  const p=(u,y,d)=>P(u*scale,bodyY+(y-.78)*scale,d*scale);
+  // Ground shadow to make the monster clearly part of the world, not a levitating gem.
+  const sh=.24*fade;m.quad([x-sh,.012,z-sh],[x+sh,.012,z-sh],[x+sh,.012,z+sh],[x-sh,.012,z+sh],5,[.29,.33,.42]);
+  // Organic monster body and ears/horns, a different silhouette in each map.
+  this.monsterOrb(m,p,[0,.78,0],[.25,.34,.23],color,.05,12,8);
+  if(seed%2===0){
+   for(const side of [-1,1]){
+    const tip=p(side*.17,1.27,.012),left=p(side*.11,1.02,-.075),right=p(side*.23,1.04,.05);
+    m.tri(left,right,tip,null,5,accent,.15);m.tri(right,left,p(side*.16,1.17,-.07),null,5,accent,.12);
+   }
+  }else{
+   for(const side of [-1,1])this.monsterOrb(m,p,[side*.19,1.08,-.02],[.095,.17,.10],accent,.04,9,6);
+  }
+  // Two stubby waving arms. Gentle idle animation; defeated monsters shrink away.
+  for(const side of [-1,1]){
+   const wave=Math.sin(time*5.1+seed+side)*.11;
+   const a=[side*.20,.80,.0],b=[side*.38,.77+wave,.08];
+   this.monsterLimb(m,p,a,b,.062,color);
+   this.monsterOrb(m,p,b,[.078,.079,.078],accent,.08,8,6);
+   // Rounded little feet give the creature a readable silhouette at a distance.
+   this.monsterOrb(m,p,[side*.13,.44,.085],[.115,.072,.14],accent,.03,9,6);
+  }
+  // Eyes track the explorer. Blink for 100 ms every few seconds.
+  const blink=((time+seed*.49)%3.7)<.14?0.08:1;
+  for(const side of [-1,1]){
+   this.monsterOrb(m,p,[side*.10,.90,.192],[.086,.104*blink,.052],cream,.28,10,7);
+   if(blink>.2)this.monsterOrb(m,p,[side*.10+.014,.89,.239],[.031,.047,.022],dark,.15,8,6);
+  }
+  // Expressive smile; no scary violence or gore when defeated.
+  this.monsterOrb(m,p,[0,.69,.215],[.092,.049+.012*Math.sin(time*3.8),.027],dark,.05,11,6);
+  this.monsterOrb(m,p,[0,.658,.242],[.052,.018,.012],[1.3,.50,.70],.14,9,5);
+  // Colourful magical pop when spelling succeeds.
+  if(dying){
+   const progress=Math.min(1,delta/850);
+   for(let i=0;i<8;i++){
+    const a=i*Math.PI/4+seed,dist=.19+.44*progress;
+    const u=Math.cos(a)*dist,d=Math.sin(a)*dist;
+    const q=(dx,dy,dz)=>P(u+dx,.60+progress*.85+dy,d+dz);
+    const e=.055*(1-progress)+.008;
+    m.tri(q(-e,0,0),q(e,0,0),q(0,e*2,0),null,7,i%2?cream:accent,1.5*(1-progress));
+   }
+  }
  }
  bindMesh(mesh){
   const gl=this.gl,sz=13*4;
