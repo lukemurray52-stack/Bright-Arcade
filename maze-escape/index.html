@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Maze Escape - Bright Arcade</title>
+<title>Maze Escape — Arcade V4.1 Preview</title>
  <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1035,7 +1035,7 @@ header,.main-card{position:relative;z-index:1;}
     <div class="me-setup-heading"><span>4 WORLDS • 3 LEVELS • 1 GREAT ESCAPE</span><h2>CHOOSE YOUR <em>WORLD.</em></h2></div>
     <div class="me-world-panel"><div class="me-section-heading"><b>01</b> CHOOSE YOUR WORLD <span class="me-world-heading-note">PICK YOUR ADVENTURE</span></div>
     <div class="theme-grid" id="themeGrid">
-      <button type="button" class="theme-choice" data-theme="classic" aria-pressed="false" aria-label="ARCADE world: Neon lights & games" style="--world-color:#8b53ef">
+      <button type="button" class="theme-choice" data-theme="classic" aria-pressed="false" aria-label="ARCADE world: Wall-to-wall games, neon lights & excitement" style="--world-color:#8b53ef">
         <span class="me-world-art"><svg class="me-world-scene" viewBox="0 0 360 210" role="img" aria-label="Neon-lit arcade with game machines and colourful lights" xmlns="http://www.w3.org/2000/svg">
 <defs><linearGradient id="ar-bg" x2="0" y2="1"><stop stop-color="#080e35"/><stop offset="1" stop-color="#271459"/></linearGradient><linearGradient id="ar-floor" x2="0" y2="1"><stop stop-color="#322f6d"/><stop offset="1" stop-color="#0d1940"/></linearGradient><linearGradient id="ar-cab" x2="0" y2="1"><stop stop-color="#3a2d71"/><stop offset="1" stop-color="#0e1739"/></linearGradient><radialGradient id="ar-light"><stop stop-color="#fd7cfa" stop-opacity=".66"/><stop offset="1" stop-color="#fd7cfa" stop-opacity="0"/></radialGradient></defs>
 <path fill="url(#ar-bg)" d="M0 0H360V210H0Z"/><ellipse cx="180" cy="68" rx="180" ry="90" fill="url(#ar-light)"/><path fill="#17163c" d="M0 0 115 0 158 112 0 210Z M245 0H360V210L202 112Z" opacity=".68"/>
@@ -1047,7 +1047,7 @@ header,.main-card{position:relative;z-index:1;}
 <g transform="translate(251 86) scale(.72)"><path d="M0 0 61 9 61 128 0 115Z" fill="#151c45" stroke="#5b7aff" stroke-width="3"/><path d="M8 20 52 26 52 79 8 74Z" fill="#0ebbd4"/><path d="M15 27 45 32 45 62 15 58Z" fill="#043967"/><path d="M8 9 54 15" stroke="#f8db50" stroke-width="10"/></g>
 <g class="me-neon-pulse"><circle cx="109" cy="19" r="4" fill="#ff5ca8"/><circle cx="124" cy="19" r="4" fill="#f8e568"/><circle cx="245" cy="19" r="4" fill="#5bf4fe"/><circle cx="260" cy="19" r="4" fill="#55ffb8"/></g>
 </svg><span class="me-world-corner"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M8 10H20A5 5 0 0 1 24.8 14L26 20A3 3 0 0 1 21 23L17 20H11L7 23A3 3 0 0 1 2 20L3.2 14A5 5 0 0 1 8 10Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M8 14V20M5 17H11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="19" cy="15" r="1.6" fill="currentColor"/><circle cx="22" cy="18" r="1.6" fill="currentColor"/></svg></span></span>
-        <span class="me-world-label"><strong>ARCADE</strong><small>Neon lights & games</small></span>
+        <span class="me-world-label"><strong>ARCADE</strong><small>Wall-to-wall games, neon lights & excitement</small></span>
       </button>
       <button type="button" class="theme-choice" data-theme="castle" aria-pressed="false" aria-label="CASTLE world: Torches & stone halls" style="--world-color:#965ebd">
         <span class="me-world-art"><svg class="me-world-scene" viewBox="0 0 360 210" role="img" aria-label="Stone castle hallway with torches, battlements and a glowing doorway" xmlns="http://www.w3.org/2000/svg">
@@ -1138,8 +1138,7 @@ header,.main-card{position:relative;z-index:1;}
 </main></div>
 <audio id="themeMusic" loop preload="auto" aria-hidden="true"></audio>
 <script src="assets/3d/maze3d.js"></script>
-<script src="assets/3d/arcade_immersive_v4.js"></script>
-<script src="assets/3d/arcade_real_models_v4.js"></script>
+<script src="assets/3d/arcade_attractions_v8.js"></script>
 <script>
 const difficultySettings={"easy": {"total": 4, "label": "Easy: 3\u20134 letter words", "banks": ["CAT", "DOG", "SUN", "RUN", "HOP", "MAP", "RED", "BOX", "BUG", "MUD", "JAM", "PEN", "CUP", "HAT", "FOX", "PIG", "HEN", "LOG", "WEB", "ZIP", "BAT", "COW", "OWL", "ANT", "CAR", "BUS", "BED", "BAG", "EGG", "FAN", "GUM", "HUG", "JAR", "KEY", "LEG", "NET", "POT", "RUG", "TOY", "VAN", "FROG", "DUCK", "BEAR", "FISH", "BIRD", "LION", "GOAT", "MILK", "CAKE", "BOOK", "STAR", "MOON", "TREE", "SHIP", "SOCK", "BALL", "JUMP", "PLAY", "READ", "TYPE", "FAST", "SLOW", "BLUE", "PINK", "GOLD", "RAIN", "WIND", "SNOW", "FIRE", "RING", "DRUM", "BELL", "ROAD", "PARK", "DOOR", "DESK", "LAMP", "CLAP", "SPIN", "GRIN", "FLIP", "SKIP", "BUMP", "ZOOM", "YELL", "JOKE", "QUIZ", "MAZE", "WORD", "LINE", "PAGE", "KIND", "WILD"]}, "medium": {"total": 6, "label": "Medium: 5\u20136 letter words", "banks": ["APPLE", "TIGER", "ZEBRA", "SNAKE", "HORSE", "MOUSE", "PANDA", "EAGLE", "SHARK", "WHALE", "CHAIR", "TABLE", "HAPPY", "SILLY", "FUNNY", "QUICK", "BRAVE", "GREEN", "BLACK", "WHITE", "BROWN", "CLOUD", "STORM", "RIVER", "BEACH", "MUSIC", "DRUMS", "PIZZA", "TOAST", "GRAPE", "MELON", "LEMON", "MANGO", "CHIPS", "SAUCE", "DANCE", "JUMPS", "SKATE", "SLIDE", "SMILE", "LAUGH", "MAGIC", "ROBOT", "ALIEN", "CROWN", "TRAIN", "PLANE", "SPACE", "LIGHT", "NIGHT", "WORLD", "DREAM", "STORY", "WORDS", "TIMER", "BANANA", "PICKLE", "ROCKET", "PLANET", "SCHOOL", "LIBRARY", "TYPING", "MONKEY", "DONKEY", "RABBIT", "TURKEY", "DRAGON", "WIZARD", "CASTLE", "PIRATE", "PUPPET", "BUTTON", "WINDOW", "YELLOW", "ORANGE", "PURPLE", "SILVER", "CIRCLE", "PENCIL", "TEACHER", "STUDENT", "READING", "WRITING", "GOBLIN", "MONSTER", "UNICORN"]}, "hard": {"total": 8, "label": "Hard: 7+ letter words", "banks": ["KEYBOARD", "SENTENCE", "COMPUTER", "CUPCAKE", "NOODLES", "DINOSAUR", "KANGAROO", "PLATYPUS", "CROCODILE", "UMBRELLA", "BACKPACK", "TRAMPOLINE", "ANCIENT", "LOLLIPOP", "MYSTERY", "JELLYBEAN", "SANDWICH", "BREAKFAST", "FOOTBALL", "JOURNEY", "CLASSROOM", "ADVENTURE", "CHAMPION", "CHALLENGE", "FANTASTIC", "VOLCANO", "TREASURE", "EXPLORER", "MOUNTAIN", "RAINBOW", "ELEPHANT", "GIRAFFE", "PENGUIN", "BUTTERFLY", "NOTEBOOK", "PAINTBRUSH", "SUNSHINE", "STARLIGHT", "HOMEWORK", "DISCOVERY", "IMAGINE", "CREATIVE", "CURIOUS", "BRILLIANT", "QUESTION", "ANSWERING", "SPELLING", "THUNDER", "OCTOPUS", "CHOCOLATE", "CAMPING", "BALLOON", "HAMBURGER", "PANCAKES", "FRIENDSHIP", "AFTERNOON", "YESTERDAY", "TOMORROW", "IMPORTANT", "BEAUTIFUL", "WONDERFUL", "AMAZINGLY", "DIFFICULT", "CONFIDENT", "PRACTICE", "LEARNING", "PROBLEM", "SOLUTION"]}};
 const themes={classic:{name:'Arcade',accent:'#7c3aed',accent2:'#2563eb',bg:'#12183e'},castle:{name:'Castle',accent:'#7c3aed',accent2:'#4338ca',bg:'#18162c'},jungle:{name:'Jungle',accent:'#65a30d',accent2:'#15803d',bg:'#0c251b'},school:{name:'School',accent:'#f97316',accent2:'#2563eb',bg:'#dbeafe'}};
