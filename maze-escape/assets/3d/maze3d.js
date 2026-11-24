@@ -1973,51 +1973,65 @@ makeCastleDoor(s,openness){
  addToken(m,t,now,theme,playerX,playerZ){
   const x=t.x,z=t.y,time=now*.001,seed=t.monsterVariant??((t.r*11+t.c*7)%4);
   const palette={
-   school:[[.22,1.22,1.12],[1.32,.65,.36],[.83,.63,1.34],[.42,.82,1.42]],
-   jungle:[[.51,1.28,.39],[.30,1.12,.88],[1.35,.90,.35],[.88,.72,1.29]],
-   castle:[[1.06,.54,1.31],[.57,.69,1.40],[1.31,.72,.42],[.37,1.08,1.12]],
-   classic:[[1.36,.42,.94],[.40,1.16,1.29],[1.34,.94,.35],[.82,.60,1.39]]
+   school:[[.20,1.10,1.02],[.92,.35,.22],[.74,.52,1.20],[.30,.76,1.24]],
+   jungle:[[.46,1.05,.32],[.22,.92,.72],[1.22,.76,.28],[.78,.58,1.08]],
+   castle:[[.96,.46,1.18],[.49,.62,1.28],[1.18,.63,.36],[.34,.96,1.02]],
+   classic:[[1.24,.30,.82],[.34,1.02,1.12],[1.23,.82,.28],[.74,.54,1.18]]
   };
   const colors=palette[theme]||palette.jungle,color=colors[seed%colors.length];
-  const accent=colors[(seed+2)%colors.length],cream=[1.45,1.47,1.39],dark=[.13,.16,.26];
+  const accent=colors[(seed+2)%colors.length],cream=[1.38,1.40,1.31],dark=[.08,.09,.16];
   const delta=now-(t.defeatedAt||0),dying=!!t.defeatedAt&&delta>=0&&delta<850;
   const fade=dying?Math.max(.035,1-delta/850):1;
-  const bounce=.055*Math.sin(time*5.4+seed*1.7),sway=Math.sin(time*2.3+seed)*.037;
+  const moving=(t.walkProgress??1)<1,anim=(t.animTime||time),stride=moving?Math.sin(anim*8.2+seed*1.3):Math.sin(time*2.8+seed)*.25;
+  const bounce=(moving?.030:.055)*Math.sin(anim*7.2+seed*1.2),sway=Math.sin(time*2.0+seed)*.028;
   const facing=Math.atan2(playerZ-z,playerX-x),fx=Math.cos(facing),fz=Math.sin(facing),rx=-fz,rz=fx;
   const P=(u,y,d)=>[x+rx*u+fx*d+sway,y,z+rz*u+fz*d];
-  const bodyY=.78+bounce+(dying?delta/850*.48:0),scale=fade*(dying?1-.30*Math.sin(delta/850*Math.PI):1);
-  const p=(u,y,d)=>P(u*scale,bodyY+(y-.78)*scale,d*scale);
-  // Ground shadow to make the monster clearly part of the world, not a levitating gem.
-  const sh=.24*fade;m.quad([x-sh,.012,z-sh],[x+sh,.012,z-sh],[x+sh,.012,z+sh],[x-sh,.012,z+sh],5,[.29,.33,.42]);
-  // Organic monster body and ears/horns, a different silhouette in each map.
-  this.monsterOrb(m,p,[0,.78,0],[.25,.34,.23],color,.05,12,8);
-  if(seed%2===0){
-   for(const side of [-1,1]){
-    const tip=p(side*.17,1.27,.012),left=p(side*.11,1.02,-.075),right=p(side*.23,1.04,.05);
-    m.tri(left,right,tip,null,5,accent,.15);m.tri(right,left,p(side*.16,1.17,-.07),null,5,accent,.12);
-   }
-  }else{
-   for(const side of [-1,1])this.monsterOrb(m,p,[side*.19,1.08,-.02],[.095,.17,.10],accent,.04,9,6);
-  }
-  // Two stubby waving arms. Gentle idle animation; defeated monsters shrink away.
+  const bodyY=.76+bounce+(dying?delta/850*.48:0),scale=fade*(dying?1-.30*Math.sin(delta/850*Math.PI):1);
+  const p=(u,y,d)=>P(u*scale,bodyY+(y-.76)*scale,d*scale);
+  const sh=.25*fade;m.quad([x-sh,.012,z-sh],[x+sh,.012,z-sh],[x+sh,.012,z+sh],[x-sh,.012,z+sh],5,[.23,.25,.30]);
+  // Body
+  this.monsterOrb(m,p,[0,.78,0],[.24,.33,.23],color,.05,12,8);
+  // Sharper horns / ears for a slightly scarier silhouette.
   for(const side of [-1,1]){
-   const wave=Math.sin(time*5.1+seed+side)*.11;
-   const a=[side*.20,.80,.0],b=[side*.38,.77+wave,.08];
-   this.monsterLimb(m,p,a,b,.062,color);
-   this.monsterOrb(m,p,b,[.078,.079,.078],accent,.08,8,6);
-   // Rounded little feet give the creature a readable silhouette at a distance.
-   this.monsterOrb(m,p,[side*.13,.44,.085],[.115,.072,.14],accent,.03,9,6);
+    const tip=p(side*.17,1.31,-.01),left=p(side*.06,1.01,-.08),right=p(side*.25,1.03,.05);
+    m.tri(left,right,tip,null,5,accent,.18);m.tri(right,left,p(side*.16,1.20,-.10),null,5,accent,.13);
   }
-  // Eyes track the explorer. Blink for 100 ms every few seconds.
-  const blink=((time+seed*.49)%3.7)<.14?0.08:1;
+  // Walking legs
   for(const side of [-1,1]){
-   this.monsterOrb(m,p,[side*.10,.90,.192],[.086,.104*blink,.052],cream,.28,10,7);
-   if(blink>.2)this.monsterOrb(m,p,[side*.10+.014,.89,.239],[.031,.047,.022],dark,.15,8,6);
+    const legSwing=(moving?Math.sin(anim*8.2+(side>0?0:Math.PI))*0.10:0);
+    const hip=[side*.11,.58,.02],foot=[side*.13+legSwing,.21,.12-legSwing*.18];
+    this.monsterLimb(m,p,hip,foot,.050,color);
+    this.monsterOrb(m,p,[foot[0],.17,foot[2]],[.10,.055,.13],accent,.02,8,6);
+    // claws on feet
+    for(const toe of [-1,0,1]){
+      const a=p(foot[0]+toe*.022,.16,foot[2]+.10),b=p(foot[0]+toe*.034,.12,foot[2]+.17),c=p(foot[0]+toe*.010,.12,foot[2]+.16);
+      m.tri(a,b,c,null,7,cream,.12);
+    }
   }
-  // Expressive smile; no scary violence or gore when defeated.
-  this.monsterOrb(m,p,[0,.69,.215],[.092,.049+.012*Math.sin(time*3.8),.027],dark,.05,11,6);
-  this.monsterOrb(m,p,[0,.658,.242],[.052,.018,.012],[1.3,.50,.70],.14,9,5);
-  // Colourful magical pop when spelling succeeds.
+  // Longer arms with a visible walk cycle.
+  for(const side of [-1,1]){
+    const wave=(moving?Math.sin(anim*8.2+(side>0?Math.PI:0))*0.15:Math.sin(time*4.5+seed+side)*.08);
+    const a=[side*.21,.81,.01],b=[side*.43,.76+wave,.10];
+    this.monsterLimb(m,p,a,b,.055,color);
+    this.monsterOrb(m,p,b,[.07,.07,.07],accent,.06,8,6);
+    for(const claw of [-1,0,1]){
+      const base=[b[0]+side*.05,b[1]-.01,b[2]+claw*.01],tip=[b[0]+side*.12,b[1]-.04,b[2]+claw*.025];
+      m.tri(p(base[0],base[1],base[2]),p(tip[0],tip[1],tip[2]),p(base[0],base[1]-.03,base[2]+.01),null,7,cream,.15);
+    }
+  }
+  // Eyes and angry brows.
+  const blink=((time+seed*.49)%3.9)<.12?0.08:1;
+  for(const side of [-1,1]){
+   this.monsterOrb(m,p,[side*.095,.91,.195],[.082,.10*blink,.05],cream,.28,10,7);
+   if(blink>.2)this.monsterOrb(m,p,[side*.10+.012,.90,.236],[.028,.045,.020],dark,.18,8,6);
+   const b1=p(side*.17,1.03,.19),b2=p(side*.03,.98,.23),b3=p(side*.14,1.00,.25);
+   m.tri(b1,b2,b3,null,5,dark,.04);
+  }
+  // Mouth and teeth.
+  this.monsterOrb(m,p,[0,.68,.215],[.10,.05+.01*Math.sin(time*3.8),.03],dark,.05,11,6);
+  for(const tx of [-.05,0,.05]){
+    const a=p(tx,.69,.23),b=p(tx+.018,.63,.245),c=p(tx-.018,.63,.245);m.tri(a,b,c,null,7,cream,.14);
+  }
   if(dying){
    const progress=Math.min(1,delta/850);
    for(let i=0;i<8;i++){
