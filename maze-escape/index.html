@@ -703,7 +703,7 @@ header,.main-card{position:relative;z-index:1;}
 #miniMapCanvas{display:block;width:100%;height:auto;aspect-ratio:1;border:2px solid #a4d8f4;border-radius:14px;background:#12304d;}
 .fps-legend{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;font:600 .73rem 'Fredoka',sans-serif;color:#416b99;padding-top:8px}
 .fps-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:3px;vertical-align:middle}
-.fps-legend .you i{background:#ef174d}.fps-legend .word i{background:#ffc83c}.fps-legend .exit i{background:#2dd4bf}
+.fps-legend .you i{background:#ef174d}.fps-legend .word i{background:#fb65a9}.fps-legend .exit i{background:#2dd4bf}
 .fps-mode .controls{padding:10px 10px 12px}
 .fps-mode .arrowgrid{grid-template-columns:repeat(3,54px);gap:7px}
 .fps-mode .arrow{height:48px;border:2px solid #bbdaf5;border-radius:13px;background:linear-gradient(180deg,#ffffff,#e9f5ff);color:#1b5a9d;box-shadow:0 4px 0 #b0d0e7;font-size:1.36rem;touch-action:none;user-select:none}
@@ -798,7 +798,7 @@ header,.main-card{position:relative;z-index:1;}
 .fps-map-toggle .toggle-state{font-size:.69rem;font-weight:800;letter-spacing:.06em;border-radius:7px;padding:4px 7px;background:#e8edf4;color:#617488}
 .fps-map-toggle.active .toggle-state{background:#178af3;color:#fff}
 .fps-marker-icon{width:12px;height:12px;border-radius:50%;display:block;flex:0 0 12px;box-shadow:0 0 0 3px rgba(255,255,255,.9)}
-.fps-marker-icon.word-dot{background:#ffc83c}.fps-marker-icon.exit-dot{background:#28cdb0}
+.fps-marker-icon.word-dot{background:#fb65a9}.fps-marker-icon.exit-dot{background:#28cdb0}
 .fps-door-status{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:12px;padding:10px 7px;border-radius:12px;background:#f3f7fc;border:1px solid #d8e5f2;color:#5b718d;font:700 .75rem 'Fredoka',Arial,sans-serif;text-align:center}
 .fps-door-status.unlocked{background:#e7fff2;border-color:#a6edc8;color:#177451}
 .fps-door-status .lock-symbol{font-size:1.05rem}
@@ -940,6 +940,28 @@ header,.main-card{position:relative;z-index:1;}
 .me-spotlight .me-title{letter-spacing:.01em!important}
 @media(max-width:700px){.me-spotlight .me-play{min-height:64px!important;width:min(320px,88vw)!important;font-size:1.14rem!important;padding:13px 21px!important}}
 
+
+/* Monster spelling challenge: playful, accessible and entirely local. */
+.monster-battle{--monster-body:#6ecfe7;--monster-dark:#20496c;--monster-belly:#dcfaff;max-width:470px;}
+.monster-battle[data-theme="school"]{--monster-body:#45cfc0;--monster-dark:#247b74;--monster-belly:#d9fff2;}
+.monster-battle[data-theme="jungle"]{--monster-body:#8bdd56;--monster-dark:#357a29;--monster-belly:#edffcd;}
+.monster-battle[data-theme="castle"]{--monster-body:#b38be9;--monster-dark:#644fa3;--monster-belly:#efe3ff;}
+.monster-battle[data-theme="classic"]{--monster-body:#ff76be;--monster-dark:#a53d9a;--monster-belly:#ffe2f3;}
+.monster-card-figure{position:relative;width:116px;height:124px;margin:12px auto 18px;border-radius:49% 48% 42% 42%;background:radial-gradient(ellipse at 30% 23%,var(--monster-belly),var(--monster-body) 47%,var(--monster-dark) 112%);border:4px solid var(--monster-dark);box-shadow:inset -11px -12px 0 rgba(1,18,53,.09),0 15px 16px rgba(15,30,70,.18);animation:monster-idle 1.7s ease-in-out infinite;}
+.monster-horn{position:absolute;width:29px;height:37px;background:var(--monster-dark);top:-22px;border-radius:60% 60% 0 0;z-index:-1;}
+.monster-horn.left{left:8px;transform:rotate(-26deg)}.monster-horn.right{right:8px;transform:rotate(26deg)}
+.monster-eyes{position:absolute;display:flex;gap:18px;top:31px;left:22px}.monster-eyes i{display:block;width:22px;height:27px;background:#fff;border:2px solid var(--monster-dark);border-radius:50%;position:relative;animation:monster-blink 4s infinite}.monster-eyes i::after{content:"";position:absolute;background:#193047;width:10px;height:13px;top:7px;right:3px;border-radius:50%}
+.monster-mouth{position:absolute;top:76px;left:42px;width:28px;height:17px;background:var(--monster-dark);border-radius:30% 30% 65% 65%;}
+.monster-arm{position:absolute;top:61px;width:36px;height:18px;background:var(--monster-body);border:3px solid var(--monster-dark);border-radius:99px;z-index:-1}.monster-arm.left{left:-27px;transform-origin:right center;animation:monster-wave-left 1s ease-in-out infinite alternate}.monster-arm.right{right:-27px;transform-origin:left center;animation:monster-wave-right 1s ease-in-out infinite alternate}
+.monster-foot{position:absolute;bottom:-13px;width:40px;height:21px;background:var(--monster-dark);border-radius:50%}.monster-foot.left{left:6px}.monster-foot.right{right:6px}
+.monster-instruction{font-size:.94rem;font-weight:800;color:#35547b;margin:6px 0 4px}.monster-type-label{display:block;font-size:.8rem;font-weight:800;color:#55718c;margin:2px 0 6px}.monster-battle .target{font-size:clamp(1.9rem,5vw,2.7rem);letter-spacing:.08em;margin:6px 0 6px;color:#2365ad}.monster-battle #spellInput{max-width:330px;margin:auto}
+.monster-battle.monster-defeated .monster-card-figure{animation:monster-pop .48s ease-in forwards}.monster-battle.monster-defeated .monster-instruction{color:#15803d}.monster-battle.monster-defeated #spellSubmit{background:#16a34a}
+@keyframes monster-idle{0%,100%{transform:translateY(2px) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+@keyframes monster-blink{0%,45%,49%,100%{transform:scaleY(1)}47%{transform:scaleY(.08)}}
+@keyframes monster-wave-left{from{transform:rotate(-12deg)}to{transform:rotate(-48deg)}}
+@keyframes monster-wave-right{from{transform:rotate(12deg)}to{transform:rotate(48deg)}}
+@keyframes monster-pop{0%{opacity:1;transform:scale(1) rotate(0deg)}45%{opacity:1;transform:scale(1.22) rotate(8deg)}100%{opacity:0;transform:scale(.05) rotate(32deg)}}
+@media(prefers-reduced-motion:reduce){.monster-card-figure,.monster-arm,.monster-eyes i{animation:none}.monster-battle.monster-defeated .monster-card-figure{animation:none;opacity:0}}
 </style>
 </head>
 <body>
@@ -965,7 +987,7 @@ header,.main-card{position:relative;z-index:1;}
       <div class="me-hero-copy">
         <div class="me-kicker"><span class="me-pulse-dot"></span> A BRIGHT ARCADE ADVENTURE</div>
         <h1 class="me-title"><span>MAZE</span><strong>ESCAPE<span class="me-exclaim">!</span></strong></h1>
-        <p class="me-tagline">Discover the words. Find your way out.</p>
+        <p class="me-tagline">Find monsters. Spell to defeat them. Escape!</p>
         <button type="button" class="me-play" id="mazeSpotlightPlay">PLAY NOW <span aria-hidden="true">➜</span></button>
         <div class="me-small-note">EXPLORE <span>•</span> DISCOVER <span>•</span> ESCAPE</div>
       </div>
@@ -1106,7 +1128,7 @@ header,.main-card{position:relative;z-index:1;}
     <button class="startbtn" id="startBtn">START MAZE <span aria-hidden="true">➜</span></button>
   </div>
 </div>
-<div class="spell-overlay hidden" id="spellOverlay"><div class="spell-card"><h2>Spell the Word</h2><div class="target" id="spellTarget"></div><input id="spellInput" autocomplete="off" autocapitalize="characters" spellcheck="false"><div class="feedback" id="spellFeedback"></div><button class="submit" id="spellSubmit">Collect Word</button></div></div>
+<div class="spell-overlay hidden" id="spellOverlay"><div class="spell-card monster-battle" id="monsterBattle" role="dialog" aria-modal="true" aria-labelledby="monsterBattleHeading"><h2 id="monsterBattleHeading">Monster Encounter!</h2><div class="monster-card-figure" id="battleCreature" aria-hidden="true"><span class="monster-horn left"></span><span class="monster-horn right"></span><span class="monster-eyes"><i></i><i></i></span><span class="monster-mouth"></span><span class="monster-arm left"></span><span class="monster-arm right"></span><span class="monster-foot left"></span><span class="monster-foot right"></span></div><p class="monster-instruction">Type the word correctly to defeat this monster!</p><div class="target" id="spellTarget"></div><label class="monster-type-label" for="spellInput">Type the word</label><input id="spellInput" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="spellFeedback" placeholder="Type here..."><div class="feedback" id="spellFeedback" role="status" aria-live="polite"></div><button class="submit" id="spellSubmit">Defeat Monster!</button></div></div>
 <div class="win-overlay hidden" id="winOverlay"><div class="win-card"><h2>Maze Escaped!</h2><p id="winText"></p><button class="submit" id="playAgain">Play Again</button></div></div>
 <nav class="side-menu">
 <a href="/" class="sidebar-logo-link" aria-label="Bright Arcade Home"><div class="sidebar-logo"><div class="sidebar-bright"><span style="--c:#ef174d;">B</span><span style="--c:#f97316;">R</span><span style="--c:#facc15;">I</span><span style="--c:#49c600;">G</span><span style="--c:#0875f5;">H</span><span style="--c:#7030d8;">T</span></div><div class="sidebar-arcade">ARCADE</div></div></a>
@@ -1121,7 +1143,7 @@ header,.main-card{position:relative;z-index:1;}
 <span class="title-word escape-word-group" aria-hidden="true">
 <span class="title-letter" style="--r:-2deg;--d:.06s">E</span><span class="title-letter" style="--r:2deg;--d:.15s">s</span><span class="title-letter" style="--r:-1deg;--d:.24s">c</span><span class="title-letter" style="--r:2deg;--d:.33s">a</span><span class="title-letter" style="--r:-2deg;--d:.42s">p</span><span class="title-letter" style="--r:2deg;--d:.51s">e</span><span class="title-letter" style="--r:-2deg;--d:.60s">!</span>
 </span>
-<span class="emoji-pop right" aria-hidden="true">🗺️</span></h1></div><br><p class="subtitle">Explore the maze, spell the words and find the exit!</p></header>
+<span class="emoji-pop right" aria-hidden="true">🗺️</span></h1></div><br><p class="subtitle">Explore the maze, defeat spelling monsters and find the exit!</p></header>
 <main class="main-card">
 <div class="toolbar"><div class="setup-strip"><div class="chip" id="themeChip">🎨 Jungle</div><div class="chip" id="difficultyChip">📊 Easy</div><div class="chip" id="explorerChip">🧭 Boy</div></div><div class="toolbar-actions"><button class="pill-btn blue" id="musicBtn" title="Turn theme music on or off">🎵 Music On</button><button class="pill-btn blue" id="soundBtn" title="Turn movement and feedback effects on or off">🔊 Effects On</button><button class="pill-btn blue" id="setupBtn">⚙ Change Setup</button><button class="pill-btn red" id="restartBtn">↻ Restart Maze</button></div></div>
 <div class="play-layout"><section class="canvas-column"><div class="canvas-card"><div class="maze3d-viewport" id="maze3dViewport">
@@ -1129,17 +1151,17 @@ header,.main-card{position:relative;z-index:1;}
   <canvas id="mazeWebglCanvas" class="maze3d-canvas" aria-label="First-person 3D maze scene"></canvas>
   <div class="maze3d-view-badge" aria-hidden="true"><span class="maze3d-dot"></span>3D EXPLORER</div>
   <div class="maze3d-crosshair" aria-hidden="true"><i></i><i></i></div>
-</div><canvas id="miniMapCompact" width="260" height="260" aria-label="Compact maze map"></canvas><div class="fps-touch-hud" aria-label="Touch movement controls"><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" data-move="up" type="button" aria-label="Walk forward">▲</button><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" data-move="left" type="button" aria-label="Turn left">↶</button><button class="arrow" data-move="down" type="button" aria-label="Walk backwards">▼</button><button class="arrow" data-move="right" type="button" aria-label="Turn right">↷</button></div></div><div class="messagebar" id="message">Find and spell every word to unlock the exit door. Then escape!</div></section>
-<aside class="game-sidebar"><section class="panel"><h3>Maze Progress</h3><div class="stats-grid"><div class="stat"><span>Words</span><b id="wordsStat">0 / 4</b></div><div class="stat"><span>Time</span><b id="timeStat">0:00</b></div><div class="stat"><span>Score</span><b id="scoreStat">1000</b></div></div><div class="words-list" id="wordsList"></div></section><section class="panel fps-minimap-panel"><h3>Explorer Map</h3><div class="fps-minimap-box"><canvas id="miniMapCanvas" width="260" height="260" aria-label="Maze minimap showing corridors, collected targets and player direction"></canvas><div class="fps-map-toggles" role="group" aria-label="Map location markers">
-  <button id="mapWordsToggle" class="fps-map-toggle active" type="button" aria-pressed="true" aria-controls="miniMapCanvas" title="Show or hide uncollected word positions on the map"><span class="fps-marker-icon word-dot" aria-hidden="true"></span><span class="toggle-title">Word locations</span><span class="toggle-state">ON</span></button>
+</div><canvas id="miniMapCompact" width="260" height="260" aria-label="Compact maze map"></canvas><div class="fps-touch-hud" aria-label="Touch movement controls"><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" data-move="up" type="button" aria-label="Walk forward">▲</button><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" data-move="left" type="button" aria-label="Turn left">↶</button><button class="arrow" data-move="down" type="button" aria-label="Walk backwards">▼</button><button class="arrow" data-move="right" type="button" aria-label="Turn right">↷</button></div></div><div class="messagebar" id="message">Defeat every monster by spelling its word to unlock the exit door. Then escape!</div></section>
+<aside class="game-sidebar"><section class="panel"><h3>Maze Progress</h3><div class="stats-grid"><div class="stat"><span>Defeated</span><b id="wordsStat">0 / 4</b></div><div class="stat"><span>Time</span><b id="timeStat">0:00</b></div><div class="stat"><span>Score</span><b id="scoreStat">1000</b></div></div><div class="words-list" id="wordsList"></div></section><section class="panel fps-minimap-panel"><h3>Explorer Map</h3><div class="fps-minimap-box"><canvas id="miniMapCanvas" width="260" height="260" aria-label="Maze minimap showing corridors, undefeated monsters and player direction"></canvas><div class="fps-map-toggles" role="group" aria-label="Map location markers">
+  <button id="mapWordsToggle" class="fps-map-toggle active" type="button" aria-pressed="true" aria-controls="miniMapCanvas" title="Show or hide undefeated monster locations on the map"><span class="fps-marker-icon word-dot monster-dot" aria-hidden="true"></span><span class="toggle-title">Monster locations</span><span class="toggle-state">ON</span></button>
   <button id="mapExitToggle" class="fps-map-toggle active" type="button" aria-pressed="true" aria-controls="miniMapCanvas" title="Show or hide the exit on the map"><span class="fps-marker-icon exit-dot" aria-hidden="true"></span><span class="toggle-title">Exit location</span><span class="toggle-state">ON</span></button>
 </div>
-<div class="fps-door-status" id="exitStatus" role="status" aria-live="polite"><span class="lock-symbol" aria-hidden="true">🔒</span><span class="door-status-text">Door locked · 4 words remaining</span></div></div></section><section class="panel"><h3>Controls</h3><div class="controls"><div class="arrowgrid"><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" type="button" data-move="up" aria-label="Walk forward">▲</button><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" type="button" data-move="left" aria-label="Turn left">↶</button><button class="arrow" type="button" data-move="down" aria-label="Walk backwards">▼</button><button class="arrow" type="button" data-move="right" aria-label="Turn right">↷</button></div><p class="control-note"><strong>W / S</strong> move • <strong>A / D</strong> sidestep<br><strong>← / →</strong> turn • drag to look</p><p class="key-tip">Hold the buttons to move</p></div></section></aside></div>
+<div class="fps-door-status" id="exitStatus" role="status" aria-live="polite"><span class="lock-symbol" aria-hidden="true">🔒</span><span class="door-status-text">Door locked · 4 monsters remaining</span></div></div></section><section class="panel"><h3>Controls</h3><div class="controls"><div class="arrowgrid"><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" type="button" data-move="up" aria-label="Walk forward">▲</button><button class="arrow blank" type="button" tabindex="-1">·</button><button class="arrow" type="button" data-move="left" aria-label="Turn left">↶</button><button class="arrow" type="button" data-move="down" aria-label="Walk backwards">▼</button><button class="arrow" type="button" data-move="right" aria-label="Turn right">↷</button></div><p class="control-note"><strong>W / S</strong> move • <strong>A / D</strong> sidestep<br><strong>← / →</strong> turn • drag to look</p><p class="key-tip">Hold the buttons to move</p></div></section></aside></div>
 </main></div>
 <audio id="themeMusic" loop preload="auto" aria-hidden="true"></audio>
 <script src="assets/3d/maze3d.js"></script>
 <script src="assets/3d/arcade_attractions_v9.js"></script>
-<script src="assets/3d/school_world_v2.js"></script>
+<script src="assets/3d/school_world_v4.js"></script>
 <script>
 const difficultySettings={"easy": {"total": 4, "label": "Easy: 3\u20134 letter words", "banks": ["CAT", "DOG", "SUN", "RUN", "HOP", "MAP", "RED", "BOX", "BUG", "MUD", "JAM", "PEN", "CUP", "HAT", "FOX", "PIG", "HEN", "LOG", "WEB", "ZIP", "BAT", "COW", "OWL", "ANT", "CAR", "BUS", "BED", "BAG", "EGG", "FAN", "GUM", "HUG", "JAR", "KEY", "LEG", "NET", "POT", "RUG", "TOY", "VAN", "FROG", "DUCK", "BEAR", "FISH", "BIRD", "LION", "GOAT", "MILK", "CAKE", "BOOK", "STAR", "MOON", "TREE", "SHIP", "SOCK", "BALL", "JUMP", "PLAY", "READ", "TYPE", "FAST", "SLOW", "BLUE", "PINK", "GOLD", "RAIN", "WIND", "SNOW", "FIRE", "RING", "DRUM", "BELL", "ROAD", "PARK", "DOOR", "DESK", "LAMP", "CLAP", "SPIN", "GRIN", "FLIP", "SKIP", "BUMP", "ZOOM", "YELL", "JOKE", "QUIZ", "MAZE", "WORD", "LINE", "PAGE", "KIND", "WILD"]}, "medium": {"total": 6, "label": "Medium: 5\u20136 letter words", "banks": ["APPLE", "TIGER", "ZEBRA", "SNAKE", "HORSE", "MOUSE", "PANDA", "EAGLE", "SHARK", "WHALE", "CHAIR", "TABLE", "HAPPY", "SILLY", "FUNNY", "QUICK", "BRAVE", "GREEN", "BLACK", "WHITE", "BROWN", "CLOUD", "STORM", "RIVER", "BEACH", "MUSIC", "DRUMS", "PIZZA", "TOAST", "GRAPE", "MELON", "LEMON", "MANGO", "CHIPS", "SAUCE", "DANCE", "JUMPS", "SKATE", "SLIDE", "SMILE", "LAUGH", "MAGIC", "ROBOT", "ALIEN", "CROWN", "TRAIN", "PLANE", "SPACE", "LIGHT", "NIGHT", "WORLD", "DREAM", "STORY", "WORDS", "TIMER", "BANANA", "PICKLE", "ROCKET", "PLANET", "SCHOOL", "LIBRARY", "TYPING", "MONKEY", "DONKEY", "RABBIT", "TURKEY", "DRAGON", "WIZARD", "CASTLE", "PIRATE", "PUPPET", "BUTTON", "WINDOW", "YELLOW", "ORANGE", "PURPLE", "SILVER", "CIRCLE", "PENCIL", "TEACHER", "STUDENT", "READING", "WRITING", "GOBLIN", "MONSTER", "UNICORN"]}, "hard": {"total": 8, "label": "Hard: 7+ letter words", "banks": ["KEYBOARD", "SENTENCE", "COMPUTER", "CUPCAKE", "NOODLES", "DINOSAUR", "KANGAROO", "PLATYPUS", "CROCODILE", "UMBRELLA", "BACKPACK", "TRAMPOLINE", "ANCIENT", "LOLLIPOP", "MYSTERY", "JELLYBEAN", "SANDWICH", "BREAKFAST", "FOOTBALL", "JOURNEY", "CLASSROOM", "ADVENTURE", "CHAMPION", "CHALLENGE", "FANTASTIC", "VOLCANO", "TREASURE", "EXPLORER", "MOUNTAIN", "RAINBOW", "ELEPHANT", "GIRAFFE", "PENGUIN", "BUTTERFLY", "NOTEBOOK", "PAINTBRUSH", "SUNSHINE", "STARLIGHT", "HOMEWORK", "DISCOVERY", "IMAGINE", "CREATIVE", "CURIOUS", "BRILLIANT", "QUESTION", "ANSWERING", "SPELLING", "THUNDER", "OCTOPUS", "CHOCOLATE", "CAMPING", "BALLOON", "HAMBURGER", "PANCAKES", "FRIENDSHIP", "AFTERNOON", "YESTERDAY", "TOMORROW", "IMPORTANT", "BEAUTIFUL", "WONDERFUL", "AMAZINGLY", "DIFFICULT", "CONFIDENT", "PRACTICE", "LEARNING", "PROBLEM", "SOLUTION"]}};
 const themes={classic:{name:'Arcade',accent:'#7c3aed',accent2:'#2563eb',bg:'#12183e'},castle:{name:'Castle',accent:'#7c3aed',accent2:'#4338ca',bg:'#18162c'},jungle:{name:'Jungle',accent:'#65a30d',accent2:'#15803d',bg:'#0c251b'},school:{name:'School',accent:'#f97316',accent2:'#2563eb',bg:'#dbeafe'}};
@@ -1180,7 +1202,7 @@ const WORLD={
 };
 const musicTracks={classic:'assets/audio/classic-arcade.ogg',jungle:'assets/audio/jungle-temple.ogg',castle:'assets/audio/haunted-castle.ogg',school:'assets/audio/school-adventure.ogg'};
 let selectedTheme='jungle',selectedDifficulty='easy',selectedExplorer='boy';
-let musicOn=true,soundOn=true,started=false,seconds=0,timer=null,pendingToken=null;
+let musicOn=true,soundOn=true,started=false,seconds=0,timer=null,pendingToken=null,monsterDefeatTimer=null,defeatingMonster=false;
 try{musicOn=localStorage.getItem('mazeEscapeMusic')!=='off';}catch(e){}
 themeMusic.volume=.22;
 let maze=[],startR=1,startC=1,exitR=0,exitC=1,exitEntryR=1,exitEntryC=1,exitSide="north",activeWords=[],tokens=[],collected={},visited=new Set();
@@ -1278,7 +1300,7 @@ function chooseWords(){
    }
    if(!best)best={r:1,c:1};used.push(best);
  }
- tokens=activeWords.map((word,i)=>({word,x:used[i].c+.5,y:used[i].r+.5,r:used[i].r,c:used[i].c}));
+ tokens=activeWords.map((word,i)=>({word,x:used[i].c+.5,y:used[i].r+.5,r:used[i].r,c:used[i].c,monsterVariant:(i+used[i].r+used[i].c)%4,defeatedAt:0}));
 }
 function required(){return difficultySettings[selectedDifficulty].total}
 function score(){return Math.max(0,1000-seconds+Object.keys(collected).length*50)}
@@ -1294,9 +1316,9 @@ function updateUI(){
  const unlocked=allWordsCollected(),remaining=required()-found;
  exitStatus.classList.toggle('unlocked',unlocked);
  exitStatus.querySelector('.lock-symbol').textContent=unlocked?'🔓':'🔒';
- exitStatus.querySelector('.door-status-text').textContent=unlocked?'Exit unlocked — walk through the outer doorway!':`Exit locked · ${remaining} word${remaining===1?'':'s'} remaining`;
+ exitStatus.querySelector('.door-status-text').textContent=unlocked?'Exit unlocked — walk through the outer doorway!':`Exit locked · ${remaining} monster${remaining===1?'':'s'} remaining`;
 }
-function resetGame(){clearInterval(timer);finishOpen=false;winOverlay.classList.add('hidden');spellOverlay.classList.add('hidden');pendingToken=null;buildMaze();chooseWords();seconds=0;keys=Object.create(null);buttonActions.clear();updateUI();message.textContent='Find and spell every word to unlock the door in the outer wall. Then walk outside!';if(started)timer=setInterval(()=>{seconds++;updateUI()},1000);if(window.__mazeRenderer&&window.__mazeRenderer.ready)window.__mazeRenderer.rebuild();drawMinimap();render();}
+function resetGame(){clearInterval(timer);clearTimeout(monsterDefeatTimer);monsterDefeatTimer=null;defeatingMonster=false;document.getElementById("monsterBattle").classList.remove("monster-defeated");finishOpen=false;winOverlay.classList.add('hidden');spellOverlay.classList.add('hidden');pendingToken=null;buildMaze();chooseWords();seconds=0;keys=Object.create(null);buttonActions.clear();updateUI();message.textContent='Find and defeat every spelling monster to unlock the door in the outer wall. Then walk outside!';if(started)timer=setInterval(()=>{seconds++;updateUI()},1000);if(window.__mazeRenderer&&window.__mazeRenderer.ready)window.__mazeRenderer.rebuild();drawMinimap();render();}
 function loadTheme(key){let theme=themes[key];document.documentElement.style.setProperty('--accent',theme.accent);document.documentElement.style.setProperty('--accent2',theme.accent2);document.getElementById('themeChip').textContent='🎨 '+theme.name;buildTextures(key);setThemeMusic(key,started);render();}
 
 /* Procedural themed masonry textures. These are drawn locally, so no new PNG files are needed. */
@@ -1419,17 +1441,36 @@ function drawSprites(now){
   const rayX=clamp(Math.floor(p.x),0,canvas.width-1);
   if(p.depth>depthBuffer[rayX]+.3)continue;
   const h=clamp(p.scale*.8,25,canvas.height*1.2),yc=canvas.height*.47+h*.22+Math.sin(headBob)*4;
-  {
-   const radius=clamp(h*.24,11,54);
-   const y=yc-radius*.48+Math.sin(now*.002+item.x)*Math.min(radius*.18,8);
-   ctx.save();ctx.shadowColor='#ffe77a';ctx.shadowBlur=clamp(38/p.depth,5,36);
-   const glow=ctx.createRadialGradient(p.x,y,2,p.x,y,radius*2);glow.addColorStop(0,'rgba(255,249,188,.85)');glow.addColorStop(.5,'rgba(255,192,62,.43)');glow.addColorStop(1,'rgba(255,192,62,0)');ctx.fillStyle=glow;ctx.beginPath();ctx.arc(p.x,y,radius*2,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle='#ffe66c';ctx.strokeStyle='#ffffff';ctx.lineWidth=clamp(radius*.1,2,6);ctx.beginPath();ctx.arc(p.x,y,radius*.67,0,Math.PI*2);ctx.fill();ctx.stroke();
-   ctx.font=`900 ${clamp(radius*.64,11,31)}px Fredoka,Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#173b69';ctx.fillText('✦',p.x,y+1);
-   const size=clamp(23/p.depth+7,8,22);ctx.font=`800 ${size}px Fredoka,Arial`;
-   const tw=ctx.measureText(item.word).width+size*1.5;const yy=y-radius-19/p.depth;
-   ctx.fillStyle='rgba(6,25,70,.82)';ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(p.x-tw/2,yy-size*.7,tw,size*1.6,size*.6);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.fillText(item.word,p.x,yy+size*.1);ctx.restore();
+  const radius=clamp(h*.25,13,66);
+  const y=yc-radius*.42+Math.sin(now*.005+item.x)*Math.min(radius*.16,10);
+  const scheme={school:['#53cab6','#256b93'],jungle:['#94d94f','#2c875a'],castle:['#bb8de9','#7353ae'],classic:['#ff75be','#a64cbd']}[selectedTheme]||['#94d94f','#2c875a'];
+  const body=(item.monsterVariant%2)?scheme[1]:scheme[0];
+  ctx.save();ctx.translate(p.x,y);
+  const q=Math.sin(now*.004+item.x)*.09;ctx.rotate(q);
+  ctx.shadowColor=body;ctx.shadowBlur=clamp(26/p.depth,3,26);
+  // Body, horns, feet, swaying arms and friendly monster face.
+  ctx.fillStyle=body;ctx.strokeStyle='#1b3355';ctx.lineWidth=Math.max(2,radius*.085);
+  for(const side of [-1,1]){
+   ctx.beginPath();ctx.moveTo(side*radius*.42,-radius*.62);ctx.quadraticCurveTo(side*radius*.80,-radius*1.42,side*radius*.72,-radius*.36);ctx.fill();ctx.stroke();
+   ctx.beginPath();ctx.ellipse(side*radius*.52,radius*.80,radius*.36,radius*.21,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+   ctx.beginPath();ctx.ellipse(side*radius*.88,0,radius*.27,radius*.14,side*.30+Math.sin(now*.006)*.12,0,Math.PI*2);ctx.fill();ctx.stroke();
   }
+  const gradient=ctx.createRadialGradient(-radius*.32,-radius*.42,1,0,0,radius*1.23);
+  gradient.addColorStop(0,'#eaffff');gradient.addColorStop(.30,body);gradient.addColorStop(1,body);
+  ctx.fillStyle=gradient;ctx.beginPath();ctx.ellipse(0,0,radius*.78,radius,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  const blink=((now*.001+item.r*.6)%3.5)<.12;
+  for(const side of [-1,1]){
+   ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(side*radius*.31,-radius*.13,radius*.18,blink?radius*.015:radius*.23,0,0,Math.PI*2);ctx.fill();
+   if(!blink){ctx.fillStyle='#1b3355';ctx.beginPath();ctx.ellipse(side*radius*.31+radius*.03,-radius*.10,radius*.09,radius*.13,0,0,Math.PI*2);ctx.fill();}
+  }
+  ctx.fillStyle='#243651';ctx.beginPath();ctx.ellipse(0,radius*.35,radius*.25,radius*.13,0,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+  const size=clamp(23/p.depth+7,8,22);ctx.font=`800 ${size}px Fredoka,Arial`;
+  const tw=ctx.measureText(item.word).width+size*1.5,yy=-radius-12/p.depth;
+  ctx.fillStyle='rgba(6,25,70,.89)';ctx.strokeStyle='rgba(255,255,255,.84)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(-tw/2,yy-size*.95,tw,size*1.6,size*.6);ctx.fill();ctx.stroke();
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';ctx.fillText(item.word,0,yy-size*.18);
+  ctx.restore();
  }
 }
 function drawHands(){
@@ -1474,7 +1515,13 @@ function drawMinimap(){
    g.fillStyle='#fff';g.fillText(tag,xx,yy);
   }
  }
- for(const t of tokens)if(mapVisibility.words&&!collected[t.word]){g.fillStyle='#ffc83c';g.beginPath();g.arc(xo+(t.c+.5)*size,yo+(t.r+.5)*size,Math.max(2.1,size*.34),0,Math.PI*2);g.fill()}
+ for(const t of tokens)if(mapVisibility.words&&!collected[t.word]){
+  const mx=xo+(t.c+.5)*size,my=yo+(t.r+.5)*size,rr=Math.max(2.5,size*.40);
+  g.fillStyle='#fb65a9';g.beginPath();g.ellipse(mx,my,rr,rr*.94,0,0,Math.PI*2);g.fill();
+  g.fillStyle='#fff';g.beginPath();g.arc(mx-rr*.35,my-rr*.11,Math.max(.7,rr*.19),0,Math.PI*2);g.arc(mx+rr*.35,my-rr*.11,Math.max(.7,rr*.19),0,Math.PI*2);g.fill();
+  g.fillStyle='#182d4d';g.fillRect(mx-rr*.55,my-rr*.14,Math.max(.7,rr*.20),Math.max(.7,rr*.22));
+  g.fillRect(mx+rr*.15,my-rr*.14,Math.max(.7,rr*.20),Math.max(.7,rr*.22));
+ }
  if(mapVisibility.exit){g.fillStyle=allWordsCollected()?'#27d98e':'#38a7f6';g.beginPath();g.arc(xo+(exitC+.5)*size,yo+(exitR+.5)*size,Math.max(2.1,size*.43),0,Math.PI*2);g.fill();g.strokeStyle='#e8ffff';g.lineWidth=Math.max(.8,size*.11);g.stroke();}
  const px=xo+playerX*size,py=yo+playerY*size;
  g.fillStyle='#ef174d';g.strokeStyle='#fff';g.lineWidth=1.6;g.beginPath();g.moveTo(px+Math.cos(playerAngle)*9,py+Math.sin(playerAngle)*9);g.lineTo(px+Math.cos(playerAngle+2.55)*7,py+Math.sin(playerAngle+2.55)*7);g.lineTo(px+Math.cos(playerAngle-2.55)*7,py+Math.sin(playerAngle-2.55)*7);g.closePath();g.fill();g.stroke();
@@ -1490,7 +1537,7 @@ function checkNearby(){
  if(crossedExteriorBoundary()){checkExit();return;}
  // Approach the actual exterior doorway: the game is not won until crossing the wall.
  if(!allWordsCollected()&&Math.hypot(playerX-(exitEntryC+.5),playerY-(exitEntryR+.5))<.86&&now-alertLast>2500){
-  alertLast=now;message.textContent=`🔒 Exterior door locked! Spell ${required()-Object.keys(collected).length} more word${required()-Object.keys(collected).length===1?'':'s'} to open it.`;
+  alertLast=now;message.textContent=`🔒 Exterior door locked! Defeat ${required()-Object.keys(collected).length} more monster${required()-Object.keys(collected).length===1?'':'s'} to open it.`;
  }
 }
 function updateMovement(dt){
@@ -1512,8 +1559,40 @@ function updateMovement(dt){
  }else{moveBlend=Math.max(0,moveBlend-dt*6)}
 }
 function animationFrame(now){const dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;updateMovement(dt);if(started&&setupOverlay.classList.contains('hidden')){if(window.__mazeRenderer&&window.__mazeRenderer.ready)window.__mazeRenderer.draw(now);else draw3D(now);if(Math.floor(now/160)!==Math.floor((now-dt*1000)/160))drawMinimap();}requestAnimationFrame(animationFrame)}
-function openSpell(token){if(pendingToken)return;pendingToken=token;spellTarget.textContent=token.word;spellInput.value='';spellFeedback.textContent='';spellOverlay.classList.remove('hidden');keys=Object.create(null);buttonActions.clear();setTimeout(()=>spellInput.focus(),40);message.textContent='Spell '+token.word+' to collect it.'}
-function checkSpelling(){if(!pendingToken)return;const typed=spellInput.value.trim().toUpperCase();if(typed===pendingToken.word){const word=pendingToken.word;spellFeedback.style.color='#15803d';spellFeedback.textContent='Correct!';beep(720,.13);pendingToken=null;setTimeout(()=>{collected[word]=true;spellOverlay.classList.add('hidden');updateUI();drawMinimap();message.textContent=allWordsCollected()?'🔓 The exterior exit is open! Walk through the doorway and outside!':'Excellent! Word collected. Keep exploring!';},260)}else{spellFeedback.style.color='#dc2626';spellFeedback.textContent='Try again. Look carefully at the word.';beep(180,.12);spellInput.select()}}
+function openSpell(token){
+ if(pendingToken||defeatingMonster)return;
+ pendingToken=token;
+ const panel=document.getElementById('monsterBattle');
+ panel.dataset.theme=selectedTheme;panel.classList.remove('monster-defeated');
+ panel.querySelector('.monster-instruction').textContent='Type the word correctly to defeat this monster!';
+ spellTarget.textContent=token.word;spellInput.value='';spellInput.disabled=false;
+ spellFeedback.textContent='';document.getElementById('spellSubmit').disabled=false;
+ spellOverlay.classList.remove('hidden');keys=Object.create(null);buttonActions.clear();
+ setTimeout(()=>{if(pendingToken===token)spellInput.focus()},40);
+ message.textContent='A monster appeared! Spell '+token.word+' to defeat it.';
+}
+function checkSpelling(){
+ if(!pendingToken||defeatingMonster)return;
+ const typed=spellInput.value.trim().toUpperCase();
+ if(typed===pendingToken.word){
+  const token=pendingToken,word=token.word;
+  defeatingMonster=true;spellInput.disabled=true;document.getElementById('spellSubmit').disabled=true;
+  token.defeatedAt=performance.now();collected[word]=true;
+  const battle=document.getElementById('monsterBattle');battle.classList.add('monster-defeated');
+  battle.querySelector('.monster-instruction').textContent='You defeated the monster!';
+  spellFeedback.style.color='#15803d';spellFeedback.textContent='Correct! Monster defeated! ✨';
+  beep(740,.14);updateUI();drawMinimap();
+  monsterDefeatTimer=setTimeout(()=>{
+   if(pendingToken!==token)return;
+   pendingToken=null;defeatingMonster=false;monsterDefeatTimer=null;
+   spellOverlay.classList.add('hidden');battle.classList.remove('monster-defeated');
+   message.textContent=allWordsCollected()?'🔓 All monsters defeated! The exterior exit is open!':'Monster defeated! Find the next monster!';
+  },650);
+ }else{
+  spellFeedback.style.color='#dc2626';spellFeedback.textContent='Not quite! Try the word again — the monster is still here.';
+  beep(180,.12);spellInput.select();
+ }
+}
 function checkExit(){if(finishOpen)return;finishOpen=true;clearInterval(timer);started=false;pauseThemeMusic();beep(900,.3);document.getElementById('winText').textContent='Score: '+(score()+100);winOverlay.classList.remove('hidden');keys=Object.create(null);buttonActions.clear()}
 function startGame(){setupOverlay.classList.add('hidden');started=true;loadTheme(selectedTheme);resetGame();setThemeMusic(selectedTheme,true)}
 function openSetup(){clearInterval(timer);started=false;keys=Object.create(null);buttonActions.clear();pauseThemeMusic();setupOverlay.classList.remove('hidden')}
