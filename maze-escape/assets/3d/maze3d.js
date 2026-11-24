@@ -432,11 +432,12 @@ class Renderer{
    }else for(const f of faces){
     const shade=.9+rand()*.18;
     if(theme==='classic'){const az=this.arcadeZone(c,r,H);this.arcadeWall(m,f,az,wallH,rand,H);this.arcadeStats.walls++;continue;}
-    m.quad(f.a,f.b,f.c,f.d,wallMat,[shade,shade,shade]);
+    const schoolRoomStyle=theme==='school'?this.schoolRoomWallStyle?.(r,c,f.side):null;
+    m.quad(f.a,f.b,f.c,f.d,schoolRoomStyle?.material??wallMat,schoolRoomStyle?.tint??[shade,shade,shade]);
     this.wallTrim(m,f,theme,wallH);
     const chance=rand();
     if(theme==='school'){
-      if(chance<(H<=17?.45:H<=25?.36:.26))this.schoolWallDecoration(m,f,wallH,rand);
+      if(!schoolRoomStyle && chance<(H<=17?.45:H<=25?.36:.26))this.schoolWallDecoration(m,f,wallH,rand);
     }else if(theme==='castle'){
       // Keep the largest mazes comfortable on school computers.
       // The marble architecture remains on all walls; ornate props use a
@@ -1115,8 +1116,8 @@ class Renderer{
     const p=[at(u0,y0,d0),at(u1,y0,d0),at(u1,y1,d0),at(u0,y1,d0),at(u0,y0,d1),at(u1,y0,d1),at(u1,y1,d1),at(u0,y1,d1)];
     for(const [a,bb,c,d] of [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]])m.quad(p[a],p[bb],p[c],p[d],mat,tint,emit);
    };
-   b(-.342,.045,-.065,.342,1.94,.05,6,[.66,.88,1]);
-   b(-.291,.53,-.073,.291,1.84,-.065,5,[.64,.79,.99],.03);
+   b(-.342,.045,-.065,.342,1.94,.05,6,[1.04,.80,.59]);
+   b(-.291,.53,-.073,.291,1.84,-.065,5,[1.06,.87,.67],.03);
    b(-.342,.53,-.085,-.285,1.84,-.06,5,[.77,.84,.96]);
    b(.285,.53,-.085,.342,1.84,-.06,5,[.77,.84,.96]);
    b(-.342,1.82,-.09,.342,1.94,-.06,6,[.89,1.01,1.08]);
