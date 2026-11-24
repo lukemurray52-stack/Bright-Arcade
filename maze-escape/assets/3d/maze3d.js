@@ -324,6 +324,7 @@ class Renderer{
   // Carve only Arcade and only REMOVE walls: no previously reachable cell becomes blocked.
   // Idempotent on door-unlock redraws and deterministic per difficulty.
   if(theme==='classic')this.arcadeCarvePlazas(maze,s);
+  if(theme==='school'&&window.__schoolWorldLayout && window.__schoolWorldLayout.maze===maze)this.schoolLayout=window.__schoolWorldLayout;
   this.wallHeight=wallH;this.size=H;this.smoothUnlock=s.unlocked?1:0;
   const m=new Mesh(),rand=seedRand(H*11471+theme.split('').reduce((n,c)=>n+c.charCodeAt(0),0));
   if(theme==='castle')this.castleStats={walls:0,torches:0,paintings:0,statues:0,shields:0,swords:0,arches:0,banners:0,vaults:0,paintingIds:[],paintingLocations:[]};
@@ -394,11 +395,11 @@ class Renderer{
     const zone=theme==='jungle'?this.jungleZone(c,r,H):theme==='classic'?this.arcadeZone(c,r,H):-1;
     const material=theme==='classic'?50+zone:1;
     const tone=theme==='jungle'?[[1.03,1.01,.97],[1.10,1.055,.95],[1.08,1.065,1.01],[.99,1.00,.96],[1.13,1.08,1.00]][zone]:theme==='classic'?[[1.05,1.05,1.13],[1.12,.99,1.04],[1.14,1.09,.85],[.87,.95,1.06],[.95,.91,1.16]][zone]:[1,1,1];
-    m.plane(c,r,c+1,r+1,.007,material,[v*tone[0],v*tone[1],v*tone[2]]);
-    if(theme!=='jungle'&&t.roof)m.plane(c,r,c+1,r+1,wallH+.06,theme==='classic'&&zone===3?13:3,theme==='school'?[1.07,1.09,1.09]:theme==='castle'?[1.10,1.07,1.00]:theme==='classic'?[1.05,1.05,1.1]:[.89,.92,1]);
+    m.plane(c,r,c+1,r+1,.007,material,theme==='school'&&this.schoolFloorTint?.(r,c)?this.schoolFloorTint(r,c):[v*tone[0],v*tone[1],v*tone[2]]);
+    if(theme!=='jungle'&&t.roof&&!(theme==='school'&&this.schoolIsOutdoor?.(r,c)))m.plane(c,r,c+1,r+1,wallH+.06,theme==='classic'&&zone===3?13:3,theme==='school'?[1.07,1.09,1.09]:theme==='castle'?[1.10,1.07,1.00]:theme==='classic'?[1.05,1.05,1.1]:[.89,.92,1]);
     if(theme==='classic'){this.arcadeStats.zones[zone]++;this.arcadeFloor(m,c,r,zone,rand,wallH);if(!this.arcadeInsidePlaza(c,r) && (r*7+c*13)%(H>=33?7:H>=25?5:3)===1)this.arcadeCeiling(m,c,r,zone,rand,wallH);
       if(r>0&&c>0&&r<H-1&&c<H-1){const ns=open(r-1,c)&&open(r+1,c)&&!open(r,c-1)&&!open(r,c+1);const ew=open(r,c-1)&&open(r,c+1)&&!open(r-1,c)&&!open(r+1,c);if((ns||ew)&&((r*7+c*13)%(H>=33?17:H>=25?13:9)===0)){this.arcadeArch(m,c,r,zone,wallH,ns);this.arcadeStats.arches++;}}}
-    if(theme==='school'&&(r+c)%5===1)this.schoolCeilingLight(m,c,r,wallH);
+    if(theme==='school'&&(r+c)%5===1&&!this.schoolIsOutdoor?.(r,c))this.schoolCeilingLight(m,c,r,wallH);
     if(theme==='castle'&&r>0&&c>0&&r<H-1&&c<H-1){
       const ns=open(r-1,c)&&open(r+1,c)&&!open(r,c-1)&&!open(r,c+1);
       const ew=open(r,c-1)&&open(r,c+1)&&!open(r-1,c)&&!open(r+1,c);
@@ -483,6 +484,7 @@ class Renderer{
       this.arcadeStats.plazas++;
     }
   }
+  if(theme==='school')this.schoolWorldGeometry?.(m,s,wallH);
   if(theme==='classic')this.buildArcadeExit(m,s,wallH);else if(theme==='school')this.buildSchoolExit(m,s,wallH);else if(theme==='jungle')this.buildJungleExit(m,s,wallH,rand);else if(theme==='castle')this.buildCastleExit(m,s,wallH);else this.buildGateArch(m,s,t,wallH);
   // Exterior path and scenery deliberately aligned with the perimeter gateway.
   this.buildOutside(m,s,t,theme,rand);
@@ -1101,7 +1103,7 @@ class Renderer{
    this.gateBox(m,s,-.355,2.20,-.28,.355,2.415,-.249,12,[1.18,1.15,1.1],.52);
    this.gateBox(m,s,-.5,0,-.17,.5,.046,.28,1,[1,1,1]);
    // Modern sidelights and the outdoor view beyond the door.
-   this.gateBox(m,s,-.335,.16,.15,.335,1.92,.17,11,[.88,.96,1]);
+   this.gateBox(m,s,-.335,.16,.15,.335,1.92,.17,5,[.65,.77,1.05]);
    this.gateBox(m,s,-.11,.15,.19,-.08,1.92,.20,2,[1,1,1]);
  }
  makeSchoolExitDoor(s,openness){
@@ -1114,9 +1116,9 @@ class Renderer{
     for(const [a,bb,c,d] of [[0,1,2,3],[5,4,7,6],[4,0,3,7],[1,5,6,2],[3,2,6,7],[4,5,1,0]])m.quad(p[a],p[bb],p[c],p[d],mat,tint,emit);
    };
    b(-.342,.045,-.065,.342,1.94,.05,6,[.66,.88,1]);
-   b(-.291,.53,-.073,.291,1.84,-.065,11,[.99,1.04,1.09],.09);
-   b(-.342,.53,-.085,-.285,1.84,-.06,6,[.89,1.01,1.08]);
-   b(.285,.53,-.085,.342,1.84,-.06,6,[.89,1.01,1.08]);
+   b(-.291,.53,-.073,.291,1.84,-.065,5,[.64,.79,.99],.03);
+   b(-.342,.53,-.085,-.285,1.84,-.06,5,[.77,.84,.96]);
+   b(.285,.53,-.085,.342,1.84,-.06,5,[.77,.84,.96]);
    b(-.342,1.82,-.09,.342,1.94,-.06,6,[.89,1.01,1.08]);
    b(-.342,.48,-.087,.342,.56,-.06,6,[.89,1.01,1.08]);
    b(.19,.90,-.13,.262,1.04,-.08,7,[.9,.9,.82],.35);
