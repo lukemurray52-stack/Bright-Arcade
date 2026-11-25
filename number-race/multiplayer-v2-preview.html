@@ -1802,6 +1802,8 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
  const getId=x=>document.getElementById(x);
  const spButton=getId('nrSpMode'),mpButton=getId('nrMpMode');
  const entry=getId('nrMpEntry'),lobby=getId('nrMpLobby'),msg=getId('nrMpMessage'),list=getId('nrMpPlayers');
+ const liveBoard=document.createElement('section');liveBoard.id='nrMpLiveLeaderboard';liveBoard.className='nr-mp-board nr-mp-live-board';liveBoard.hidden=true;liveBoard.setAttribute('aria-label','Live race finish order');document.getElementById('canvasWrap').appendChild(liveBoard);
+ const finalBoard=document.createElement('section');finalBoard.id='nrMpFinalLeaderboard';finalBoard.className='nr-mp-board nr-mp-final-board';finalBoard.hidden=true;finalBoard.setAttribute('aria-live','polite');document.getElementById('resultDetails').insertAdjacentElement('afterend',finalBoard);
  const roomTag=document.createElement('div');roomTag.className='nr-mp-race-status';roomTag.hidden=true;
  roomTag.id='nrMpRaceStatus';document.getElementById('canvasWrap').appendChild(roomTag);
  const say=t=>{msg.textContent=t||''};
@@ -1818,7 +1820,20 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   mpButton.setAttribute('aria-pressed',String(next==='multi'));
   say('');
  }
- spButton.onclick=()=>showMode('single');mpButton.onclick=()=>showMode('multi');
+ spButton.onclick=()=>showMode('single');mpButton.onclick=()=>showMode('multi');selector.hidden=true;
+ const modeOptions=getId('nrModeOptions');
+ function selectMultiplayerPath(which){
+  showMode('multi');
+  panel.querySelector('h3').textContent=which==='create'?'Create your race':'Join a race';
+  getId('nrMpCreate').hidden=which!=='create';
+  getId('nrMpCode').hidden=which!=='join';
+  getId('nrMpJoin').hidden=which!=='join';
+  showScreen(setupScreen);
+ }
+ getId('nrModeSingle').onclick=()=>{modeOptions.hidden=true;getId('nrModeMulti').classList.remove('selected');showMode('single');showScreen(setupScreen)};
+ getId('nrModeMulti').onclick=()=>{modeOptions.hidden=false;getId('nrModeMulti').classList.add('selected')};
+ getId('nrModeCreate').onclick=()=>selectMultiplayerPath('create');
+ getId('nrModeJoin').onclick=()=>selectMultiplayerPath('join');
  async function connectFirebase(){
   if(firebase)return;
   if(connecting){while(connecting)await new Promise(r=>setTimeout(r,60));if(firebase)return}
@@ -1950,24 +1965,73 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    `${players.length} of ${MAX} human racers • ${difficultyOptions[lobbyDiff].label} (${difficultyDigitCounts[lobbyDiff]} digit) • ${operationOptions[lobbyOperation].label}. ${host?'Choose the maths settings below, then start when everyone is ready.':'The host chooses the maths settings.'}`:
    room.status==='racing'?'Race starting…':'Race finished';
  }
+ 
+ function fixedRoster(){
+  const snapshot=room?.settings?.raceRoster;
+  const list=Array.isArray(snapshot)&&snapshot.length?snapshot:orderedPlayers(room?.players).map(([uid,p])=>({uid,name:p.name,car:room?.settings?.carAssignments?.[uid]}));
+  return list.filter(p=>p&&typeof p.uid==='string').slice(0,MAX).map(p=>({uid:p.uid,name:String(p.name||'Racer').slice(0,18),car:p.car}));
+ }
+ function sharedFinishers(){
+  const states=room?.states||{};
+  return fixedRoster().map(p=>({...p,finished:states[p.uid]?.finished===true,at:Number(states[p.uid]?.finishedAt)}))
+   .filter(p=>p.finished&&Number.isFinite(p.at)&&p.at>0)
+   .sort((a,b)=>a.at-b.at||a.uid.localeCompare(b.uid));
+ }
+ function trophyElement(position){
+  if(position>3)return null;
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');
+  svg.setAttribute('role','img');svg.setAttribute('aria-label',position===1?'Gold trophy':position===2?'Silver trophy':'Bronze trophy');
+  svg.classList.add('nr-mp-trophy',position===1?'gold':position===2?'silver':'bronze');
+  const shape=document.createElementNS('http://www.w3.org/2000/svg','path');
+  shape.setAttribute('d','M7 3h10v5c0 3.6-1.7 5.8-5 6.4C8.7 13.8 7 11.6 7 8V3ZM7 5H4v2c0 3.2 1.4 4.6 4.8 4.9M17 5h3v2c0 3.2-1.4 4.6-4.8 4.9M12 14v5M8 21h8M9 19h6');
+  shape.setAttribute('stroke','currentColor');shape.setAttribute('stroke-width','2');shape.setAttribute('stroke-linejoin','round');shape.setAttribute('stroke-linecap','round');shape.setAttribute('fill','none');svg.append(shape);return svg;
+ }
+ function populateLeaderboard(container,finishers,roster){
+  container.textContent='';
+  const header=document.createElement('h3');header.textContent='🏁 Finishing Order';container.append(header);
+  for(let index=0;index<MAX;index++){
+   const winner=finishers[index],row=document.createElement('div');
+   row.className='nr-mp-rank'+(winner?.uid===user?.uid?' mine':'');
+   const place=document.createElement('span');place.className='nr-mp-place';
+   const icon=trophyElement(index+1);if(icon)place.append(icon);
+   const pos=document.createElement('span');pos.textContent=ordinal(index+1);place.append(pos);
+   const name=document.createElement('span');name.className='nr-mp-rank-name';name.textContent=winner?.name||(index<roster.length?'Waiting for finish…':'—');
+   const status=document.createElement('span');status.className='nr-mp-rank-status';status.textContent=winner?'✓':'';
+   row.append(place,name,status);container.append(row);
+  }
+ }
+ function renderStandings(){
+  if(!joined||!started||!room)return;
+  const roster=fixedRoster(),finishers=sharedFinishers();
+  liveBoard.hidden=false;finalBoard.hidden=false;
+  populateLeaderboard(liveBoard,finishers,roster);
+  populateLeaderboard(finalBoard,finishers,roster);
+  const ix=finishers.findIndex(p=>p.uid===user?.uid),position=ix<0?0:ix+1;
+  window.NR_SHARED_PLACE=position;
+  if(resultScreen.classList.contains('active')){
+   resultTitle.textContent=position===1?'YOU WIN!':'RACE COMPLETE';
+   placeBadge.textContent=position?ordinal(position).toUpperCase()+' PLACE':'POSITION PENDING';
+   resultScreen.dataset.podium=position===1?'gold':position===2?'silver':position===3?'bronze':'finish';
+  }
+ }
  function remoteCarsUpdate(){
   if(!joined||!started||!room||!player)return;
-  const participants=orderedPlayers(room.players).filter(([uid])=>uid!==user.uid).slice(0,MAX-1);
+  const roster=fixedRoster();const participants=roster.filter(p=>p.uid!==user.uid).slice(0,MAX-1).map(p=>[p.uid,p]);
   const claims=room.settings?.carAssignments||{};
-  const fullRoster=orderedPlayers(room.players).map(([uid])=>uid);
+  const fullRoster=roster.map(p=>p.uid);
   const existing=new Map(cars.filter(c=>c.remote).map(c=>[c.remoteUid,c]));
   const fresh=[player];
   for(let i=0;i<participants.length;i++){
    const [uid,entry]=participants[i],st=room.states&&room.states[uid];
    let c=existing.get(uid);
    if(!c){const slot=fullRoster.indexOf(uid);c=makeCar(i+1,slot%3,st?.z??Math.floor(slot/3)*6.8,56,claims[uid]||'rocket');c.remote=true;c.remoteUid=uid;c.speed=0;c.x=st?.x??laneCenters[slot%3];c.z=st?.z??Math.floor(slot/3)*6.8}
-   c.asset=carFiles.includes(claims[uid])?claims[uid]:'rocket';
+   c.asset=carFiles.includes(claims[uid])?claims[uid]:'rocket';c.name=String(entry.name||'Racer').slice(0,18);
    if(st&&Number.isFinite(st.x)&&Number.isFinite(st.z)){
     const dx=st.x-c.x,dz=st.z-c.z;
     c.x+=dx*.3;c.z+=dz*.3;
     c.speed=Number(st.speed)||0;c.steer=Number(st.steer)||0;
     c.yawRel=Number(st.yawRel)||0;c.wheelSpin=(c.wheelSpin||0)+c.speed*.016/.45;
-    if(st.finished){c.z=raceLength;c.finished=true}
+    if(st.finished){c.z=raceLength;c.finished=true}else c.finished=false
    }
    fresh.push(c)
   }
@@ -1989,7 +2053,9 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   const slot=orderedPlayers(room.players).findIndex(([uid])=>uid===user.uid);
   player.x=laneCenters[Math.max(0,slot)%3];player.lane=Math.max(0,slot)%3;
   player.z=Math.floor(Math.max(0,slot)/3)*6.8;
-  remoteCarsUpdate();
+  player.name=fixedRoster().find(p=>p.uid===user.uid)?.name||nickname()||'Racer';
+  firebase.update(firebase.ref(db,roomPath()+'/states/'+user.uid),{x:player.x,z:player.z,finished:false,finishedAt:null}).catch(()=>{});
+  remoteCarsUpdate();renderStandings();
   roomTag.hidden=false;roomTag.textContent='MULTIPLAYER  •  '+code;
   pauseBtn.disabled=true;
   say('');
@@ -2003,7 +2069,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    }
    room=snap.val();
    if(!room.players||!room.players[user.uid]){if(joined){say('You are no longer in the room.');releaseRoom(false)}return}
-   syncLobby();remoteCarsUpdate();
+   syncLobby();remoteCarsUpdate();renderStandings();
    if(host&&room.status==='lobby')reconcileAssignments();
    if(room.status==='racing')beginNetworkRace().catch(e=>say(e.message));
   },e=>say('Unable to read room: '+e.message));
@@ -2066,7 +2132,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   try{
    const questions=Array.from({length:totalGates},()=>makeQuestion());
    await firebase.update(firebase.ref(db,roomPath()+'/settings'),{
-    numbers:difficultyDigitCounts[selectedDifficulty],operation:selectedOperation,difficulty:selectedDifficulty,questions});
+    numbers:difficultyDigitCounts[selectedDifficulty],operation:selectedOperation,difficulty:selectedDifficulty,questions,raceRoster:players.map(([uid,p])=>({uid,name:String(p.name||'Racer').slice(0,18),car:claims[uid]}))});
    await firebase.set(firebase.ref(db,roomPath()+'/startAt'),Date.now());
    await firebase.set(firebase.ref(db,roomPath()+'/status'),'racing');
   }catch(e){say('Could not start: '+e.message)}
@@ -2081,13 +2147,13 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    try{if(owner){await firebase.remove(firebase.ref(db,ROOT+'/'+current))}
        else await firebase.remove(firebase.ref(db,ROOT+'/'+current+'/players/'+user.uid))}catch(e){}
   }
-  entry.hidden=false;lobby.hidden=true;roomTag.hidden=true;
+  entry.hidden=false;lobby.hidden=true;roomTag.hidden=true;liveBoard.hidden=true;finalBoard.hidden=true;window.NR_SHARED_PLACE=0;
   document.body.classList.remove('nr-mp-racing','nr-mp-guest');
   pauseBtn.disabled=false;window.nrQuestions=null;
  }
  async function leaveRoom(){
   if(raceActive){leaveRace();}
-  await releaseRoom();say('Left the race room.');
+  await releaseRoom();showScreen(modeScreen);say('Left the race room.');
  }
  getId('nrMpCreate').onclick=createRoom;getId('nrMpJoin').onclick=joinRoom;
  getId('nrMpReady').onclick=readyToggle;getId('nrMpStart').onclick=startMultiplayer;
@@ -2127,7 +2193,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
  resultSettingsBtn.onclick=()=>{if(joined){leaveRoom()}else originalResultSettings?.()};
  // Single-player car selection is intentionally separate from the multiplayer
  // lobby. Multiplayer cars are reserved through host-controlled transactions.
- window.NumberRaceMultiplayer={getStatus:()=>({mode,joined,code,host,players:Object.keys(room?.players||{}).length,status:room?.status||'idle',cars:room?.settings?.carAssignments||{}}),_testAssignments:calculateAssignments};
+ window.NumberRaceMultiplayer={getStatus:()=>({mode,joined,code,host,players:Object.keys(room?.players||{}).length,status:room?.status||'idle',cars:room?.settings?.carAssignments||{},finishOrder:sharedFinishers().map(p=>p.name)}),_testAssignments:calculateAssignments,_testStandings:(roster,states)=>roster.map(p=>({...p,at:Number(states[p.uid]?.finishedAt),finished:states[p.uid]?.finished===true})).filter(p=>p.finished&&Number.isFinite(p.at)&&p.at>0).sort((a,b)=>a.at-b.at||a.uid.localeCompare(b.uid))};
 })();
 
 </script>
