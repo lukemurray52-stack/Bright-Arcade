@@ -2171,19 +2171,19 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   if(joined&&started&&raceActive&&room&&room.status==='racing'&&now-lastTx>190){
    lastTx=now;
    const local={x:Math.round(player.x*1000)/1000,z:Math.round(player.z*100)/100,speed:Math.round(player.speed*100)/100,
-    updatedAt:Date.now(),steer:player.steer||0,yawRel:player.yawRel||0,score,correct,finished:false};
-   firebase.set(firebase.ref(db,roomPath()+'/states/'+user.uid),local).catch(()=>{});
+    updatedAt:firebase.serverTimestamp(),steer:player.steer||0,yawRel:player.yawRel||0,score,correct};
+   firebase.update(firebase.ref(db,roomPath()+'/states/'+user.uid),local).catch(()=>{});
   }
   basicLoop(now);
  };
  const basicFinish=finishRace;
  finishRace=function(){
   if(joined&&started&&room&&room.status==='racing'&&player){
-   firebase.set(firebase.ref(db,roomPath()+'/states/'+user.uid),{
-    x:player.x,z:raceLength,speed:0,updatedAt:Date.now(),score,correct,finished:true
-   }).catch(()=>{});
+   firebase.update(firebase.ref(db,roomPath()+'/states/'+user.uid),{
+    x:player.x,z:raceLength,speed:0,updatedAt:firebase.serverTimestamp(),score,correct,finished:true,finishedAt:firebase.serverTimestamp()
+   }).catch(e=>say('Could not record finish: '+e.message));
   }
-  basicFinish();
+  basicFinish();if(joined&&started)renderStandings();
  };
  const originalSettingsClick=settingsBtn.onclick;
  settingsBtn.onclick=()=>{if(joined){leaveRoom()}else originalSettingsClick?.()};
