@@ -478,6 +478,9 @@ body.nr-mp-racing #pauseBtn{opacity:.35;pointer-events:none}
 /* Multiplayer: unique liveries, claimed by the host in Firebase. */
 body.nr-mp-setup #setupScreen .car-select-section{display:none!important}
 body.nr-mp-guest #setupScreen .setup-section:not(.car-select-section),body.nr-mp-guest #setupScreen .nr-setup-heading{display:none!important}
+body.nr-mp-join #setupScreen .setup-section,body.nr-mp-join #setupScreen .nr-setup-heading,body.nr-mp-join #setupScreen .instructions{display:none!important}
+body.nr-mp-join #setupScreen .nr-mp-panel{padding-top:28px}
+body.nr-mp-join #setupScreen .nr-mp-panel h3{font-size:clamp(2rem,4vw,3.2rem)}
 .nr-mp-car-section{max-width:710px;margin:16px auto 18px;text-align:left}
 .nr-mp-car-heading{color:#134a78;font:800 1.04rem Fredoka,sans-serif;margin:0 0 9px;text-align:center}
 .nr-mp-cars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
@@ -1796,7 +1799,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   <div class="nr-mp-fields" id="nrMpEntry"><input id="nrMpName" maxlength="18" placeholder="Your nickname" aria-label="Your nickname" autocomplete="off"><button id="nrMpCreate" type="button" class="nr-mp-action">Create Race</button><input id="nrMpCode" class="nr-mp-code" maxlength="4" placeholder="CODE" aria-label="Four-character race code" autocomplete="off"><button id="nrMpJoin" type="button" class="nr-mp-action secondary">Join Race</button></div>
   <div class="nr-mp-lobby" id="nrMpLobby" hidden><div>ROOM CODE</div><div class="nr-mp-code-display"><strong id="nrMpRoomCode">----</strong><button class="nr-mp-action secondary" type="button" id="nrMpCopy">Copy</button></div>
   <p id="nrMpLobbyHelp">Waiting for players…</p><div class="nr-mp-playerlist" id="nrMpPlayers"></div><section class="nr-mp-car-section" aria-label="Your multiplayer car"><h4 class="nr-mp-car-heading">Choose your car colour</h4><div class="nr-mp-cars" id="nrMpCarChoices"></div><p class="nr-mp-car-note" id="nrMpCarHelp">Each colour belongs to one player only. Taken cars are unavailable.</p></section>
-  <div class="nr-mp-lobby-actions"><button type="button" class="nr-mp-action" id="nrMpReady">I'm Ready</button><button type="button" class="nr-mp-action" id="nrMpStart" hidden>Start Race</button><button type="button" class="nr-mp-action secondary" id="nrMpLeave">Leave Room</button></div></div>
+  <div class="nr-mp-lobby-actions"><button type="button" class="nr-mp-action" id="nrMpStart" hidden>Start Race</button><button type="button" class="nr-mp-action secondary" id="nrMpLeave">Leave Room</button></div></div>
   <p id="nrMpMessage" class="nr-mp-message" role="status" aria-live="polite"></p>`;
  selector.insertAdjacentElement('afterend',panel);
  const getId=x=>document.getElementById(x);
@@ -1815,7 +1818,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
  function showMode(next){
   if(mode===next)return;
   if(joined){say('Leave your current race room before changing modes.');return}
-  mode=next;panel.hidden=next!=='multi';document.body.classList.toggle('nr-mp-setup',next==='multi');startRaceBtn.hidden=next==='multi';startRaceBtn.style.display=next==='multi'?'none':'';
+  mode=next;panel.hidden=next!=='multi';if(next==='single')document.body.classList.remove('nr-mp-join');document.body.classList.toggle('nr-mp-setup',next==='multi');startRaceBtn.hidden=next==='multi';startRaceBtn.style.display=next==='multi'?'none':'';
   spButton.setAttribute('aria-pressed',String(next==='single'));
   mpButton.setAttribute('aria-pressed',String(next==='multi'));
   say('');
@@ -1823,7 +1826,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
  spButton.onclick=()=>showMode('single');mpButton.onclick=()=>showMode('multi');selector.hidden=true;
  const modeOptions=getId('nrModeOptions');
  function selectMultiplayerPath(which){
-  showMode('multi');
+  showMode('multi');document.body.classList.toggle('nr-mp-join',which==='join');
   panel.querySelector('h3').textContent=which==='create'?'Create your race':'Join a race';
   getId('nrMpCreate').hidden=which!=='create';
   getId('nrMpCode').hidden=which!=='join';
@@ -1933,7 +1936,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    say(colourNames[car]+' is already taken. Choose an available car.');return;
   }
   try{
-   await firebase.update(firebase.ref(db,roomPath()+'/players/'+user.uid),{carRequest:car,carRequestNonce:Date.now().toString(36)+Math.random().toString(36).slice(2,7),ready:false});
+   await firebase.update(firebase.ref(db,roomPath()+'/players/'+user.uid),{carRequest:car,carRequestNonce:Date.now().toString(36)+Math.random().toString(36).slice(2,7)});
    say('Requesting '+colourNames[car]+'…');
   }catch(e){say('Could not choose this colour: '+e.message)}
  }
@@ -1943,26 +1946,24 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   list.textContent='';
   for(const [uid,p] of players){
    const car=claims[uid];
-   const item=document.createElement('div');item.className='nr-mp-player'+(p.ready?' ready':'');
+   const item=document.createElement('div');item.className='nr-mp-player';
    const name=document.createElement('span');
    const swatch=document.createElement('span');swatch.className='nr-mp-swatch';swatch.style.background=(carColors[car]||['#cbd5e1'])[0];
    name.append(swatch,document.createTextNode((p.name||'Player')+(uid===room.hostUid?' 👑':'')));
-   const desc=document.createElement('small');desc.textContent=(colourNames[car]||'Choosing colour')+' · '+(p.ready?'✓ Ready':'Not ready');
+   const desc=document.createElement('small');desc.textContent=colourNames[car]||'Choosing colour';
    item.append(name,desc);list.appendChild(item);
   }
   renderLobbyCars();
   getId('nrMpRoomCode').textContent=code;
-  getId('nrMpReady').textContent=mine?.ready?'✓ Ready':'I’m Ready';
-  getId('nrMpReady').disabled=!mine||!claims[user.uid]||room.status!=='lobby';
   const picked=players.map(([uid])=>claims[uid]);
   const unique=picked.length===new Set(picked).size&&picked.every(id=>carFiles.includes(id));
-  const canStart=host&&players.length>=2&&players.length<=MAX&&unique&&players.every(([_,p])=>p.ready)&&room.status==='lobby';
+  const canStart=host&&players.length>=2&&players.length<=MAX&&unique&&room.status==='lobby';
   getId('nrMpStart').hidden=!host;
   getId('nrMpStart').disabled=!canStart;
   const lobbyDiff=difficultyOptions[room.settings?.difficulty]?room.settings.difficulty:selectedDifficulty;
   const lobbyOperation=operationOptions[room.settings?.operation]?room.settings.operation:selectedOperation;
   getId('nrMpLobbyHelp').textContent=room.status==='lobby'?
-   `${players.length} of ${MAX} human racers • ${difficultyOptions[lobbyDiff].label} (${difficultyDigitCounts[lobbyDiff]} digit) • ${operationOptions[lobbyOperation].label}. ${host?'Choose the maths settings below, then start when everyone is ready.':'The host chooses the maths settings.'}`:
+   `${players.length} of ${MAX} human racers • ${difficultyOptions[lobbyDiff].label} (${difficultyDigitCounts[lobbyDiff]} digit) • ${operationOptions[lobbyOperation].label}. ${host?'Choose the maths settings below. You can start as soon as two or more players have unique cars.':'The host chooses the maths settings.'}`:
    room.status==='racing'?'Race starting…':'Race finished';
  }
  
@@ -2114,21 +2115,15 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   const value=getId('nrMpCode').value.trim().toUpperCase();
   if(!/^[A-HJ-KM-NP-Z2-9]{4}$/.test(value)){say('Enter a valid four-character code.');return}
   say('Joining…');
-  try{await connectFirebase();await enterRoom(value,false);say('Joined '+value+'. Select Ready when you are set.');}
+  try{await connectFirebase();await enterRoom(value,false);say('Joined '+value+'. Choose your car and wait for the host to start.');}
   catch(e){say('Could not join race: '+e.message)}
- }
- async function readyToggle(){
-  if(!joined||!room)return;
-  const r=firebase.ref(db,roomPath()+'/players/'+user.uid+'/ready');
-  const isReady=!!room.players[user.uid].ready;
-  try{await firebase.set(r,!isReady)}catch(e){say('Could not update ready status: '+e.message)}
  }
  async function startMultiplayer(){
   if(!host||!joined||!room||room.status!=='lobby')return;
    const players=orderedPlayers(room.players),claims=room.settings?.carAssignments||{};
    const assigned=players.map(([uid])=>claims[uid]);
    const unique=assigned.length===new Set(assigned).size&&assigned.every(id=>carFiles.includes(id));
-   if(players.length<2||players.length>MAX||!unique||players.some(([_,p])=>!p.ready)){say('Every player needs a unique car colour and must be ready before starting.');return}
+   if(players.length<2||players.length>MAX||!unique){say('At least two players must join, and each must have a unique car colour.');return}
   try{
    const questions=Array.from({length:totalGates},()=>makeQuestion());
    await firebase.update(firebase.ref(db,roomPath()+'/settings'),{
@@ -2148,7 +2143,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
        else await firebase.remove(firebase.ref(db,ROOT+'/'+current+'/players/'+user.uid))}catch(e){}
   }
   entry.hidden=false;lobby.hidden=true;roomTag.hidden=true;liveBoard.hidden=true;finalBoard.hidden=true;window.NR_SHARED_PLACE=0;
-  document.body.classList.remove('nr-mp-racing','nr-mp-guest');
+  document.body.classList.remove('nr-mp-racing','nr-mp-guest','nr-mp-join');
   pauseBtn.disabled=false;window.nrQuestions=null;
  }
  async function leaveRoom(){
@@ -2156,7 +2151,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   await releaseRoom();showScreen(modeScreen);say('Left the race room.');
  }
  getId('nrMpCreate').onclick=createRoom;getId('nrMpJoin').onclick=joinRoom;
- getId('nrMpReady').onclick=readyToggle;getId('nrMpStart').onclick=startMultiplayer;
+ getId('nrMpStart').onclick=startMultiplayer;
  getId('nrMpLeave').onclick=leaveRoom;
  getId('nrMpCopy').onclick=()=>{if(code)navigator.clipboard?.writeText(code).then(()=>say('Room code copied!')).catch(()=>say('Code: '+code))};
  getId('nrMpCode').addEventListener('input',e=>{e.target.value=e.target.value.replace(/[^a-zA-Z2-9]/g,'').toUpperCase().slice(0,4)});
