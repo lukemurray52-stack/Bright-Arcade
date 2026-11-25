@@ -493,7 +493,11 @@ body.nr-mp-guest #setupScreen .setup-section:not(.car-select-section),body.nr-mp
 .nr-mp-swatch{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #ffffff;box-shadow:0 0 0 1px #163c5552;margin-right:5px;vertical-align:-1px}
 @media(max-width:590px){.nr-mp-cars{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.nr-mp-car{min-height:90px}.nr-mp-car img{height:49px}}
 </style>
-</head>
+<style id="nrMpV2Styles">
+.nr-mode-screen{padding:34px 18px 50px}.nr-mode-shell{max-width:820px;margin:auto;text-align:center}.nr-mode-shell .nr-back{display:block}.nr-mode-shell h2{font:900 clamp(2.25rem,5vw,4rem) Fredoka,sans-serif;color:#104e83;margin:28px 0}.nr-mode-kicker{font:800 .8rem Fredoka,sans-serif;color:#3579a7;letter-spacing:.11em}.nr-mode-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.nr-mode-choice{display:flex;align-items:center;flex-direction:column;gap:10px;background:linear-gradient(155deg,#fff,#eaf8ff);color:#154e7f;border:2px solid #c7e4fa;border-radius:22px;padding:24px 12px;font:800 2.7rem Fredoka,sans-serif;cursor:pointer}.nr-mode-choice strong{font-size:1.65rem}.nr-mode-choice span{font-size:.82rem}.nr-mode-choice:hover,.nr-mode-choice.selected{border-color:#2989df;box-shadow:0 8px 20px #2779c321}.nr-mode-actions{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:24px}.nr-mode-actions[hidden],.nr-mp-board[hidden],.nr-mp-fields [hidden]{display:none!important}.nr-mode-actions button{min-width:170px}#setupScreen .nr-mp-switch{display:none!important}
+.nr-mp-board{background:#f6fbfff0;border:1px solid #c0e1f9;border-radius:15px;box-shadow:0 8px 22px #14578b25;padding:9px;color:#154a78}.nr-mp-board h3{font:900 .98rem Fredoka,sans-serif;text-align:center;margin:2px 0 8px}.nr-mp-rank{display:grid;grid-template-columns:46px 1fr 18px;gap:6px;align-items:center;padding:4px 7px;min-height:33px;border-radius:8px;font:750 .8rem Fredoka,sans-serif}.nr-mp-rank:nth-child(odd){background:#e6f3ff}.nr-mp-rank.mine{outline:2px solid #6db8e9}.nr-mp-place{display:flex;align-items:center;gap:3px}.nr-mp-rank-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nr-mp-trophy{width:18px;height:18px;flex-shrink:0}.nr-mp-trophy.gold{color:#d6a11a}.nr-mp-trophy.silver{color:#8b9da9}.nr-mp-trophy.bronze{color:#bb7540}.nr-mp-live-board{position:absolute;z-index:12;right:9px;top:58px;width:200px;pointer-events:none}.nr-mp-final-board{margin:18px auto 0;width:min(540px,100%);text-align:left;padding:15px}.nr-mp-final-board .nr-mp-rank{min-height:43px;font-size:.93rem}#resultScreen[data-podium="finish"] .nr-finish-art{opacity:.33}
+@media(max-width:680px){.nr-mode-choices{grid-template-columns:1fr}.nr-mode-choice{padding:15px}.nr-mp-live-board{top:7px;right:6px;width:155px;padding:5px}.nr-mp-live-board .nr-mp-rank{grid-template-columns:37px 1fr;gap:3px;padding:3px;font-size:.68rem}.nr-mp-live-board .nr-mp-rank-status{display:none}}
+</style></head>
 <body class="nr-intro-open">
 <div class="sky-clouds" aria-hidden="true"><div class="cloud one"></div><div class="cloud two"></div><div class="cloud three"></div><div class="cloud four"></div><div class="cloud five"></div></div>
 
@@ -529,7 +533,14 @@ body.nr-mp-guest #setupScreen .setup-section:not(.car-select-section),body.nr-mp
   <button class="sound-toggle" id="soundToggle" type="button">🔊 Racing Sounds On</button>
 </header>
 <main class="main-card">
-<section class="screen active" id="setupScreen">
+<section class="screen nr-mode-screen" id="nrModeScreen">
+<div class="nr-mode-shell"><button type="button" class="nr-back" id="nrModeBack">← Back to Spotlight</button>
+<p class="nr-mode-kicker">BRIGHT ARCADE · NUMBER RACE</p><h2>How would you like to race?</h2>
+<div class="nr-mode-choices">
+<button type="button" id="nrModeSingle" class="nr-mode-choice">🏎️ <strong>Single Player</strong><span>Race against computer drivers</span></button>
+<button type="button" id="nrModeMulti" class="nr-mode-choice">🏁 <strong>Multiplayer</strong><span>Race with 2–6 players</span></button></div>
+<div class="nr-mode-actions" id="nrModeOptions" hidden><button id="nrModeCreate" type="button" class="nr-mp-action">Create Race</button><button id="nrModeJoin" type="button" class="nr-mp-action secondary">Join Race</button></div>
+</div></section><section class="screen active" id="setupScreen">
   <div class="nr-setup-top"><button class="nr-back" type="button" id="nrBackToSpotlight">← Back to Spotlight</button><span class="nr-setup-brand">BRIGHT ARCADE <b>SPOTLIGHT</b></span></div>
   <div class="nr-setup-heading"><span>YOUR RACE STARTS HERE</span><h2>Build your <em>race</em></h2></div>
 
@@ -621,7 +632,7 @@ body.nr-mp-guest #setupScreen .setup-section:not(.car-select-section),body.nr-mp
 /* Number Race 2026: standalone race rules, educational questions, UI and sound.
    3D graphics and precision handling are supplied by the embedded circuit engine. */
 const $=id=>document.getElementById(id);
-const setupScreen=$('setupScreen'),raceScreen=$('raceScreen'),resultScreen=$('resultScreen');
+const setupScreen=$('setupScreen'),raceScreen=$('raceScreen'),resultScreen=$('resultScreen'),modeScreen=$('nrModeScreen');
 const carGrid=$('carGrid'),operationGrid=$('operationGrid'),difficultyGrid=$('difficultyGrid');
 const startRaceBtn=$('startRaceBtn'),soundToggle=$('soundToggle');
 const canvas=$('raceCanvas'),ctx=canvas.getContext('2d'),canvasWrap=$('canvasWrap');
@@ -652,7 +663,7 @@ function rand(a,b){return a+Math.random()*(b-a)}function randInt(a,b){return Mat
 function shuffle(arr){arr=arr.slice();for(let i=arr.length-1;i>0;i--){let j=randInt(0,i);[arr[j],arr[i]]=[arr[i],arr[j]]}return arr}
 function ordinal(n){return n+(n%100>=11&&n%100<=13?'th':n%10===1?'st':n%10===2?'nd':n%10===3?'rd':'th')}
 function save(key,val){try{localStorage.setItem(key,val)}catch(e){}}
-function showScreen(s){[setupScreen,raceScreen,resultScreen].forEach(el=>el.classList.remove('active'));s.classList.add('active');document.body.classList.toggle('nr-results-active',s===resultScreen);window.scrollTo(0,0)}
+function showScreen(s){[modeScreen,setupScreen,raceScreen,resultScreen].forEach(el=>el.classList.remove('active'));s.classList.add('active');document.body.classList.toggle('nr-results-active',s===resultScreen);window.scrollTo(0,0)}
 function buildChoices(el,options,sel,onChoose){el.textContent='';for(const [key,opt] of Object.entries(options)){
   const b=document.createElement('button');b.type='button';b.className='choice-btn'+(String(key)===String(sel)?' selected':'');b.innerHTML=`<strong>${opt.label}</strong><small>${opt.small}</small>`;
   b.addEventListener('click',()=>onChoose(key));el.appendChild(b)
@@ -747,12 +758,12 @@ async function runCountdown(token){startOverlay.classList.add('show');setEngine(
 function loop(now){if(!raceActive)return;const dt=Math.min(.11,(now-lastTime)/1000||.016);lastTime=now;if(!paused)updateRace(dt);updateHud();render();animationId=requestAnimationFrame(loop)}
 function togglePause(){if(!raceActive)return;paused=!paused;pauseOverlay.classList.toggle('show',paused);pauseBtn.textContent=paused?'Resume Race':'Pause Race';setEngine(!paused);if(!paused){lastTime=performance.now();ensureAudio()}}
 function leaveRace(){countdownToken++;raceActive=false;paused=false;cancelAnimationFrame(animationId);startOverlay.classList.remove('show');pauseOverlay.classList.remove('show');setEngine(false);showScreen(setupScreen)}
-function finishRace(){if(!raceActive)return;raceActive=false;paused=false;throttleHeld=false;setEngine(false);cancelAnimationFrame(animationId);const sorted=[...cars].sort((a,b)=>b.z-a.z);const place=player.finishPlace||sorted.indexOf(player)+1,accuracy=Math.round(100*correct/totalGates);
- resultTitle.textContent=place===1?'YOU WIN!':'RACE COMPLETE';placeBadge.textContent=ordinal(place).toUpperCase()+' PLACE';
+function finishRace(){if(!raceActive)return;raceActive=false;paused=false;throttleHeld=false;setEngine(false);cancelAnimationFrame(animationId);const sorted=[...cars].sort((a,b)=>b.z-a.z);const place=window.NR_MULTIPLAYER_RACE?(window.NR_SHARED_PLACE||0):(player.finishPlace||sorted.indexOf(player)+1),accuracy=Math.round(100*correct/totalGates);
+ resultTitle.textContent=place===1?'YOU WIN!':'RACE COMPLETE';placeBadge.textContent=place?ordinal(place).toUpperCase()+' PLACE':'POSITION PENDING';
  resultScreen.dataset.podium=place===1?'gold':place===2?'silver':place===3?'bronze':'finish';
  resultStars.textContent='★'.repeat(accuracy>=90?3:accuracy>=70?2:1)+'☆'.repeat(accuracy>=90?0:accuracy>=70?1:2);
  resultDetails.innerHTML=`<div class="nr-finish-metrics"><div class="nr-finish-metric"><strong>${score.toLocaleString('en-AU')}</strong><span>Score</span></div><div class="nr-finish-metric"><strong>${accuracy}%</strong><span>Accuracy</span></div><div class="nr-finish-metric"><strong>${bestStreak}</strong><span>Best streak</span></div></div><div class="nr-finish-meta">${correct}/${totalGates} correct · ${wrong} missed · ${difficultyOptions[selectedDifficulty].label} (${numberOptions[selectedNumbers].label}) · ${operationOptions[selectedOperation].label} · ${window.NR_MULTIPLAYER_RACE?'Multiplayer':'Single Player'}</div>`;
- showScreen(resultScreen);finishSound(place===1);makeFinishConfetti(place===1?35:18)
+ showScreen(resultScreen);if(place)finishSound(place===1);makeFinishConfetti(place===1?35:place?18:0)
 }
 function moveLane(dir){} // old lane jumping removed; used by new continuous controls only
 function setThrottle(on){throttleHeld=on}
@@ -760,8 +771,10 @@ leftBtn.onpointerdown=()=>{};rightBtn.onpointerdown=()=>{};
 accelBtn.onpointerdown=()=>{};
 pauseBtn.onclick=togglePause;settingsBtn.onclick=leaveRace;resultSettingsBtn.onclick=()=>showScreen(setupScreen);
 startRaceBtn.onclick=setupRace;raceAgainBtn.onclick=setupRace;
-$('numberRacePlay').onclick=()=>{$('numberRaceSpotlight').classList.add('hidden');document.body.classList.remove('nr-intro-open');showScreen(setupScreen)};
-$('nrBackToSpotlight').onclick=()=>{if(raceActive)leaveRace();showScreen(setupScreen);$('numberRaceSpotlight').classList.remove('hidden');document.body.classList.add('nr-intro-open')};
+$('numberRacePlay').onclick=()=>{$('numberRaceSpotlight').classList.add('hidden');document.body.classList.remove('nr-intro-open');showScreen(modeScreen)};
+$('nrBackToSpotlight').onclick=()=>{if(raceActive)leaveRace();showScreen(modeScreen)};
+$('nrBackToSpotlight').textContent='← Choose Race Mode';
+$('nrModeBack').onclick=()=>{$('numberRaceSpotlight').classList.remove('hidden');document.body.classList.add('nr-intro-open');showScreen(modeScreen)};
 renderSetup();
 hydrateIntroCars();
 player=makeCar(0,1,0,52,selectedCar);cars=[player];
@@ -1578,6 +1591,20 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
     for(const v of raceText){const p=project(P(v.x,v.y,v.z));if(!p||p.depth<5||p.depth>220||p.x<-150||p.x>w+150)continue;
       const size=clip(v.size*p.scale*.06,8,v.size+6);c.textAlign='center';c.textBaseline='middle';c.font=`800 ${size}px Fredoka,sans-serif`;c.lineWidth=max(2,size*.16);c.strokeStyle='#21394f';c.strokeText(v.type,p.x,p.y,480);c.fillStyle=v.color;c.fillText(v.type,p.x,p.y,480)
     }
+     // Player names are projected from the actual car positions.
+     if(window.NR_MULTIPLAYER_RACE){
+      for(const racer of cars){
+       if(racer.finished||(cameraMode==='cockpit'&&racer===player)||racer.z<cam.z+2||racer.z>cam.z+130)continue;
+       const at=project(P(trackX(racer.z)+racer.x,trackY(racer.z)+2.5,racer.z));
+       if(!at||at.depth<2||at.x<5||at.x>W-5||at.y<10||at.y>H-10)continue;
+       const name=String(racer.name||'Racer').slice(0,18),font=clip(at.scale*.22,13,20);
+       c.save();c.textAlign='center';c.textBaseline='middle';c.font='800 '+font+'px Fredoka,sans-serif';
+       const ww=clip(c.measureText(name).width+20,62,190),hh=font+10,xx=clip(at.x,ww/2+4,W-ww/2-4),yy=at.y-hh/2;
+       c.fillStyle='rgba(5,31,66,.90)';c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=1.4;
+       c.beginPath();c.roundRect(xx-ww/2,yy-hh/2,ww,hh,8);c.fill();c.stroke();
+       c.fillStyle='#fff';c.fillText(name,xx,yy,ww-11);c.restore();
+      }
+     }
     // Cinematic lateral speed trails and glowing brake/turbo sparks.
     if(player.speed>40||boostTimer>0){
       const a=clip((player.speed-36)/90+(boostTimer>0?.1:0),0,.22);
@@ -1775,6 +1802,8 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
  const getId=x=>document.getElementById(x);
  const spButton=getId('nrSpMode'),mpButton=getId('nrMpMode');
  const entry=getId('nrMpEntry'),lobby=getId('nrMpLobby'),msg=getId('nrMpMessage'),list=getId('nrMpPlayers');
+ const liveBoard=document.createElement('section');liveBoard.id='nrMpLiveLeaderboard';liveBoard.className='nr-mp-board nr-mp-live-board';liveBoard.hidden=true;liveBoard.setAttribute('aria-label','Live race finish order');document.getElementById('canvasWrap').appendChild(liveBoard);
+ const finalBoard=document.createElement('section');finalBoard.id='nrMpFinalLeaderboard';finalBoard.className='nr-mp-board nr-mp-final-board';finalBoard.hidden=true;finalBoard.setAttribute('aria-live','polite');document.getElementById('resultDetails').insertAdjacentElement('afterend',finalBoard);
  const roomTag=document.createElement('div');roomTag.className='nr-mp-race-status';roomTag.hidden=true;
  roomTag.id='nrMpRaceStatus';document.getElementById('canvasWrap').appendChild(roomTag);
  const say=t=>{msg.textContent=t||''};
@@ -1791,7 +1820,20 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   mpButton.setAttribute('aria-pressed',String(next==='multi'));
   say('');
  }
- spButton.onclick=()=>showMode('single');mpButton.onclick=()=>showMode('multi');
+ spButton.onclick=()=>showMode('single');mpButton.onclick=()=>showMode('multi');selector.hidden=true;
+ const modeOptions=getId('nrModeOptions');
+ function selectMultiplayerPath(which){
+  showMode('multi');
+  panel.querySelector('h3').textContent=which==='create'?'Create your race':'Join a race';
+  getId('nrMpCreate').hidden=which!=='create';
+  getId('nrMpCode').hidden=which!=='join';
+  getId('nrMpJoin').hidden=which!=='join';
+  showScreen(setupScreen);
+ }
+ getId('nrModeSingle').onclick=()=>{modeOptions.hidden=true;getId('nrModeMulti').classList.remove('selected');showMode('single');showScreen(setupScreen)};
+ getId('nrModeMulti').onclick=()=>{modeOptions.hidden=false;getId('nrModeMulti').classList.add('selected')};
+ getId('nrModeCreate').onclick=()=>selectMultiplayerPath('create');
+ getId('nrModeJoin').onclick=()=>selectMultiplayerPath('join');
  async function connectFirebase(){
   if(firebase)return;
   if(connecting){while(connecting)await new Promise(r=>setTimeout(r,60));if(firebase)return}
@@ -1923,24 +1965,73 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    `${players.length} of ${MAX} human racers • ${difficultyOptions[lobbyDiff].label} (${difficultyDigitCounts[lobbyDiff]} digit) • ${operationOptions[lobbyOperation].label}. ${host?'Choose the maths settings below, then start when everyone is ready.':'The host chooses the maths settings.'}`:
    room.status==='racing'?'Race starting…':'Race finished';
  }
+ 
+ function fixedRoster(){
+  const snapshot=room?.settings?.raceRoster;
+  const list=Array.isArray(snapshot)&&snapshot.length?snapshot:orderedPlayers(room?.players).map(([uid,p])=>({uid,name:p.name,car:room?.settings?.carAssignments?.[uid]}));
+  return list.filter(p=>p&&typeof p.uid==='string').slice(0,MAX).map(p=>({uid:p.uid,name:String(p.name||'Racer').slice(0,18),car:p.car}));
+ }
+ function sharedFinishers(){
+  const states=room?.states||{};
+  return fixedRoster().map(p=>({...p,finished:states[p.uid]?.finished===true,at:Number(states[p.uid]?.finishedAt)}))
+   .filter(p=>p.finished&&Number.isFinite(p.at)&&p.at>0)
+   .sort((a,b)=>a.at-b.at||a.uid.localeCompare(b.uid));
+ }
+ function trophyElement(position){
+  if(position>3)return null;
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');
+  svg.setAttribute('role','img');svg.setAttribute('aria-label',position===1?'Gold trophy':position===2?'Silver trophy':'Bronze trophy');
+  svg.classList.add('nr-mp-trophy',position===1?'gold':position===2?'silver':'bronze');
+  const shape=document.createElementNS('http://www.w3.org/2000/svg','path');
+  shape.setAttribute('d','M7 3h10v5c0 3.6-1.7 5.8-5 6.4C8.7 13.8 7 11.6 7 8V3ZM7 5H4v2c0 3.2 1.4 4.6 4.8 4.9M17 5h3v2c0 3.2-1.4 4.6-4.8 4.9M12 14v5M8 21h8M9 19h6');
+  shape.setAttribute('stroke','currentColor');shape.setAttribute('stroke-width','2');shape.setAttribute('stroke-linejoin','round');shape.setAttribute('stroke-linecap','round');shape.setAttribute('fill','none');svg.append(shape);return svg;
+ }
+ function populateLeaderboard(container,finishers,roster){
+  container.textContent='';
+  const header=document.createElement('h3');header.textContent='🏁 Finishing Order';container.append(header);
+  for(let index=0;index<MAX;index++){
+   const winner=finishers[index],row=document.createElement('div');
+   row.className='nr-mp-rank'+(winner?.uid===user?.uid?' mine':'');
+   const place=document.createElement('span');place.className='nr-mp-place';
+   const icon=trophyElement(index+1);if(icon)place.append(icon);
+   const pos=document.createElement('span');pos.textContent=ordinal(index+1);place.append(pos);
+   const name=document.createElement('span');name.className='nr-mp-rank-name';name.textContent=winner?.name||(index<roster.length?'Waiting for finish…':'—');
+   const status=document.createElement('span');status.className='nr-mp-rank-status';status.textContent=winner?'✓':'';
+   row.append(place,name,status);container.append(row);
+  }
+ }
+ function renderStandings(){
+  if(!joined||!started||!room)return;
+  const roster=fixedRoster(),finishers=sharedFinishers();
+  liveBoard.hidden=false;finalBoard.hidden=false;
+  populateLeaderboard(liveBoard,finishers,roster);
+  populateLeaderboard(finalBoard,finishers,roster);
+  const ix=finishers.findIndex(p=>p.uid===user?.uid),position=ix<0?0:ix+1;
+  window.NR_SHARED_PLACE=position;
+  if(resultScreen.classList.contains('active')){
+   resultTitle.textContent=position===1?'YOU WIN!':'RACE COMPLETE';
+   placeBadge.textContent=position?ordinal(position).toUpperCase()+' PLACE':'POSITION PENDING';
+   resultScreen.dataset.podium=position===1?'gold':position===2?'silver':position===3?'bronze':'finish';
+  }
+ }
  function remoteCarsUpdate(){
   if(!joined||!started||!room||!player)return;
-  const participants=orderedPlayers(room.players).filter(([uid])=>uid!==user.uid).slice(0,MAX-1);
+  const roster=fixedRoster();const participants=roster.filter(p=>p.uid!==user.uid).slice(0,MAX-1).map(p=>[p.uid,p]);
   const claims=room.settings?.carAssignments||{};
-  const fullRoster=orderedPlayers(room.players).map(([uid])=>uid);
+  const fullRoster=roster.map(p=>p.uid);
   const existing=new Map(cars.filter(c=>c.remote).map(c=>[c.remoteUid,c]));
   const fresh=[player];
   for(let i=0;i<participants.length;i++){
    const [uid,entry]=participants[i],st=room.states&&room.states[uid];
    let c=existing.get(uid);
    if(!c){const slot=fullRoster.indexOf(uid);c=makeCar(i+1,slot%3,st?.z??Math.floor(slot/3)*6.8,56,claims[uid]||'rocket');c.remote=true;c.remoteUid=uid;c.speed=0;c.x=st?.x??laneCenters[slot%3];c.z=st?.z??Math.floor(slot/3)*6.8}
-   c.asset=carFiles.includes(claims[uid])?claims[uid]:'rocket';
+   c.asset=carFiles.includes(claims[uid])?claims[uid]:'rocket';c.name=String(entry.name||'Racer').slice(0,18);
    if(st&&Number.isFinite(st.x)&&Number.isFinite(st.z)){
     const dx=st.x-c.x,dz=st.z-c.z;
     c.x+=dx*.3;c.z+=dz*.3;
     c.speed=Number(st.speed)||0;c.steer=Number(st.steer)||0;
     c.yawRel=Number(st.yawRel)||0;c.wheelSpin=(c.wheelSpin||0)+c.speed*.016/.45;
-    if(st.finished){c.z=raceLength;c.finished=true}
+    if(st.finished){c.z=raceLength;c.finished=true}else c.finished=false
    }
    fresh.push(c)
   }
@@ -1962,7 +2053,9 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   const slot=orderedPlayers(room.players).findIndex(([uid])=>uid===user.uid);
   player.x=laneCenters[Math.max(0,slot)%3];player.lane=Math.max(0,slot)%3;
   player.z=Math.floor(Math.max(0,slot)/3)*6.8;
-  remoteCarsUpdate();
+  player.name=fixedRoster().find(p=>p.uid===user.uid)?.name||nickname()||'Racer';
+  firebase.update(firebase.ref(db,roomPath()+'/states/'+user.uid),{x:player.x,z:player.z,finished:false,finishedAt:null}).catch(()=>{});
+  remoteCarsUpdate();renderStandings();
   roomTag.hidden=false;roomTag.textContent='MULTIPLAYER  •  '+code;
   pauseBtn.disabled=true;
   say('');
@@ -1976,7 +2069,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    }
    room=snap.val();
    if(!room.players||!room.players[user.uid]){if(joined){say('You are no longer in the room.');releaseRoom(false)}return}
-   syncLobby();remoteCarsUpdate();
+   syncLobby();remoteCarsUpdate();renderStandings();
    if(host&&room.status==='lobby')reconcileAssignments();
    if(room.status==='racing')beginNetworkRace().catch(e=>say(e.message));
   },e=>say('Unable to read room: '+e.message));
@@ -2039,7 +2132,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   try{
    const questions=Array.from({length:totalGates},()=>makeQuestion());
    await firebase.update(firebase.ref(db,roomPath()+'/settings'),{
-    numbers:difficultyDigitCounts[selectedDifficulty],operation:selectedOperation,difficulty:selectedDifficulty,questions});
+    numbers:difficultyDigitCounts[selectedDifficulty],operation:selectedOperation,difficulty:selectedDifficulty,questions,raceRoster:players.map(([uid,p])=>({uid,name:String(p.name||'Racer').slice(0,18),car:claims[uid]}))});
    await firebase.set(firebase.ref(db,roomPath()+'/startAt'),Date.now());
    await firebase.set(firebase.ref(db,roomPath()+'/status'),'racing');
   }catch(e){say('Could not start: '+e.message)}
@@ -2054,13 +2147,13 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    try{if(owner){await firebase.remove(firebase.ref(db,ROOT+'/'+current))}
        else await firebase.remove(firebase.ref(db,ROOT+'/'+current+'/players/'+user.uid))}catch(e){}
   }
-  entry.hidden=false;lobby.hidden=true;roomTag.hidden=true;
+  entry.hidden=false;lobby.hidden=true;roomTag.hidden=true;liveBoard.hidden=true;finalBoard.hidden=true;window.NR_SHARED_PLACE=0;
   document.body.classList.remove('nr-mp-racing','nr-mp-guest');
   pauseBtn.disabled=false;window.nrQuestions=null;
  }
  async function leaveRoom(){
   if(raceActive){leaveRace();}
-  await releaseRoom();say('Left the race room.');
+  await releaseRoom();showScreen(modeScreen);say('Left the race room.');
  }
  getId('nrMpCreate').onclick=createRoom;getId('nrMpJoin').onclick=joinRoom;
  getId('nrMpReady').onclick=readyToggle;getId('nrMpStart').onclick=startMultiplayer;
@@ -2078,19 +2171,19 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   if(joined&&started&&raceActive&&room&&room.status==='racing'&&now-lastTx>190){
    lastTx=now;
    const local={x:Math.round(player.x*1000)/1000,z:Math.round(player.z*100)/100,speed:Math.round(player.speed*100)/100,
-    updatedAt:Date.now(),steer:player.steer||0,yawRel:player.yawRel||0,score,correct,finished:false};
-   firebase.set(firebase.ref(db,roomPath()+'/states/'+user.uid),local).catch(()=>{});
+    updatedAt:firebase.serverTimestamp(),steer:player.steer||0,yawRel:player.yawRel||0,score,correct};
+   firebase.update(firebase.ref(db,roomPath()+'/states/'+user.uid),local).catch(()=>{});
   }
   basicLoop(now);
  };
  const basicFinish=finishRace;
  finishRace=function(){
   if(joined&&started&&room&&room.status==='racing'&&player){
-   firebase.set(firebase.ref(db,roomPath()+'/states/'+user.uid),{
-    x:player.x,z:raceLength,speed:0,updatedAt:Date.now(),score,correct,finished:true
-   }).catch(()=>{});
+   firebase.update(firebase.ref(db,roomPath()+'/states/'+user.uid),{
+    x:player.x,z:raceLength,speed:0,updatedAt:firebase.serverTimestamp(),score,correct,finished:true,finishedAt:firebase.serverTimestamp()
+   }).catch(e=>say('Could not record finish: '+e.message));
   }
-  basicFinish();
+  basicFinish();if(joined&&started)renderStandings();
  };
  const originalSettingsClick=settingsBtn.onclick;
  settingsBtn.onclick=()=>{if(joined){leaveRoom()}else originalSettingsClick?.()};
@@ -2100,7 +2193,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
  resultSettingsBtn.onclick=()=>{if(joined){leaveRoom()}else originalResultSettings?.()};
  // Single-player car selection is intentionally separate from the multiplayer
  // lobby. Multiplayer cars are reserved through host-controlled transactions.
- window.NumberRaceMultiplayer={getStatus:()=>({mode,joined,code,host,players:Object.keys(room?.players||{}).length,status:room?.status||'idle',cars:room?.settings?.carAssignments||{}}),_testAssignments:calculateAssignments};
+ window.NumberRaceMultiplayer={getStatus:()=>({mode,joined,code,host,players:Object.keys(room?.players||{}).length,status:room?.status||'idle',cars:room?.settings?.carAssignments||{},finishOrder:sharedFinishers().map(p=>p.name)}),_testAssignments:calculateAssignments,_testStandings:(roster,states)=>roster.map(p=>({...p,at:Number(states[p.uid]?.finishedAt),finished:states[p.uid]?.finished===true})).filter(p=>p.finished&&Number.isFinite(p.at)&&p.at>0).sort((a,b)=>a.at-b.at||a.uid.localeCompare(b.uid))};
 })();
 
 </script>
