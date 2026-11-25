@@ -2185,7 +2185,13 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    if(!room.players||!room.players[user.uid]){if(joined){say('You are no longer in the room.');releaseRoom(false)}return}
    syncLobby();remoteCarsUpdate();renderStandings();
    if(host&&room.status==='lobby')reconcileAssignments();
-   if(room.status==='racing')beginNetworkRace().catch(e=>say(e.message));
+   if(room.status==='preparing'||room.status==='racing'){
+    prepareNetworkRace().catch(e=>say(e.message));
+    if(room.status==='preparing'){
+     showPreparationProgress();
+     if(host)maybeScheduleSynchronizedStart().catch(e=>say('Start failed: '+e.message));
+    }else if(preparedRaceId===room.settings?.raceId)armSynchronizedCountdown();
+   }
   },e=>say('Unable to read room: '+e.message));
  }
  async function enterRoom(value,isHost){
@@ -2239,15 +2245,22 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
    if(players.length<2||players.length>MAX||!unique){say('At least two players must join, and each must have a unique car colour.');return}
   try{
    const questions=Array.from({length:totalGates},()=>makeQuestion());
-   await firebase.update(firebase.ref(db,roomPath()+'/settings'),{
-    numbers:difficultyDigitCounts[selectedDifficulty],operation:selectedOperation,difficulty:selectedDifficulty,questions,raceRoster:players.map(([uid,p])=>({uid,name:String(p.name||'Racer').slice(0,18),car:claims[uid]}))});
-   await firebase.set(firebase.ref(db,roomPath()+'/startAt'),Date.now());
-   await firebase.set(firebase.ref(db,roomPath()+'/status'),'racing');
+   // The host begins loading; no device may accelerate yet.
+   const raceId=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
+   const settings={...(room.settings||{}),numbers:difficultyDigitCounts[selectedDifficulty],
+    operation:selectedOperation,difficulty:selectedDifficulty,questions,raceId,
+    raceRoster:players.map(([uid,p])=>({uid,name:String(p.name||'Racer').slice(0,18),car:claims[uid]}))};
+   await firebase.update(firebase.ref(db,roomPath()),{settings,status:'preparing',startAt:null});
+   say('Waiting for all computers to load the track…');
   }catch(e){say('Could not start: '+e.message)}
  }
  async function releaseRoom(removeSelf=true){
   const current=code,owner=host;
   joined=false;started=false;host=false;room=null;code='';
+  preparingRaceId='';preparedRaceId='';schedulingStart=false;syncPhase='';
+  if(syncFrame){cancelAnimationFrame(syncFrame);syncFrame=0;}
+  countdownToken++;raceActive=false;cancelAnimationFrame(animationId);
+  startOverlay.classList.remove('show');setLamp('none');setEngine(false);
   window.NR_MULTIPLAYER_RACE=false;lastAssignmentSignature='';assignmentBusy=false;assignmentQueued=false;
   if(roomUnsub){roomUnsub();roomUnsub=null}
   if(disconnectHandle){try{await disconnectHandle.cancel()}catch(e){}disconnectHandle=null}
@@ -2301,7 +2314,7 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
  resultSettingsBtn.onclick=()=>{if(joined){leaveRoom()}else originalResultSettings?.()};
  // Single-player car selection is intentionally separate from the multiplayer
  // lobby. Multiplayer cars are reserved through host-controlled transactions.
- window.NumberRaceMultiplayer={getStatus:()=>({mode,joined,code,host,players:Object.keys(room?.players||{}).length,status:room?.status||'idle',cars:room?.settings?.carAssignments||{},finishOrder:sharedFinishers().map(p=>p.name)}),_testAssignments:calculateAssignments,_testStandings:(roster,states)=>roster.map(p=>({...p,at:Number(states[p.uid]?.finishedAt),finished:states[p.uid]?.finished===true})).filter(p=>p.finished&&Number.isFinite(p.at)&&p.at>0).sort((a,b)=>a.at-b.at||a.uid.localeCompare(b.uid))};
+ window.NumberRaceMultiplayer={getStatus:()=>({mode,joined,code,host,players:Object.keys(room?.players||{}).length,status:room?.status||'idle',cars:room?.settings?.carAssignments||{},finishOrder:sharedFinishers().map(p=>p.name),loaded:room?.settings?.raceRoster?.filter(p=>room.players?.[p.uid]?.loadedFor===room.settings?.raceId).length||0,scheduledStart:room?.startAt||null}),_testPrepared:allRacersPrepared,_testAssignments:calculateAssignments,_testStandings:(roster,states)=>roster.map(p=>({...p,at:Number(states[p.uid]?.finishedAt),finished:states[p.uid]?.finished===true})).filter(p=>p.finished&&Number.isFinite(p.at)&&p.at>0).sort((a,b)=>a.at-b.at||a.uid.localeCompare(b.uid))};
 })();
 
 </script>
