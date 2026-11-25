@@ -2084,28 +2084,95 @@ player=makeCar(0,1,0,52,selectedCar);cars=[player];
   }
   cars=fresh;updateHud();
  }
- async function beginNetworkRace(){
-  if(started||!joined||!room||room.status!=='racing')return;
-  started=true;
-  if(room.settings){
+
+ const sharedServerNow=()=>Date.now()+clockOffsetMs;
+ function allRacersPrepared(data){
+  const roster=data?.settings?.raceRoster,raceId=data?.settings?.raceId;
+  return !!raceId&&Array.isArray(roster)&&roster.length>=2&&roster.length<=MAX
+    &&roster.every(p=>data?.players?.[p.uid]?.loadedFor===raceId);
+ }
+ function showPreparationProgress(){
+  if(!room||raceActive)return;
+  const roster=room.settings?.raceRoster||[];
+  const count=roster.filter(p=>room.players?.[p.uid]?.loadedFor===room.settings?.raceId).length;
+  startOverlay.classList.add('show');startLabel.classList.remove('go');
+  startLabel.textContent=count+' / '+roster.length+' READY';setLamp('none');
+  roomTag.hidden=false;roomTag.textContent='LOADING RACE • '+count+'/'+roster.length+' RACERS READY';
+ }
+ async function prepareNetworkRace(){
+  if(!joined||!room||!['preparing','racing'].includes(room.status))return;
+  const raceId=room.settings?.raceId;
+  if(!raceId||preparingRaceId===raceId||preparedRaceId===raceId)return;
+  preparingRaceId=raceId;
+  try{
    setRaceDifficulty(room.settings.difficulty);
    selectedOperation=operationOptions[room.settings.operation]?room.settings.operation:'mixed';
+   window.nrQuestions=room.settings.questions;
+   selectedCar=room.settings.carAssignments?.[user.uid]||selectedCar;
+   window.NR_MULTIPLAYER_RACE=true;document.body.classList.add('nr-mp-racing');
+   // Build the track before reporting this computer loaded.
+   startRaceOriginal();
+   if(!player)throw Error('Race car failed to initialize');
+   const roster=fixedRoster(),slot=Math.max(0,roster.findIndex(p=>p.uid===user.uid));
+   player.x=laneCenters[slot%3];player.lane=slot%3;
+   player.z=Math.floor(slot/3)*6.8;
+   player.name=roster.find(p=>p.uid===user.uid)?.name||nickname()||'Racer';
+   started=true;lastTx=0;
+   remoteCarsUpdate();renderStandings();roomTag.hidden=false;pauseBtn.disabled=true;
+   showPreparationProgress();
+   await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+   if(!joined||room?.settings?.raceId!==raceId)return;
+   await firebase.update(firebase.ref(db,roomPath()+'/states/'+user.uid),
+     {x:player.x,z:player.z,speed:0,finished:false,finishedAt:null});
+   await firebase.update(firebase.ref(db,roomPath()+'/players/'+user.uid),
+     {loadedFor:raceId,loadedAt:firebase.serverTimestamp()});
+   preparedRaceId=raceId;
+   if(room?.status==='racing')armSynchronizedCountdown();
+   else showPreparationProgress();
+  }catch(err){
+   preparingRaceId='';started=false;
+   say('This computer could not load the race: '+err.message);
   }
-  window.nrQuestions=room.settings&&room.settings.questions;
-  selectedCar=(room.settings?.carAssignments||{})[user.uid]||selectedCar;
-  // The original setup respects this flag *before* its first draw; no AI cars spawn.
-  window.NR_MULTIPLAYER_RACE=true;
-  document.body.classList.add('nr-mp-racing');
-  startRaceOriginal();
-  const slot=orderedPlayers(room.players).findIndex(([uid])=>uid===user.uid);
-  player.x=laneCenters[Math.max(0,slot)%3];player.lane=Math.max(0,slot)%3;
-  player.z=Math.floor(Math.max(0,slot)/3)*6.8;
-  player.name=fixedRoster().find(p=>p.uid===user.uid)?.name||nickname()||'Racer';
-  firebase.update(firebase.ref(db,roomPath()+'/states/'+user.uid),{x:player.x,z:player.z,finished:false,finishedAt:null}).catch(()=>{});
-  remoteCarsUpdate();renderStandings();
-  roomTag.hidden=false;roomTag.textContent='MULTIPLAYER  •  '+code;
-  pauseBtn.disabled=true;
-  say('');
+ }
+ async function maybeScheduleSynchronizedStart(){
+  if(!host||!joined||!clockSynced||schedulingStart||room?.status!=='preparing'
+    ||!allRacersPrepared(room)||room.startAt)return;
+  schedulingStart=true;
+  try{
+   // Every enrolled computer is loaded. GO is 6.5 seconds ahead
+   // according to the Firebase-adjusted shared clock.
+   const startTime=Math.ceil(sharedServerNow()+6500);
+   await firebase.update(firebase.ref(db,roomPath()),{startAt:startTime,status:'racing'});
+  }finally{schedulingStart=false;}
+ }
+ function armSynchronizedCountdown(){
+  if(!joined||!started||preparedRaceId!==room?.settings?.raceId||room?.status!=='racing'
+    ||!Number.isFinite(Number(room.startAt)))return;
+  if(syncFrame||raceActive)return;
+  const raceId=preparedRaceId;syncPhase='';
+  const tick=()=>{
+   syncFrame=0;
+   if(!joined||!started||room?.settings?.raceId!==raceId||room.status!=='racing'||raceActive)return;
+   if(!clockSynced){syncFrame=requestAnimationFrame(tick);return;}
+   const remaining=Number(room.startAt)-sharedServerNow();
+   if(remaining<=0){
+    startOverlay.classList.remove('show');startLabel.classList.remove('go');setLamp('none');
+    roomTag.textContent='MULTIPLAYER • '+code;
+    raceActive=true;paused=false;player.speed=Math.max(8,player.speed);
+    lastTime=performance.now();setEngine(true);animationId=requestAnimationFrame(loop);
+    return;
+   }
+   startOverlay.classList.add('show');
+   const phase=remaining>3000?'WAIT':String(Math.ceil(remaining/1000));
+   if(phase!==syncPhase){
+    syncPhase=phase;startLabel.textContent=phase==='WAIT'?'GET READY':phase;
+    startLabel.classList.remove('go');
+    setLamp(phase==='WAIT'||phase==='3'?'red':phase==='2'?'yellow':'green');
+    if(phase!=='WAIT'){countdownSound(3-Number(phase));revEngine(3-Number(phase));}
+   }
+   syncFrame=requestAnimationFrame(tick);
+  };
+  syncFrame=requestAnimationFrame(tick);
  }
  function subscribe(){
   if(roomUnsub)roomUnsub();
